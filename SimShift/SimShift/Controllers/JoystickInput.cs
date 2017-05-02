@@ -38,11 +38,15 @@ namespace SimShift.Controllers
 
             _axisState = new double[6];
             for (int i = 0; i < 6; i++)
+            {
                 _axisState[i] = 0;
+            }
 
             _buttonState = new bool[32];
             for (int i = 0; i < 32; i++)
+            {
                 _buttonState[i] =false;
+            }
 
             _joyInfo.dwSize = Marshal.SizeOf(_joyInfo);
             _joyInfo.dwFlags = JoystickFlags.JOY_RETURNALL;

@@ -73,9 +73,18 @@ namespace SimShift.Dialogs
 
         private void _mUpdateJoysticks_Tick(object sender, EventArgs e)
         {
-            foreach (var c in controlsIn) c.Tick();
-            foreach (var c in controlsOut) c.Tick();
-            foreach (var c in joysticks) c.Tick();
+            foreach (var c in controlsIn)
+            {
+                c.Tick();
+            }
+            foreach (var c in controlsOut)
+            {
+                c.Tick();
+            }
+            foreach (var c in joysticks)
+            {
+                c.Tick();
+            }
         }
         int buttonId = 0;
         private void btDoCal_Click(object sender, EventArgs e)

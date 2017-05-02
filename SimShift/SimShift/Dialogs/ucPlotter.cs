@@ -39,7 +39,10 @@ namespace SimShift.Dialogs
             valueScale.Add(scale[k]/gridsVertical*2);
             }
             var emptyList = new List<double>();
-            for (int k = 0; k < ch; k++) emptyList.Add(0);
+            for (int k = 0; k < ch; k++)
+            {
+                emptyList.Add(0);
+            }
             for (int i = 0; i < 1000;i++)
             {
                     Add(emptyList);
@@ -58,7 +61,9 @@ namespace SimShift.Dialogs
             {
                 values[k].Add(v[k]);
                 while (values[k].Count > samplesPerDiv*gridsHorizontal)
+                {
                     values[k].RemoveAt(0);
+                }
             }
             this.Invalidate();
         }

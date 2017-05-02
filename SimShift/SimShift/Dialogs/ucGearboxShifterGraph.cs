@@ -56,9 +56,13 @@ namespace SimShift.Dialogs
                                };
 
             for (int x = 0; x <= 100; x += 10)
+            {
                 g.DrawLine(gridPen, translateX(x), translateY(0), translateX(x), translateY(100));
+            }
             for (int y = 0; y <= 100; y += 10)
+            {
                 g.DrawLine(gridPen, translateX(0), translateY(y), translateX(100), translateY(y));
+            }
 
             var index = 0;
             foreach (var load in simulatedLoads)

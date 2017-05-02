@@ -102,7 +102,9 @@ namespace SimShift.Services
                 axisValues = axisValues.ToDictionary(c => c.Key, k => obj.Requires(k.Key) ? obj.GetAxis(k.Key, k.Value) : k.Value);
 
                 foreach(var kvp in axisValues)
+                {
                     axisProgression[kvp.Key][obj.GetType().Name] = kvp.Value;
+                }
 
                 obj.TickControls();
             }

@@ -94,7 +94,9 @@ namespace SimShift.Dialogs
 
             string headline = "RPM";
             for (int k = 0; k <= 10; k++)
+            {
                 headline = headline +  ",Ratio " + k;
+            }
             //",Fuel " + k + ",Power " + k +
             headline = headline + "\r\n";
 
@@ -147,7 +149,9 @@ namespace SimShift.Dialogs
                 int sel = shifterTable.SelectedCells.Count;
                 List<double> loads = new List<double>();
                 for (int i = 0; i < sel; i++)
+                {
                     loads.Add(double.Parse(shifterTable.SelectedCells[i].Value.ToString()));
+                }
                 sim.Update(loads);
             }
             catch(Exception aad)
@@ -173,7 +177,9 @@ namespace SimShift.Dialogs
             List<Color> gearColors = new List<Color>();
             gearColors.Add(Color.White);
             for (int gear = 0; gear < activeConfiguration.Drivetrain.Gears; gear++)
+            {
                 gearColors.Add(HSL2RGB(gear / 1.0 / activeConfiguration.Drivetrain.Gears, 0.5, 0.5));
+            }
 
             var spdBins = 0;
             var spdBinsData = new List<double>();
@@ -192,11 +198,15 @@ namespace SimShift.Dialogs
                 var data = new object[spdBins + 1];
                 data[0] = Math.Round(load*100).ToString();
                 for(int i =0 ; i < spdBins;i++)
+                {
                     data[i + 1] = activeConfiguration.Lookup(spdBinsData[i], load).Gear;
+                }
                 shifterTable.Rows.Add(data);
             }
             for (int col = 0; col < shifterTable.Columns.Count; col++)
+            {
                 shifterTable.Columns[col].Width = 33;
+            }
             for (int row = 0; row < shifterTable.Rows.Count; row++)
             {
                 for(int spd = 1; spd <= spdBins; spd++)

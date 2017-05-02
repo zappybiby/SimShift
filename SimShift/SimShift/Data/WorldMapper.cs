@@ -99,7 +99,9 @@ namespace SimShift.Data
             {
                 export.AppendLine(string.Format("[Cell_{0}_{1}_]", c.X, c.Z));
                 foreach (var p in c.points)
+                {
                     export.AppendLine(string.Format("{0},{1},{2}", p.x, p.y, p.z));
+                }
             }
             
             File.WriteAllText("map.ini", export.ToString());

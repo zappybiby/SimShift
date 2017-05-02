@@ -16,7 +16,10 @@ namespace SimShift.MapTool
                     bool Found = true;
                     for (byte* hInc = hNext, nInc = N, nEnd = N + Needle.LongLength;
                         Found && nInc < nEnd;
-                        Found = *nInc == *hInc, nInc++, hInc++) ;
+                        Found = *nInc == *hInc, nInc++, hInc++)
+                    {
+                        ;
+                    }
                     if (Found) Indexes.Add(i);
                 }
                 return Indexes;

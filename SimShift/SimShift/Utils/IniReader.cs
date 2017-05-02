@@ -109,8 +109,9 @@ namespace SimShift.Utils
                 var obj = new IniValueObject(_group, key, value);
 
                 foreach (var handler in _handlers)
+                {
                     handler(obj);
-
+                }
             }
         }
 

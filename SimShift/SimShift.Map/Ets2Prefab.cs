@@ -233,7 +233,9 @@ namespace SimShift.MapTool
 
                         var res = IterateCurves(l, c, forwardDirection);
                         foreach (var r in res)
+                        {
                             yield return r;
+                        }
                     }
                 }
 
