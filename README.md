@@ -5,7 +5,8 @@ Driver utilities for various open roaming simulators, like ETS2.
 
 Add Binaries folder to Reference Paths
 
-ETS2SDK: Obtain from https://github.com/nlhans/ets2-map/tree/master/Binaries
+~~ETS2SDK: Obtain from https://github.com/nlhans/ets2-map/tree/master/Binaries~~
+- Added this to master
 Place in Binaries Folder
 
 
