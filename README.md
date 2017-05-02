@@ -3,14 +3,8 @@ SimShift
 
 Driver utilities for various open roaming simulators, like ETS2.
 
-Add Binaries folder to Reference Paths
-
-~~ETS2SDK: Obtain from https://github.com/nlhans/ets2-map/tree/master/Binaries~~
-- Added this to master
-Place in Binaries Folder
-
-
 SCS Extractor: http://download.eurotrucksimulator2.com/scs_extractor.zip
+Guide here: http://forum.scssoft.com/viewtopic.php?f=172&t=190685
 
 Raw map information. This is located in base.scs at base/map/europe/ (or within a mod). Use the SCS extractor to extract base.scs and extract the map data. 
 - Put all *.base files in SimShift\bin\Debug\europe
