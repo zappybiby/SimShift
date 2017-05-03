@@ -174,7 +174,9 @@ namespace SimTelemetry.Domain.Memory
             var intArray = new int[inputLength/4];
 
             for (int i = 0; i < intArray.Length; i ++)
+            {
                 intArray[i] = BitConverter.ToInt32(arg1, arg2+ i*4);
+            }
 
             return intArray;
         }

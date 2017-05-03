@@ -88,7 +88,9 @@ namespace SimShift.Dialogs.Tesla
 
             powerHistory.Add((float)kwPowerNow);
             while (powerHistory.Count > 8)
+            {
                 powerHistory.RemoveAt(0);
+            }
 
             Power = (int) (Power*0.7f+0.3f*powerHistory.Max());// peak detect
 

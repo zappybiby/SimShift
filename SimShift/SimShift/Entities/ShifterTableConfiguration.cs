@@ -465,12 +465,16 @@ namespace SimShift.Entities
                     do
                     {
                         while (endI < speeds.Count-1 && tableGear[speeds[endI]][load] == g)
+                        {
                             endI++;
+                        }
                         g++;
                     } while (endI - startI < minimum && g < Drivetrain.Gears);
 
                     for (int j = startI; j <= endI; j++)
+                    {
                         tableGear[speeds[j]][load] = g-1;
+                    }
 
                     i = endI;
                 }

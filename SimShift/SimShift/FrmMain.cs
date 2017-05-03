@@ -346,7 +346,9 @@ namespace SimShift
 
             lbProfiles.Items.Clear();
             foreach (var profile in Main.CarProfile.Loaded)
+            {
                 lbProfiles.Items.Add(profile.Name);
+            }
             if (!string.IsNullOrEmpty(Main.CarProfile.Active))
                 lbProfiles.SelectedItem = Main.CarProfile.Active;
 
@@ -432,7 +434,10 @@ namespace SimShift
             }
 
             cbCars.Items.Clear();
-            foreach (var c in myCars) cbCars.Items.Add(c);
+            foreach (var c in myCars)
+            {
+                cbCars.Items.Add(c);
+            }
         }
 
 

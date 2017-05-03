@@ -98,8 +98,14 @@ namespace SimShift.Entities
         {
             var obj = new List<IniValueObject>();
 
-            foreach (var l in Loaded) obj.Add(new IniValueObject(AcceptsConfigs, "Load", l.Name));
-            foreach (var l in Unloaded) obj.Add(new IniValueObject(AcceptsConfigs, "Load", l));
+            foreach (var l in Loaded)
+            {
+                obj.Add(new IniValueObject(AcceptsConfigs, "Load", l.Name));
+            }
+            foreach (var l in Unloaded)
+            {
+                obj.Add(new IniValueObject(AcceptsConfigs, "Load", l));
+            }
 
             return obj;
         }

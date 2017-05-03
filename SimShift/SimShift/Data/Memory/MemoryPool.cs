@@ -175,7 +175,9 @@ namespace SimTelemetry.Domain.Memory
 
             // Refresh pointers too
             foreach (var ptr in Pointers)
+            {
                 ptr.Refresh(Memory);
+            }
 
             // Refresh this memory block.
             if (Size > 0)
@@ -215,18 +217,27 @@ namespace SimTelemetry.Domain.Memory
 
             // Refresh underlying fields.
             foreach (var field in Fields)
+            {
                 field.Value.Refresh();
+            }
 
             foreach (var pool in Pools.Values)
+            {
                 pool.Refresh();
-
+            }
         }
 
         public void SetProvider(MemoryProvider provider)
         {
             Memory = provider;
-            foreach (var field in _fields) field.Value.SetProvider(provider);
-            foreach (var pool in _pools) pool.Value.SetProvider(provider);
+            foreach (var field in _fields)
+            {
+                field.Value.SetProvider(provider);
+            }
+            foreach (var pool in _pools)
+            {
+                pool.Value.SetProvider(provider);
+            }
         }
 
         public void SetPool(MemoryPool pool)
@@ -397,10 +408,14 @@ namespace SimTelemetry.Domain.Memory
         protected void CloneContents(MemoryPool target)
         {
             foreach (var pool in Pools)
+            {
                 target.Add(pool.Value.Clone(pool.Key, target, pool.Value.Offset, pool.Value.Size));
+            }
 
             foreach (var field in Fields)
+            {
                 target.Add((IMemoryObject)field.Value.Clone());
+            }
         }
 
     }

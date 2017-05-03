@@ -32,7 +32,9 @@ namespace SimTelemetry.Domain.Memory
             var result = Memory.Scanner.Scan<uint>(MemoryRegionType.EXECUTE, Signature);
 
             foreach (var ptr in Pointers)
+            {
                 ptr.Refresh(Memory);
+            }
 
             // Search the address and offset.);
             switch (AddressType)
