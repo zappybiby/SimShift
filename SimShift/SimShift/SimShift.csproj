@@ -21,8 +21,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants>DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -302,12 +301,56 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Resources\AdaptiveCruiseControl.pdn" />
+    <None Include="Resources\AdaptiveCruiseControlOff.pdn" />
+    <None Include="Resources\AdaptiveCruiseControlOn.pdn" />
+    <None Include="Resources\CruiseControlIcon.pdn" />
+    <None Include="Resources\CruiseOff.pdn" />
+    <None Include="Resources\CruiseOn.pdn" />
+    <None Include="Resources\CuteCar.pdn" />
+    <None Include="Resources\LUT1.19-cities.csv" />
+    <None Include="Resources\LUT1.19-companies.csv" />
+    <None Include="Resources\LUT1.19-prefab.csv" />
+    <None Include="Resources\LUT1.19-prefab.sii" />
+    <None Include="Resources\LUT1.19-roadlook.sii" />
+    <None Include="Resources\LUT1.19-roads.csv" />
+    <None Include="Resources\prefabs tmp.csv" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SimShift.Map\SimShift.MapTool.csproj">
       <Project>{bfc2fb74-143a-4278-b7f3-943f60803345}</Project>
       <Name>SimShift.MapTool</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AdaptiveCruiseControl.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AdaptiveCruiseControlOff.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AdaptiveCruiseControlOn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Alert.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CruiseControlIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CruiseOff.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CruiseOn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Needle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Needle_150px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\tractioncontrol.wav" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
