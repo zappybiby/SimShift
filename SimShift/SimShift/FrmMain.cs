@@ -28,16 +28,22 @@ namespace SimShift
 
         public FrmMain()
         {
-            var map = "europe.ets2";
-            var universalFolder = Directory.Exists(@"E:\map\" + map + "\\")
-                ? @"E:\map\" + map + "\\"
-                : Directory.Exists(@"E:\Games\Steam\steamapps\common\Euro Truck Simulator 2\base\map")
-                    ? @"E:\Games\Steam\steamapps\common\Euro Truck Simulator 2\base\map\" + map + "\\"
-                    : @"./europe/";
+            var map = "europe";
+          //var universalFolder = Directory.Exists(@"E:\map\" + map + "\\")
+          //    ? @"E:\map\" + map + "\\"
+          //    : Directory.Exists(@"E:\Games\Steam\steamapps\common\Euro Truck Simulator 2\base\map")
+          //       ? @"E:\Games\Steam\steamapps\common\Euro Truck Simulator 2\base\map\" + map + "\\"
+          //       : @"./europe/";
+            var universalFolder = Directory.Exists(@"D:\steam\steamapps\common\Euro Truck Simulator 2\base\map")
+                 ? @"D:\steam\steamapps\common\Euro Truck Simulator 2\base\map\" + map + "\\"
+                 : @"./europe/";
 
-            var prefabs = @"E:\Mods\ETS2\data 1.19\base\prefab\";
+            // PREFAB FOLDER HERE
+            var prefabs = @"D:\steam\steamapps\common\Euro Truck Simulator 2\base\prefab";
+            
+                                                               // LUT FOLDER HERE
+            Ets2Map = new Ets2Mapper(universalFolder, prefabs, @"C:\Users\brian\Desktop\SimShift\Resources");
 
-            Ets2Map = new Ets2Mapper(universalFolder, prefabs, @"C:\Projects\Software\SimShift\Resources\LUT1.19");
             Ets2Map.Parse();
             Main.SetMap(Ets2Map);
 
