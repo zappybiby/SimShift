@@ -42,7 +42,7 @@ namespace SimShift
             var prefabs = @"D:\steam\steamapps\common\Euro Truck Simulator 2\base\prefab";
             
                                                                // LUT FOLDER HERE
-            Ets2Map = new Ets2Mapper(universalFolder, prefabs, @"C:\Users\brian\Desktop\SimShift\Resources");
+            Ets2Map = new Ets2Mapper(universalFolder, prefabs, @"C:\Users\brian\Desktop\SimShift\\Resources\LUT1.19");
 
             Ets2Map.Parse();
             Main.SetMap(Ets2Map);
