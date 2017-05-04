@@ -5,6 +5,8 @@ Driver utilities for various open roaming simulators, like ETS2.
 
 ## Windows Installation
 
+## Place SimShift folder in ETS2 Main Folder
+
 ## Reverting to version 1.19
 - Right now we are trying to update to latest version, but in the mean time:
 - https://forum.truckersmp.com/index.php?/topic/17-how-to-downgrade-ets2ats-to-supported-version/
@@ -17,11 +19,6 @@ Driver utilities for various open roaming simulators, like ETS2.
 3. Extract base.scs (GUI will place in `\Euro Truck Simulator 2\base`)
     - THIS WILL TAKE A WHILE, THE COMMAND PROMPT WILL CLOSE BY ITSELF, DO NOT CLOSE EARLY
 4. Extract def.scs (GUI will place in `\Euro Truck Simulator 2\def`)
-
-## Set paths
-1. https://github.com/zappybiby/SimShift/blob/1bd8ecd49588422da87b4c5d8fa27a3c722c0c30/SimShift/SimShift/FrmMain.cs#L37
-2. https://github.com/zappybiby/SimShift/blob/1bd8ecd49588422da87b4c5d8fa27a3c722c0c30/SimShift/SimShift/FrmMain.cs#L42
-3. https://github.com/zappybiby/SimShift/blob/1bd8ecd49588422da87b4c5d8fa27a3c722c0c30/SimShift/SimShift/FrmMain.cs#L45
 
 ## Install SDK Plugin for ETS2
 1. Get [SDK Plugin](https://github.com/nlhans/ets2-sdk-plugin/releases)
