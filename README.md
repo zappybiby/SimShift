@@ -1,15 +1,16 @@
 SimShift
 ========
 
-Driver utilities for various open roaming simulators like Euro Truck Simulator 2 and Test Drive Unlimited
+Driver utilities for various open roaming simulators like Euro Truck Simulator 2 and Test Drive Unlimited.
 
 ## Windows Installation
 
 ### Place SimShift folder in ETS2 Main Folder
+- `steam\steamapps\common\Euro Truck Simulator 2\`
 
-### Revert to version 1.19
+### Revert to ETS2 version 1.19
 - **[Guide](https://forum.truckersmp.com/index.php?/topic/17-how-to-downgrade-ets2ats-to-supported-version/)**
-- Revert to version 1.19x **FIRST** before doing any of the next instructions
+- Revert to version 1.19x **FIRST** before doing any of the following instructions
 
 ### Extract base.scs and def.scs 
 **Highly reccomended:** Use [SCS EXTRACTOR GUI](https://github.com/Bluscream/SCS-Extractor-GUI/releases)
