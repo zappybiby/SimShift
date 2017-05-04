@@ -27,4 +27,10 @@ Driver utilities for various open roaming simulators like Euro Truck Simulator 2
 ### Install VJoy
 - http://vjoystick.sourceforge.net/site/index.php/download-a-install/download
 
-
+### Open project and add reference paths
+1. Open Visual Studio
+2. Open the project
+3. Click `Project` then `SimShift Properties...` inside of Visual Studio
+4. Go to the `References Paths` tab and add these paths
+- `steam\steamapps\common\Euro Truck Simulator 2\Simshift\Binaries\`
+- `steam\steamapps\common\Euro Truck Simulator 2\Simshift\Resources\`
