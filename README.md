@@ -32,5 +32,5 @@ Driver utilities for various open roaming simulators like Euro Truck Simulator 2
 2. Open the project
 3. Click `Project` then `SimShift Properties...` inside of Visual Studio
 4. Go to the `References Paths` tab and add these paths
-- `steam\steamapps\common\Euro Truck Simulator 2\Simshift\Binaries\`
-- `steam\steamapps\common\Euro Truck Simulator 2\Simshift\Resources\`
+    - `steam\steamapps\common\Euro Truck Simulator 2\Simshift\Binaries\`
+    - `steam\steamapps\common\Euro Truck Simulator 2\Simshift\Resources\`
