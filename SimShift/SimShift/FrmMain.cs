@@ -29,20 +29,20 @@ namespace SimShift
         public FrmMain()
         {
             var map = "europe";
-          //var universalFolder = Directory.Exists(@"E:\map\" + map + "\\")
-          //    ? @"E:\map\" + map + "\\"
-          //    : Directory.Exists(@"E:\Games\Steam\steamapps\common\Euro Truck Simulator 2\base\map")
-          //       ? @"E:\Games\Steam\steamapps\common\Euro Truck Simulator 2\base\map\" + map + "\\"
-          //       : @"./europe/";
-            var universalFolder = Directory.Exists(@"D:\steam\steamapps\common\Euro Truck Simulator 2\base\map")
-                 ? @"D:\steam\steamapps\common\Euro Truck Simulator 2\base\map\" + map + "\\"
-                 : @"./europe/";
+            //var universalFolder = Directory.Exists(@"E:\map\" + map + "\\")
+            //    ? @"E:\map\" + map + "\\"
+            //    : Directory.Exists(@"E:\Games\Steam\steamapps\common\Euro Truck Simulator 2\base\map")
+            //       ? @"E:\Games\Steam\steamapps\common\Euro Truck Simulator 2\base\map\" + map + "\\"
+            //       : @"./europe/";
+            var universalFolder = Directory.Exists(@"..\base\map")
+                ? @"..\base\map\" + map + "\\"
+                : @"./europe/";
 
             // PREFAB FOLDER HERE
-            var prefabs = @"D:\steam\steamapps\common\Euro Truck Simulator 2\base\prefab";
-            
+            var prefabs = @"..\base\prefab";
+
                                                                // LUT FOLDER HERE
-            Ets2Map = new Ets2Mapper(universalFolder, prefabs, @"C:\Users\brian\Desktop\SimShift\\Resources\LUT1.19");
+            Ets2Map = new Ets2Mapper(universalFolder, prefabs, @"\\Resources\LUT1.19");
 
             Ets2Map.Parse();
             Main.SetMap(Ets2Map);
@@ -51,10 +51,10 @@ namespace SimShift
             InitializeComponent();
 
             this.StartPosition = FormStartPosition.Manual;
-            this.Location = new Point(0,0);
+            this.Location = new Point(0, 0);
 
             btServiceStartStop_Click(null, null);
-            
+
             gbCarSelect.Enabled = false;
 
             updateModules = new Timer();
@@ -63,7 +63,7 @@ namespace SimShift
             updateModules.Start();
         }
 
-        private Dictionary<string, string> loadedIcon = new Dictionary<string, string>(); 
+        private Dictionary<string, string> loadedIcon = new Dictionary<string, string>();
 
         void updateModules_Tick(object sender, EventArgs e)
         {
@@ -79,7 +79,7 @@ namespace SimShift
             var throttleOut = 0.0;
             var clutchOut = 0.0;
 
-            foreach(var mod in mods)
+            foreach (var mod in mods)
             {
                 if (mod == null) continue;
                 var name = mod.GetType().Name;
@@ -98,7 +98,7 @@ namespace SimShift
                     }
                     continue;
                 }
-                if (!pane.Controls.ContainsKey("name"+name))
+                if (!pane.Controls.ContainsKey("name" + name))
                 {
                     controlsChanged = true;
 
@@ -107,7 +107,7 @@ namespace SimShift
                     lbl.Size = new Size(160, 20);
                     lbl.Location = new Point(0, 0);
                     lbl.ForeColor = Color.White;
-                    lbl.Font =new Font("Tahoma", 11.0f);
+                    lbl.Font = new Font("Tahoma", 11.0f);
                     lbl.Name = "name" + name;
 
                     var pb = new PictureBox();
@@ -143,7 +143,8 @@ namespace SimShift
 
                     loadedIcon.Add(name, "");
 
-                }else
+                }
+                else
                 {
 
                     var pb = pane.Controls["pb" + name];
@@ -165,24 +166,24 @@ namespace SimShift
 
                     thrAbs.Size = new Size((int)(throttleOut * 100), 10);
 
-                    var thrRelDbl = throttleOut-throttleIn;
+                    var thrRelDbl = throttleOut - throttleIn;
 
                     if (double.IsNaN(thrRelDbl) || double.IsInfinity(thrRelDbl)) thrRelDbl = 0;
                     if (thrRelDbl < -1) thrRelDbl = -1;
                     if (thrRelDbl > 1) thrRelDbl = 1;
 
-                    var thrRel0W = thrRelDbl > 0 ? 1 : (int)((0 - thrRelDbl)*50);
-                    var thrRel1W = thrRelDbl < 0 ? 1 : (int)(thrRelDbl*50);
+                    var thrRel0W = thrRelDbl > 0 ? 1 : (int)((0 - thrRelDbl) * 50);
+                    var thrRel1W = thrRelDbl < 0 ? 1 : (int)(thrRelDbl * 50);
 
-                    thrRel0.Location = new Point(250-thrRel0W, thrRel0.Location.Y);
+                    thrRel0.Location = new Point(250 - thrRel0W, thrRel0.Location.Y);
 
-                    thrRel0.Size = new Size(thrRel0W,10);
+                    thrRel0.Size = new Size(thrRel0W, 10);
                     thrRel1.Size = new Size(thrRel1W, 10);
 
                     // Clutch
                     var cltAbs = pane.Controls["cltAbs" + name];
 
-                    cltAbs.Size = new Size((int) (clutchOut*100), 10);
+                    cltAbs.Size = new Size((int)(clutchOut * 100), 10);
 
                     throttleIn = throttleOut;
                     clutchIn = clutchOut;
@@ -194,7 +195,7 @@ namespace SimShift
                 else
                     l.ForeColor = Color.White;
                 if (typeof(TransmissionCalibrator) == mod.GetType())
-                    l.Text = "TC " + Math.Round(Main.TransmissionCalibrator.err, 1) + "|"+(Main.TransmissionCalibrator.State.ToString());
+                    l.Text = "TC " + Math.Round(Main.TransmissionCalibrator.err, 1) + "|" + (Main.TransmissionCalibrator.State.ToString());
                 if (typeof(Speedlimiter) == mod.GetType())
                     l.Text = "SpeedLimit " + (Main.Speedlimiter.SpeedLimit);
                 if (typeof(ACC) == mod.GetType())
@@ -205,10 +206,10 @@ namespace SimShift
                     l.Text = "VST " + Math.Round(Main.VariableSpeedControl.SetSpeed);
             }
 
-            if(controlsChanged)
+            if (controlsChanged)
             {
                 var y = 5;
-                foreach(var mod in mods)
+                foreach (var mod in mods)
                 {
                     var name = mod.GetType().Name;
                     if (pane.Controls.ContainsKey("name" + name))
@@ -222,7 +223,7 @@ namespace SimShift
                         pb.Location = new Point(5, y);
                         lbl.Location = new Point(35, y + 4);
                         thrAbs.Location = new Point(200, y);
-                        thrRel0.Location = new Point(200, y +10);
+                        thrRel0.Location = new Point(200, y + 10);
                         thrRel1.Location = new Point(250, y + 10);
                         cltAbs.Location = new Point(310, y);
                         if (name == "DrivetrainCalibrator")
@@ -271,7 +272,7 @@ namespace SimShift
                 this.cbSimList.ValueMember = "Name";
                 this.cbSimList.DataSource = Main.Data.Miners;
 
-                    UpdateSimulatorStatusLabel();
+                UpdateSimulatorStatusLabel();
                 Main.Data.AppActive += new EventHandler(Data_AppActive);
                 Main.Data.CarChanged += new EventHandler(Data_CarChanged);
 
@@ -364,21 +365,21 @@ namespace SimShift
         private delegate void voidDelegate();
         private void UpdateSimulatorStatusLabel()
         {
-            if(this.InvokeRequired)
+            if (this.InvokeRequired)
             {
                 this.Invoke(new voidDelegate(UpdateSimulatorStatusLabel), new object[0]);
                 return;
             }
             lbSimStatus.Text = (Main.Data.AutoMode
                                    ? "Automatic Select"
-                                   : "Manual Select") + 
-                                   "\nSimulator: " +
-                                     (Main.Data.Active != null ? Main.Data.Active.Name : "None");
+                                   : "Manual Select") +
+                               "\nSimulator: " +
+                               (Main.Data.Active != null ? Main.Data.Active.Name : "None");
         }
 
         private void btSimSelect_Click(object sender, EventArgs e)
         {
-            if(Main.Running)
+            if (Main.Running)
             {
                 // Get the simulator from the miners list
                 var miner = (IDataMiner)cbSimList.SelectedItem;
@@ -399,11 +400,12 @@ namespace SimShift
         {
             if (Main.Running)
             {
-                if(Main.Data.AutoMode)
+                if (Main.Data.AutoMode)
                 {
                     Main.Data.ManualSelectApp(Main.Data.Active);
                     btSimMode.Text = "Manual";
-                }else
+                }
+                else
                 {
                     Main.Data.AutoSelectApp();
                     btSimMode.Text = "Auto";
@@ -416,7 +418,7 @@ namespace SimShift
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new EventHandler(Data_AppActive), new object[2] {sender, e});
+                this.Invoke(new EventHandler(Data_AppActive), new object[2] { sender, e });
                 return;
             }
             this.cbSimList.SelectedItem = Main.Data.Active.Name;
@@ -425,11 +427,11 @@ namespace SimShift
 
             // Select all drivetrains from this simulator
             List<string> myCars = new List<string>();
-            
+
             var allCars = Directory.GetFiles("./Settings/Drivetrain/");
-            foreach(var car in allCars)
+            foreach (var car in allCars)
             {
-                
+
                 var carCleaned = Path.GetFileNameWithoutExtension(car);
 
                 if (carCleaned.StartsWith(Main.Data.Active.Application))
