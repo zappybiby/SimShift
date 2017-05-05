@@ -31,15 +31,6 @@ namespace SimShift.Data
 
         void updateTimer_Tick(object sender, EventArgs e)
         {
-            // This is able to determine if the game is running, however, we still need a way to determine if the game is the active window.
-            foreach (Process clsProcess in Process.GetProcesses())
-            {
-                if (clsProcess.ProcessName.Contains("eurotrucks2"))
-                {
-                    Console.WriteLine("eurotrucks2 is running");
-                }
-            }
-
             if (Main.Data.Active != null && Main.Data.Active.Application == "eurotrucks2"
                 && !Main.Data.Active.SelectManually)
             {

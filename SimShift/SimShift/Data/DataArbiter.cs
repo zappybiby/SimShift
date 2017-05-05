@@ -25,7 +25,7 @@ namespace SimShift.Data
             AutoMode = true;
 
             miners.Add(new Ets2DataMiner());
-            miners.Add(new Tdu2DataMiner());
+            // miners.Add(new Tdu2DataMiner());
 
             miners.ForEach(
                 app =>
@@ -73,7 +73,7 @@ namespace SimShift.Data
 
         public event EventHandler DataReceived;
 
-        public IDataMiner Active { get; private set; }
+        public IDataMiner Active = new Ets2DataMiner(); //{ get; private set; }
 
         public bool AutoMode { get; private set; }
 
