@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+
 using SimShift.Services;
 using SimShift.Utils;
 
@@ -8,22 +9,20 @@ namespace SimShift.Entities
     {
         public List<ShiftPatternFrame> Frames = new List<ShiftPatternFrame>();
 
-        public int Count
-        {
-            get { return Frames.Count; }
-        }
-
-        #region Implementation of IConfigurable
-
         public IEnumerable<string> AcceptsConfigs
         {
-            get { return new[] {"Pattern"}; }
+            get
+            {
+                return new[] { "Pattern" };
+            }
         }
 
-        public void ResetParameters()
+        public int Count
         {
-            Frames = new List<ShiftPatternFrame>();
-
+            get
+            {
+                return Frames.Count;
+            }
         }
 
         public void ApplyParameter(IniValueObject obj)
@@ -51,17 +50,29 @@ namespace SimShift.Entities
         {
             var frames = new List<IniValueObject>();
 
-            foreach(var fr in Frames)
+            foreach (var fr in Frames)
             {
                 string absThrStr = fr.AbsoluteThrottle ? "abs" : "rel";
                 string gearStr = fr.UseNewGear ? "new" : fr.UseOldGear ? "old" : "neu";
 
-                frames.Add(new IniValueObject(AcceptsConfigs, "Frame", string.Format("Frame=({0:0.00},{1:0.00},{2},{3})", fr.Throttle, fr.Clutch, absThrStr, gearStr)));
+                frames.Add(
+                    new IniValueObject(
+                        AcceptsConfigs,
+                        "Frame",
+                        string.Format(
+                            "Frame=({0:0.00},{1:0.00},{2},{3})",
+                            fr.Throttle,
+                            fr.Clutch,
+                            absThrStr,
+                            gearStr)));
             }
 
             return frames;
         }
 
-        #endregion
+        public void ResetParameters()
+        {
+            Frames = new List<ShiftPatternFrame>();
+        }
     }
 }

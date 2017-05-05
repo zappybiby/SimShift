@@ -6,12 +6,6 @@ namespace SimTelemetry.Domain.Memory
 {
     public class MemoryProvider : IDataProvider
     {
-        public int BaseAddress { get; protected set; }
-        public MemoryReader Reader { get; protected set; }
-
-        public MemorySignatureScanner Scanner { get; protected set; }
-
-        public IList<MemoryPool> Pools { get { return _pools; } }
         private readonly IList<MemoryPool> _pools = new List<MemoryPool>();
 
         public MemoryProvider(MemoryReader reader)
@@ -25,15 +19,29 @@ namespace SimTelemetry.Domain.Memory
             }
         }
 
+        public int BaseAddress { get; protected set; }
+
+        public IList<MemoryPool> Pools
+        {
+            get
+            {
+                return _pools;
+            }
+        }
+
+        public MemoryReader Reader { get; protected set; }
+
+        public MemorySignatureScanner Scanner { get; protected set; }
+
         public void Add(IDataNode pool)
         {
             _pools.Add((MemoryPool) pool);
-            ((MemoryPool)pool).SetProvider(this);
+            ((MemoryPool) pool).SetProvider(this);
         }
 
-        public void Remove(IDataNode pool)
+        public bool Contains(string name)
         {
-            _pools.Remove((MemoryPool) pool);
+            return _pools.Any(x => x.Name == name);
         }
 
         public IDataNode Get(string name)
@@ -51,17 +59,17 @@ namespace SimTelemetry.Domain.Memory
             _pools.SelectMany(x => x.Fields.Values).ToList().ForEach(x => x.MarkDirty());
         }
 
-        public bool Contains(string name)
-        {
-            return _pools.Any(x => x.Name == name);
-        }
-
         public void Refresh()
         {
             foreach (var pool in _pools)
             {
                 pool.Refresh();
             }
+        }
+
+        public void Remove(IDataNode pool)
+        {
+            _pools.Remove((MemoryPool) pool);
         }
     }
 }

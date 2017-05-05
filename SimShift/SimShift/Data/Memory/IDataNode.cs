@@ -8,10 +8,15 @@ namespace SimTelemetry.Domain.Memory
         Dictionary<string, IDataField> Fields { get; }
 
         string Name { get; }
-        T ReadAs<T>(string field);
-        IEnumerable<IDataField> GetDataFields();
-        byte[] ReadBytes(string field);
-        void GetDebugInfo(XmlWriter file);
+
         IDataNode Clone(string newName, int newAddress);
+
+        IEnumerable<IDataField> GetDataFields();
+
+        void GetDebugInfo(XmlWriter file);
+
+        T ReadAs<T>(string field);
+
+        byte[] ReadBytes(string field);
     }
 }

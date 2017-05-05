@@ -7,14 +7,6 @@ namespace SimShift.MapTool
     {
         public IndicatorSignal Indicator;
 
-        public List<Ets2PrefabCurve> Route { get; private set; }
-
-        public int Start { get { return Route.FirstOrDefault().Index; } }
-        public int End { get { return Route.LastOrDefault().Index; } }
-
-        public Ets2PrefabNode Entry { get; private set; }
-        public Ets2PrefabNode Exit { get; private set; }
-
         public Ets2PrefabRoute(List<Ets2PrefabCurve> route, Ets2PrefabNode entry, Ets2PrefabNode exit)
         {
             Route = route;
@@ -23,7 +15,28 @@ namespace SimShift.MapTool
             Exit = exit;
 
             // TODO: Interpret indicator signal
+        }
 
+        public int End
+        {
+            get
+            {
+                return Route.LastOrDefault().Index;
+            }
+        }
+
+        public Ets2PrefabNode Entry { get; private set; }
+
+        public Ets2PrefabNode Exit { get; private set; }
+
+        public List<Ets2PrefabCurve> Route { get; private set; }
+
+        public int Start
+        {
+            get
+            {
+                return Route.FirstOrDefault().Index;
+            }
         }
 
         public override string ToString()

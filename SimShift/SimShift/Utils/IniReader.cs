@@ -8,17 +8,13 @@ namespace SimShift.Utils
 {
     public class IniReader : IDisposable
     {
-        public string Filedata { get; private set; }
-        public string Filename { get; private set; }
+        protected readonly IList<string> _group = new List<string>();
 
         protected readonly IList<Action<IniValueObject>> _handlers = new List<Action<IniValueObject>>();
-        protected readonly IList<string> _group = new List<string>();
 
         public IniReader(string dataSource)
             : this(dataSource, true)
-        {
-
-        }
+        { }
 
         public IniReader(string dataSource, bool isFileData)
         {
@@ -26,8 +22,7 @@ namespace SimShift.Utils
 
             if (isFileData)
             {
-                if (File.Exists(dataSource) == false)
-                    throw new IOException("Could not find file " + dataSource);
+                if (File.Exists(dataSource) == false) throw new IOException("Could not find file " + dataSource);
                 Filename = dataSource;
                 Filedata = File.ReadAllText(dataSource);
             }
@@ -35,30 +30,40 @@ namespace SimShift.Utils
             {
                 Filedata = dataSource;
             }
-
         }
+
+        public string Filedata { get; private set; }
+
+        public string Filename { get; private set; }
 
         public void AddHandler(Action<IniValueObject> handler)
         {
-            if (_handlers.Contains(handler) == false)
-                _handlers.Add(handler);
+            if (_handlers.Contains(handler) == false) _handlers.Add(handler);
         }
 
-        public void RemoveHandler(Action<IniValueObject> handler)
+        public void ApplyGroup(string group, bool nest)
         {
-            if (_handlers.Contains(handler))
-                _handlers.Remove(handler);
+            if (nest == false)
+            {
+                _group.Clear();
+            }
+
+            _group.Add(group);
+        }
+
+        public void Dispose()
+        {
+            Filedata = null;
+            _group.Clear();
+            _handlers.Clear();
         }
 
         public void Parse()
         {
-            if (Filedata == string.Empty)
-                throw new Exception("No data assigned to this reader");
+            if (Filedata == string.Empty) throw new Exception("No data assigned to this reader");
 
-            var filelines = Filedata
-                .Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x.Contains("//") ? x.Remove(x.IndexOf("//")).Trim() : x.Trim())
-                .Where(x => x.Length != 0)
+            var filelines = Filedata.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Contains("//") ? x.Remove(x.IndexOf("//")).Trim() : x.Trim()).Where(x => x.Length != 0)
                 .ToList();
 
             ApplyGroup("Main", false);
@@ -72,8 +77,7 @@ namespace SimShift.Utils
 
                 if (line.StartsWith("[") && line.EndsWith("]"))
                 {
-                    if (line.Length < 3)
-                        ApplyGroup("", false);
+                    if (line.Length < 3) ApplyGroup("", false);
                     ApplyGroup(line.Substring(1, line.Length - 2), false);
                     continue;
                 }
@@ -115,6 +119,11 @@ namespace SimShift.Utils
             }
         }
 
+        public void RemoveHandler(Action<IniValueObject> handler)
+        {
+            if (_handlers.Contains(handler)) _handlers.Remove(handler);
+        }
+
         private void LeaveGroup(bool nest)
         {
             if (nest == false || _group.Count <= 1)
@@ -125,23 +134,6 @@ namespace SimShift.Utils
             {
                 _group.RemoveAt(_group.Count - 1); // remove last element
             }
-        }
-
-        public void ApplyGroup(string group, bool nest)
-        {
-            if (nest == false)
-            {
-                _group.Clear();
-            }
-
-            _group.Add(group);
-        }
-
-        public void Dispose()
-        {
-            Filedata = null;
-            _group.Clear();
-            _handlers.Clear();
         }
     }
 }

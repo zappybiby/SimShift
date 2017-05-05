@@ -1,27 +1,12 @@
 ﻿using System;
+
 using SimShift.Data.Memory;
 
 namespace SimTelemetry.Domain.Memory
 {
     public class MemoryFieldFunc<T> : IMemoryObject
     {
-        public string Name { get; protected set; }
-        public MemoryPool Pool { get; protected set; }
-
-        public MemoryProvider Memory { get; protected set; }
-        public MemoryAddress AddressType { get { return MemoryAddress.Constant; } }
-
-        public bool IsDynamic { get { return false; } }
-        public bool IsStatic { get { return false; } }
-        public bool IsConstant { get { return false; } }
-
-        public int Address { get { return 0; } }
-        public int Offset { get { return 0; } }
-        public int Size { get { return 0; } }
-
-        public Type ValueType { get { return typeof (T); } }
-
-        public Func<MemoryPool, T> ValidationFunc { get; protected set; }
+        protected bool IsChanging = false;
 
         public MemoryFieldFunc(string name, Func<MemoryPool, T> validationFunc)
         {
@@ -37,12 +22,84 @@ namespace SimTelemetry.Domain.Memory
             IsChanging = isChanging;
         }
 
-        public object Read()
+        public int Address
         {
-            return ValidationFunc(Pool);
+            get
+            {
+                return 0;
+            }
         }
 
-        protected bool IsChanging = false;
+        public MemoryAddress AddressType
+        {
+            get
+            {
+                return MemoryAddress.Constant;
+            }
+        }
+
+        public bool IsConstant
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public bool IsDynamic
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public bool IsStatic
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public MemoryProvider Memory { get; protected set; }
+
+        public string Name { get; protected set; }
+
+        public int Offset
+        {
+            get
+            {
+                return 0;
+            }
+        }
+
+        public MemoryPool Pool { get; protected set; }
+
+        public int Size
+        {
+            get
+            {
+                return 0;
+            }
+        }
+
+        public Func<MemoryPool, T> ValidationFunc { get; protected set; }
+
+        public Type ValueType
+        {
+            get
+            {
+                return typeof(T);
+            }
+        }
+
+        public object Clone()
+        {
+            var newObj = new MemoryFieldFunc<T>(Name, ValidationFunc);
+            return newObj;
+        }
+
         public virtual bool HasChanged()
         {
             return IsChanging;
@@ -51,6 +108,11 @@ namespace SimTelemetry.Domain.Memory
         public void MarkDirty()
         {
             IsChanging = true;
+        }
+
+        public object Read()
+        {
+            return ValidationFunc(Pool);
         }
 
         public TOut ReadAs<TOut>()
@@ -63,20 +125,14 @@ namespace SimTelemetry.Domain.Memory
             // Done!
         }
 
+        public void SetPool(MemoryPool pool)
+        {
+            Pool = pool;
+        }
+
         public void SetProvider(MemoryProvider provider)
         {
             Memory = provider;
-        }
-
-        public void SetPool(MemoryPool pool)
-        {
-            Pool = pool; 
-        }
-
-        public object Clone()
-        {
-            var newObj = new MemoryFieldFunc<T>(Name, ValidationFunc);
-            return newObj;
         }
     }
 }

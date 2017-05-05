@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+
 using SimShift.Data.Common;
 using SimShift.Entities;
 using SimShift.Utils;
@@ -13,8 +14,11 @@ namespace SimShift.Services
     public enum TransmissionCalibratorStatus
     {
         Idle,
+
         FindThrottlePoint,
+
         FindClutchBitePoint,
+
         IterateCalibrationCycle
     }
 
@@ -23,49 +27,66 @@ namespace SimShift.Services
     /// </summary>
     public class TransmissionCalibrator : IControlChainObj
     {
-        public IEnumerable<string> SimulatorsOnly { get { return new String[0]; } }
-        public IEnumerable<string> SimulatorsBan { get { return new String[0]; } }
-        public bool Enabled { get { return true;  }}
-        public bool Active { get; private set; }
-
-        public TransmissionCalibratorStatus State { get { return this.state; }}
+        public float err = 0.0f;
 
         private float calRpm = 0.0f;
+
+        private float clutch = 0.0f, throttle = 0.0f;
+
         private int gearTest = 1;
 
+        private bool isStationary = false;
+
         private bool rpmInRange = false;
+
         private DateTime rpmInRangeTimer = DateTime.Now;
 
         private TransmissionCalibratorStatus state = TransmissionCalibratorStatus.Idle;
+
         private DateTime stationary = DateTime.Now;
-        private bool isStationary = false;
 
-        public float err = 0.0f;
+        public bool Active { get; private set; }
 
-        private float clutch = 0.0f, throttle = 0.0f;
-        public bool Requires(JoyControls c)
+        public bool Enabled
         {
-            if (Active == false)
-                return false;
-            else
+            get
             {
-                if (c == JoyControls.Clutch) return true;
-                if (c == JoyControls.Throttle) return true;
-                return false;
+                return true;
+            }
+        }
+
+        public IEnumerable<string> SimulatorsBan
+        {
+            get
+            {
+                return new String[0];
+            }
+        }
+
+        public IEnumerable<string> SimulatorsOnly
+        {
+            get
+            {
+                return new String[0];
+            }
+        }
+
+        public TransmissionCalibratorStatus State
+        {
+            get
+            {
+                return this.state;
             }
         }
 
         public double GetAxis(JoyControls c, double val)
         {
             if (!Active) return val;
-            switch (c)  
+            switch (c)
             {
-                case JoyControls.Throttle:
-                    return throttle;
-                case JoyControls.Clutch:
-                    return clutch;
-                default:
-                    return val;
+                case JoyControls.Throttle: return throttle;
+                case JoyControls.Clutch: return clutch;
+                default: return val;
             }
         }
 
@@ -74,19 +95,26 @@ namespace SimShift.Services
             return val;
         }
 
-        public void TickControls()
+        public bool Requires(JoyControls c)
         {
-
+            if (Active == false) return false;
+            else
+            {
+                if (c == JoyControls.Clutch) return true;
+                if (c == JoyControls.Throttle) return true;
+                return false;
+            }
         }
+
+        public void TickControls()
+        { }
 
         public void TickTelemetry(IDataMiner data)
         {
             var rpm = data.Telemetry.EngineRpm;
             err = calRpm - rpm;
-            if (err > 500)
-                err = 500;
-            if (err < -500)
-                err = -500;
+            if (err > 500) err = 500;
+            if (err < -500) err = -500;
 
             switch (state)
             {
@@ -95,10 +123,10 @@ namespace SimShift.Services
 
                     // If we're stationary for a few seconds, we can apply brakes and calibrate the clutch
                     bool wasStationary = isStationary;
-                    isStationary = Math.Abs(data.Telemetry.Speed) < 1 && Main.GetAxisIn(JoyControls.Throttle) < 0.05 && data.Telemetry.EngineRpm > 200;
+                    isStationary = Math.Abs(data.Telemetry.Speed) < 1 && Main.GetAxisIn(JoyControls.Throttle) < 0.05
+                                   && data.Telemetry.EngineRpm > 200;
 
-                    if (isStationary && !wasStationary)
-                        stationary = DateTime.Now;
+                    if (isStationary && !wasStationary) stationary = DateTime.Now;
 
                     if (isStationary && DateTime.Now.Subtract(stationary).TotalMilliseconds > 2500)
                     {
@@ -111,18 +139,16 @@ namespace SimShift.Services
 
                 case TransmissionCalibratorStatus.FindThrottlePoint:
 
-                    throttle += err/500000.0f;
+                    throttle += err / 500000.0f;
                     if (throttle >= 0.8)
                     {
                         // Cannot rev the engine
-
                     }
 
                     var wasRpmInRange = rpmInRange;
                     rpmInRange = Math.Abs(err) < 5;
 
-                    if (!wasRpmInRange && rpmInRange)
-                        rpmInRangeTimer = DateTime.Now;
+                    if (!wasRpmInRange && rpmInRange) rpmInRangeTimer = DateTime.Now;
 
                     // stable at RPM
                     if (rpmInRange && DateTime.Now.Subtract(rpmInRangeTimer).TotalMilliseconds > 250)
@@ -147,7 +173,7 @@ namespace SimShift.Services
                     }
 
                     // Decrease clutch 0.25% at a time to find the bite point
-                    clutch -= 0.25f/100.0f;
+                    clutch -= 0.25f / 100.0f;
 
                     if (err > 50)
                     {
@@ -163,7 +189,7 @@ namespace SimShift.Services
                 case TransmissionCalibratorStatus.IterateCalibrationCycle:
 
                     clutch = 1;
-                    gearTest ++;
+                    gearTest++;
 
                     calRpm = 700.0f;
                     // Find throttle point
@@ -171,7 +197,7 @@ namespace SimShift.Services
                     throttle = 0.001f;
 
                     rpmInRange = false;
-                    
+
                     break;
             }
 
@@ -183,7 +209,6 @@ namespace SimShift.Services
             }
 
             Active = state != TransmissionCalibratorStatus.Idle;
-
         }
     }
 }

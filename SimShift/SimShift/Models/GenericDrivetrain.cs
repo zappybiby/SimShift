@@ -1,22 +1,11 @@
 using System.Collections.Generic;
+
 using SimShift.Utils;
 
 namespace SimShift.Models
 {
     public class GenericDrivetrain : IDrivetrain
     {
-        internal struct GenericEngineData
-        {
-            public double N;
-            public double P;
-
-            public GenericEngineData(double n, double p)
-            {
-                N = n;
-                P = p;
-            }
-        }
-
         private Dictionary<double, GenericEngineData> Engine = new Dictionary<double, GenericEngineData>();
 
         public GenericDrivetrain()
@@ -24,142 +13,27 @@ namespace SimShift.Models
             Calibrated = true;
         }
 
-        public virtual bool GotDamage(float damage)
+        public IEnumerable<string> AcceptsConfigs
         {
-            // gears might go kaput in other games
-            return false;
-        }
-
-        public double StallRpm { get;  set; }
-        public double MaximumRpm { get; set; }
-        protected float GearReverse { get; set; }
-
-        #region Implementation of IDrivetrain
-
-        public virtual double CalculateTorqueN(double rpm)
-        {
-            var lastKey = 0.0;
-            foreach (var r in Engine.Keys)
+            get
             {
-                if (r > rpm && lastKey < rpm)
-                {
-                    var dutyCycle = (rpm - lastKey)/(r - lastKey);
-                    return (Engine[r].N - Engine[lastKey].N)*dutyCycle + Engine[lastKey].N;
-                }
-                else
-                {
-                    lastKey = r;
-                }
+                return new[] { "Engine", "Gearbox" };
             }
-
-            return 0;
         }
 
-        public virtual double CalculateTorqueP(double rpm, double throttle)
-        {
-            var lastKey = 0.0;
-            foreach (var r in Engine.Keys)
-            {
-                if (r > rpm && lastKey < rpm)
-                {
-                    var dutyCycle = (rpm - lastKey)/(r - lastKey);
-                    return (Engine[r].P - Engine[lastKey].P)*dutyCycle + Engine[lastKey].P;
-                }
-                else
-                {
-                    lastKey = r;
-                }
-            }
-
-            return 0;
-        }
-
-        public virtual  double CalculateThrottleByTorque(double rpm, double torque)
-        {
-            var torqueP = CalculateTorqueP(rpm, 1);
-            if (torque > torqueP) return 1;
-            var torqueN = CalculateTorqueN(rpm);
-            if (torque < torqueN) return 0;
-
-            var t = torque/(torqueP - torqueN);
-            return t;
-
-        }
-
-        public virtual double CalculatePower(double rpm, double throttle)
-        {
-            return throttle*rpm;
-        }
-
-        public double CalculateMaxPower()
-        {
-            var pwr = 0.0;
-            var pwrRpm = 0.0;
-            for(var rpm = 0; rpm < MaximumRpm; rpm += 100)
-            {
-                var p = CalculatePower(rpm, 1);
-                if(p>pwr)
-                {
-                    pwr = p;
-                    pwrRpm = rpm;
-                }
-            }
-            return pwr;
-        }
-
-        public virtual  double CalculateFuelConsumption(double rpm, double throttle)
-        {
-            var f = throttle*rpm/(MaximumRpm/2);
-            if(rpm>MaximumRpm/2)
-                return f*f*throttle;
-            else
-                return f*f*throttle;
-        }
-
-
-        public double CalculateThrottleByPower(double rpm, double powerRequired)
-        {
-            // 1 Nm @ 1000rpm = 0.1904hp
-            // 1 Hp @ 1000rpm = 5.2521Nm
-            if (rpm == 0) return 1;
-            double torqueRequired = powerRequired/(rpm/1000)*(1/0.1904);
-            if (torqueRequired == 0) torqueRequired = 0.1;
-            return CalculateThrottleByTorque(rpm, torqueRequired);
-        }
+        public bool Calibrated { get; set; }
 
         public string File { get; set; }
 
-        public double CalculateSpeedForRpm(int gear, float rpm)
-        {
-            if (GearRatios == null || gear < 0 || gear >= GearRatios.Length) return 0;
-            return rpm / GearRatios[gear]/3.6;
-        }
-
-        public double CalculateRpmForSpeed(int gear, float speed)
-        {
-            if (GearRatios == null || gear < 0 || gear >= GearRatios.Length) return 0;
-            return speed*3.6* (GearRatios[gear]);
-        }
-
         public double[] GearRatios { get; set; }
+
         public virtual int Gears { get; set; }
-        public bool Calibrated { get; set; }
 
-        #endregion
+        public double MaximumRpm { get; set; }
 
-        #region Implementation of IConfigurable
+        public double StallRpm { get; set; }
 
-        public IEnumerable<string> AcceptsConfigs
-        {
-            get { return new[] {"Engine", "Gearbox"}; }
-        }
-
-        public virtual  void ResetParameters()
-        {
-            Engine = new Dictionary<double, GenericEngineData>();
-            StallRpm = 900;
-            MaximumRpm = 2500;
-        }
+        protected float GearReverse { get; set; }
 
         public virtual void ApplyParameter(IniValueObject obj)
         {
@@ -181,7 +55,7 @@ namespace SimShift.Models
             }
             else if (obj.Group == "Gearbox")
             {
-                switch(obj.Key)
+                switch (obj.Key)
                 {
                     case"Gears":
                         Gears = obj.ReadAsInteger();
@@ -195,35 +69,162 @@ namespace SimShift.Models
                     case "GearR":
                         GearReverse = obj.ReadAsFloat();
                         break;
-
                 }
             }
-        
+        }
+
+        public virtual double CalculateFuelConsumption(double rpm, double throttle)
+        {
+            var f = throttle * rpm / (MaximumRpm / 2);
+            if (rpm > MaximumRpm / 2) return f * f * throttle;
+            else return f * f * throttle;
+        }
+
+        public double CalculateMaxPower()
+        {
+            var pwr = 0.0;
+            var pwrRpm = 0.0;
+            for (var rpm = 0; rpm < MaximumRpm; rpm += 100)
+            {
+                var p = CalculatePower(rpm, 1);
+                if (p > pwr)
+                {
+                    pwr = p;
+                    pwrRpm = rpm;
+                }
+            }
+            return pwr;
+        }
+
+        public virtual double CalculatePower(double rpm, double throttle)
+        {
+            return throttle * rpm;
+        }
+
+        public double CalculateRpmForSpeed(int gear, float speed)
+        {
+            if (GearRatios == null || gear < 0 || gear >= GearRatios.Length) return 0;
+            return speed * 3.6 * (GearRatios[gear]);
+        }
+
+        public double CalculateSpeedForRpm(int gear, float rpm)
+        {
+            if (GearRatios == null || gear < 0 || gear >= GearRatios.Length) return 0;
+            return rpm / GearRatios[gear] / 3.6;
+        }
+
+        public double CalculateThrottleByPower(double rpm, double powerRequired)
+        {
+            // 1 Nm @ 1000rpm = 0.1904hp
+            // 1 Hp @ 1000rpm = 5.2521Nm
+            if (rpm == 0) return 1;
+            double torqueRequired = powerRequired / (rpm / 1000) * (1 / 0.1904);
+            if (torqueRequired == 0) torqueRequired = 0.1;
+            return CalculateThrottleByTorque(rpm, torqueRequired);
+        }
+
+        public virtual double CalculateThrottleByTorque(double rpm, double torque)
+        {
+            var torqueP = CalculateTorqueP(rpm, 1);
+            if (torque > torqueP) return 1;
+            var torqueN = CalculateTorqueN(rpm);
+            if (torque < torqueN) return 0;
+
+            var t = torque / (torqueP - torqueN);
+            return t;
+        }
+
+        public virtual double CalculateTorqueN(double rpm)
+        {
+            var lastKey = 0.0;
+            foreach (var r in Engine.Keys)
+            {
+                if (r > rpm && lastKey < rpm)
+                {
+                    var dutyCycle = (rpm - lastKey) / (r - lastKey);
+                    return (Engine[r].N - Engine[lastKey].N) * dutyCycle + Engine[lastKey].N;
+                }
+                else
+                {
+                    lastKey = r;
+                }
+            }
+
+            return 0;
+        }
+
+        public virtual double CalculateTorqueP(double rpm, double throttle)
+        {
+            var lastKey = 0.0;
+            foreach (var r in Engine.Keys)
+            {
+                if (r > rpm && lastKey < rpm)
+                {
+                    var dutyCycle = (rpm - lastKey) / (r - lastKey);
+                    return (Engine[r].P - Engine[lastKey].P) * dutyCycle + Engine[lastKey].P;
+                }
+                else
+                {
+                    lastKey = r;
+                }
+            }
+
+            return 0;
         }
 
         public virtual IEnumerable<IniValueObject> ExportParameters()
         {
             List<IniValueObject> obj = new List<IniValueObject>();
 
-            obj.Add(new IniValueObject(new string[] {"Engine"}, "Idle", StallRpm.ToString()));
-            obj.Add(new IniValueObject(new string[] {"Engine"}, "Max", MaximumRpm.ToString()));
+            obj.Add(new IniValueObject(new string[] { "Engine" }, "Idle", StallRpm.ToString()));
+            obj.Add(new IniValueObject(new string[] { "Engine" }, "Max", MaximumRpm.ToString()));
             foreach (var frame in Engine)
             {
-                obj.Add(new IniValueObject(new string[] {"Engine"}, "Power",
-                    string.Format("({0},{1},{2})", frame.Key, frame.Value.N, frame.Value.P)));
+                obj.Add(
+                    new IniValueObject(
+                        new string[] { "Engine" },
+                        "Power",
+                        string.Format("({0},{1},{2})", frame.Key, frame.Value.N, frame.Value.P)));
             }
 
-            obj.Add(new IniValueObject(new string[] {"Gearbox"}, "Gears", Gears.ToString()));
-            obj.Add(new IniValueObject(new string[] {"Gearbox"}, "GearR", GearReverse.ToString()));
+            obj.Add(new IniValueObject(new string[] { "Gearbox" }, "Gears", Gears.ToString()));
+            obj.Add(new IniValueObject(new string[] { "Gearbox" }, "GearR", GearReverse.ToString()));
             for (int g = 0; g < Gears; g++)
             {
-                obj.Add(new IniValueObject(new string[] {"Gearbox"}, "Gear",
-                    string.Format("({0},{1})", g, GearRatios[g])));
+                obj.Add(
+                    new IniValueObject(
+                        new string[] { "Gearbox" },
+                        "Gear",
+                        string.Format("({0},{1})", g, GearRatios[g])));
             }
 
             return obj;
         }
 
-        #endregion
+        public virtual bool GotDamage(float damage)
+        {
+            // gears might go kaput in other games
+            return false;
+        }
+
+        public virtual void ResetParameters()
+        {
+            Engine = new Dictionary<double, GenericEngineData>();
+            StallRpm = 900;
+            MaximumRpm = 2500;
+        }
+
+        internal struct GenericEngineData
+        {
+            public double N;
+
+            public double P;
+
+            public GenericEngineData(double n, double p)
+            {
+                N = n;
+                P = p;
+            }
+        }
     }
 }

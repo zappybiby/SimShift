@@ -2,15 +2,24 @@ namespace SimShift.Data.Common
 {
     public interface IDataDefinition
     {
-        string Car { get; set;  }
-        float Time { get; }
-        bool Paused { get; }
-        int Gear { get; }
-        int Gears { get; }
-        float EngineRpm { get; }
-        float Fuel { get; }
-        float Throttle { get; }
         float Brake { get; }
+
+        string Car { get; set; }
+
+        float EngineRpm { get; }
+
+        float Fuel { get; }
+
+        int Gear { get; }
+
+        int Gears { get; }
+
+        bool Paused { get; }
+
         float Speed { get; }
+
+        float Throttle { get; }
+
+        float Time { get; }
     }
 }

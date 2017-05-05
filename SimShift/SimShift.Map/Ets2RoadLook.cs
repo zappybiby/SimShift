@@ -5,20 +5,21 @@ namespace SimShift.MapTool
 {
     public class Ets2RoadLook
     {
-        public bool IsHighway { get; private set; }
-        public bool IsLocal { get; private set; }
-        public bool IsExpress { get; private set; }
-        public string LookID { get; private set; }
-        private Ets2Mapper Mapper;
+        public int LanesLeft;
+
+        public int LanesRight;
 
         public float Offset;
-        public float SizeLeft;
-        public float SizeRight;
+
         public float ShoulderLeft;
+
         public float ShoulderRight;
 
-        public int LanesLeft;
-        public int LanesRight;
+        public float SizeLeft;
+
+        public float SizeRight;
+
+        private Ets2Mapper Mapper;
 
         public Ets2RoadLook(string look, Ets2Mapper mapper)
         {
@@ -44,7 +45,7 @@ namespace SimShift.MapTool
                     if (k.Contains(":"))
                     {
                         var key = k;
-                        var data = key.Substring(key.IndexOf(":")+1).Trim();
+                        var data = key.Substring(key.IndexOf(":") + 1).Trim();
                         key = key.Substring(0, key.IndexOf(":")).Trim();
 
                         switch (key)
@@ -81,10 +82,17 @@ namespace SimShift.MapTool
                                 break;
                         }
                     }
-                    if (k.Trim() == "}")
-                        break;
+                    if (k.Trim() == "}") break;
                 }
             }
         }
+
+        public bool IsExpress { get; private set; }
+
+        public bool IsHighway { get; private set; }
+
+        public bool IsLocal { get; private set; }
+
+        public string LookID { get; private set; }
     }
 }

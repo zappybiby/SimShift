@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+
 using SimShift.Data.Common;
 using SimShift.Entities;
 
@@ -11,9 +12,13 @@ namespace SimShift.Services
     public enum PowerMeterState
     {
         Idle,
+
         Prearm,
+
         Revup,
+
         Revdown,
+
         Cooldown
     }
 
@@ -23,43 +28,57 @@ namespace SimShift.Services
     class Ets2PowerMeter : IControlChainObj
     {
         public PowerMeterState State;
-        public IEnumerable<string> SimulatorsOnly {
-            get { return new string[0]; }
-        }
-        public IEnumerable<string> SimulatorsBan
-        {
-            get { return new string[0]; }
-        }
-        public bool Enabled { get; private set; }
-        public bool Active { get; private set; }
-        public bool Requires(JoyControls c)
-        {
-            return (c == JoyControls.Clutch || c == JoyControls.Throttle);
-        }
+
+        private DateTime endRevdown;
+
+        private DateTime endRevup;
+
+        private float integralRevver = 0.0f;
+
+        private float prearmSettler = 0;
 
         private float preArmThr;
+
+        private float revdownRpm;
+
+        private DateTime startRevdown;
+
+        private DateTime startRevup;
+
+        public bool Active { get; private set; }
+
+        public bool Enabled { get; private set; }
+
+        public IEnumerable<string> SimulatorsBan
+        {
+            get
+            {
+                return new string[0];
+            }
+        }
+
+        public IEnumerable<string> SimulatorsOnly
+        {
+            get
+            {
+                return new string[0];
+            }
+        }
 
         public double GetAxis(JoyControls c, double val)
         {
             switch (c)
             {
                 case JoyControls.Throttle:
-                    if (!Active)
-                        return val;
-                    else if (State == PowerMeterState.Prearm)
-                        return preArmThr;
-                    else if (State == PowerMeterState.Revup)
-                        return 1;
-                    else if (State == PowerMeterState.Revdown)
-                        return 0;
+                    if (!Active) return val;
+                    else if (State == PowerMeterState.Prearm) return preArmThr;
+                    else if (State == PowerMeterState.Revup) return 1;
+                    else if (State == PowerMeterState.Revdown) return 0;
                     else return val;
                     break;
-                case JoyControls.Clutch:
-                    return Active ? 1 : val;
+                case JoyControls.Clutch: return Active ? 1 : val;
 
-                default:
-                    return val;
-
+                default: return val;
             }
         }
 
@@ -68,19 +87,13 @@ namespace SimShift.Services
             return val;
         }
 
-        public void TickControls()
+        public bool Requires(JoyControls c)
         {
+            return (c == JoyControls.Clutch || c == JoyControls.Throttle);
         }
 
-        private DateTime startRevup;
-        private DateTime endRevup;
-
-        private DateTime startRevdown;
-        private DateTime endRevdown;
-
-        private float integralRevver = 0.0f;
-        private float prearmSettler = 0;
-        private float revdownRpm;
+        public void TickControls()
+        { }
 
         public void TickTelemetry(IDataMiner data)
         {
@@ -100,11 +113,11 @@ namespace SimShift.Services
                     }
                     break;
 
-                    case PowerMeterState.Prearm:
-                    preArmThr =  (1000 - data.Telemetry.EngineRpm)/1500;
+                case PowerMeterState.Prearm:
+                    preArmThr = (1000 - data.Telemetry.EngineRpm) / 1500;
                     if (Math.Abs(data.Telemetry.EngineRpm - 1000) < 100)
                     {
-                        integralRevver += (1000 - data.Telemetry.EngineRpm)/750000.0f;
+                        integralRevver += (1000 - data.Telemetry.EngineRpm) / 750000.0f;
                     }
                     else
                     {
@@ -130,7 +143,7 @@ namespace SimShift.Services
                     }
                     break;
 
-                    case PowerMeterState.Revup:
+                case PowerMeterState.Revup:
                     if (data.Telemetry.EngineRpm >= 2000)
                     {
                         endRevup = DateTime.Now;
@@ -141,13 +154,15 @@ namespace SimShift.Services
                     break;
 
                 case PowerMeterState.Revdown:
-                    if (data.Telemetry.EngineRpm <=1000)
+                    if (data.Telemetry.EngineRpm <= 1000)
                     {
                         endRevdown = DateTime.Now;
                         State = PowerMeterState.Cooldown;
-                        var fallTime = endRevdown.Subtract(startRevdown).TotalMilliseconds/1000.0;
+                        var fallTime = endRevdown.Subtract(startRevdown).TotalMilliseconds / 1000.0;
                         var fallRpm = revdownRpm - data.Telemetry.EngineRpm;
-                        Console.WriteLine("Rev up: " + (endRevup.Subtract(startRevup).TotalMilliseconds) + "ms, rev down: " + (fallTime) + "ms (" + (fallRpm/fallTime)+"rpm/s");
+                        Console.WriteLine(
+                            "Rev up: " + (endRevup.Subtract(startRevup).TotalMilliseconds) + "ms, rev down: "
+                            + (fallTime) + "ms (" + (fallRpm / fallTime) + "rpm/s");
                     }
                     break;
 
@@ -158,7 +173,6 @@ namespace SimShift.Services
                         State = PowerMeterState.Idle;
                     }
                     break;
-
             }
         }
     }

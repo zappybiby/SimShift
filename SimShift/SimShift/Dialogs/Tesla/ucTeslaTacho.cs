@@ -11,13 +11,11 @@ namespace SimShift.Dialogs.Tesla
 {
     public partial class ucTeslaTacho : UserControl
     {
-
         public ucTeslaTacho()
         {
             InitializeComponent();
 
             BackColor = Color.Magenta;
-
         }
     }
 }

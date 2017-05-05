@@ -10,15 +10,17 @@ namespace SimShift.Data.Common
 {
     public class SharedMemory<T>
     {
-        public const uint mapSize = 16*1024;
+        public const uint mapSize = 16 * 1024;
 
-        public bool Hooked { get; private set; }
-        public T Data { get; private set; }
-
-        public byte[] RawData { get; private set; }
+        private MemoryMappedViewAccessor _memoryMappedBuffer;
 
         private MemoryMappedFile _memoryMappedFile;
-        private MemoryMappedViewAccessor _memoryMappedBuffer;
+
+        public T Data { get; private set; }
+
+        public bool Hooked { get; private set; }
+
+        public byte[] RawData { get; private set; }
 
         //private UdpClient udpServer;
 
@@ -91,8 +93,7 @@ namespace SimShift.Data.Common
             var memoryObjectSize = Marshal.SizeOf(typeof(T));
 
             // Cannot create object from array that is too small.
-            if (memoryObjectSize > structureDataBytes.Length)
-                return createdObject;
+            if (memoryObjectSize > structureDataBytes.Length) return createdObject;
 
             // Reserve unmanaged memory, copy structureDataBytes bytes to there, and convert this unmanaged memory to a managed type.
             // Then free memory.
@@ -100,13 +101,11 @@ namespace SimShift.Data.Common
 
             Marshal.Copy(structureDataBytes, 0, reservedMemPtr, memoryObjectSize);
 
-            createdObject = (T)Marshal.PtrToStructure(reservedMemPtr, typeof(T));
+            createdObject = (T) Marshal.PtrToStructure(reservedMemPtr, typeof(T));
 
             Marshal.FreeHGlobal(reservedMemPtr);
-            
+
             return createdObject;
         }
-
-
     }
 }

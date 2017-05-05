@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+
 using SimShift.Dialogs;
 using SimShift.Entities;
 using SimShift.Models;
@@ -13,8 +14,8 @@ namespace SimShift.Simulation
     public class SimulationEnvironment
     {
         private IDrivetrain drivetrain;
-        private ShifterTableConfiguration shifter;
 
+        private ShifterTableConfiguration shifter;
 
         private double Speed = 0.0f;
 
@@ -24,7 +25,7 @@ namespace SimShift.Simulation
             Main.Load(drivetrain, "Settings/Drivetrain/eurotrucks2.scania.g7ld6x2.ini");
             shifter = new ShifterTableConfiguration(ShifterTableConfigurationDefault.Performance, drivetrain, 1, 0);
 
-            Speed = 30/3.6;
+            Speed = 30 / 3.6;
             StringBuilder sim = new StringBuilder();
             for (int k = 0; k < 10000; k++)
             {
@@ -39,16 +40,15 @@ namespace SimShift.Simulation
         {
             // Model : engine
             var topGear = drivetrain.Gears - 1;
-            var engineRpm = drivetrain.CalculateRpmForSpeed(topGear, (float)Speed);
+            var engineRpm = drivetrain.CalculateRpmForSpeed(topGear, (float) Speed);
             var enginePower = drivetrain.CalculatePower(engineRpm, 1.0f);
 
             // Model: aero
-            var aero = Speed*Speed*0.5;
+            var aero = Speed * Speed * 0.5;
 
             var acceleration = enginePower - aero;
             acceleration /= 100;
-            Speed += acceleration*1.0/100;
-
+            Speed += acceleration * 1.0 / 100;
         }
     }
 }

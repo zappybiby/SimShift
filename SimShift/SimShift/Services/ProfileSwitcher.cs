@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+
 using SimShift.Data;
 using SimShift.Data.Common;
 using SimShift.Entities;
@@ -12,36 +13,61 @@ namespace SimShift.Services
     /// </summary>
     public class ProfileSwitcher : IControlChainObj
     {
-        public bool Active { get { return ProfileSwitchFrozen; } }
-        public bool Enabled { get { return true; } }
+        private bool TrailerAttached = false;
 
-        public IEnumerable<string> SimulatorsOnly { get { return new String[0]; } }
-        public IEnumerable<string> SimulatorsBan { get { return new String[0]; } }
+        public bool Active
+        {
+            get
+            {
+                return ProfileSwitchFrozen;
+            }
+        }
+
+        public bool Enabled
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public bool ProfileSwitchFrozen
+        {
+            get
+            {
+                return ProfileSwitchTimeout > DateTime.Now;
+            }
+        }
 
         //
 
         public DateTime ProfileSwitchTimeout { get; private set; }
-        public bool ProfileSwitchFrozen { get { return ProfileSwitchTimeout > DateTime.Now; } }
 
-        public DateTime TransmissionReverseTimeout { get; private set; }
-        public bool TransmissionReverseFrozen { get { return TransmissionReverseTimeout > DateTime.Now; } }
-
-        private bool TrailerAttached = false;
-
-        #region Implementation of IControlChainObj
-
-        public bool Requires(JoyControls c)
+        public IEnumerable<string> SimulatorsBan
         {
-            switch(c)
+            get
             {
-                case JoyControls.GearUp:
-                case JoyControls.GearDown:
-                    return true;
-
-                default:
-                    return false;
+                return new String[0];
             }
         }
+
+        public IEnumerable<string> SimulatorsOnly
+        {
+            get
+            {
+                return new String[0];
+            }
+        }
+
+        public bool TransmissionReverseFrozen
+        {
+            get
+            {
+                return TransmissionReverseTimeout > DateTime.Now;
+            }
+        }
+
+        public DateTime TransmissionReverseTimeout { get; private set; }
 
         public double GetAxis(JoyControls c, double val)
         {
@@ -50,7 +76,7 @@ namespace SimShift.Services
 
         public bool GetButton(JoyControls c, bool val)
         {
-            switch(c)
+            switch (c)
             {
                 case JoyControls.GearUp:
                     if (val && !ProfileSwitchFrozen)
@@ -71,7 +97,7 @@ namespace SimShift.Services
                     return false;
                     break;
                 case JoyControls.GearDown:
-                    if(val && !TransmissionReverseFrozen)
+                    if (val && !TransmissionReverseFrozen)
                     {
                         TransmissionReverseTimeout = DateTime.Now.Add(new TimeSpan(0, 0, 0, 1));
                         Transmission.InReverse = !Transmission.InReverse;
@@ -79,9 +105,18 @@ namespace SimShift.Services
                     return false;
                     break;
 
-                default:
-                    return val;
+                default: return val;
+            }
+        }
 
+        public bool Requires(JoyControls c)
+        {
+            switch (c)
+            {
+                case JoyControls.GearUp:
+                case JoyControls.GearDown: return true;
+
+                default: return false;
             }
         }
 
@@ -106,7 +141,5 @@ namespace SimShift.Services
                 }
             }
         }
-
-        #endregion
     }
 }

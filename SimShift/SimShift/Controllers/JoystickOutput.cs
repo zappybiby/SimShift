@@ -3,22 +3,34 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+
 using vJoyInterfaceWrap;
 
 namespace SimShift.Controllers
 {
-
     public class JoystickOutput
     {
         public uint ID;
+
         public vJoy joy;
 
         public JoystickOutput()
         {
             int id = 1;
-            ID = (uint)id;
+            ID = (uint) id;
             joy = initVjoy(ID);
         }
+
+        public void SetAxis(HID_USAGES axisId, double v)
+        {
+            joy.SetAxis((int) (v * Math.Pow(2, 16)), ID, axisId);
+        }
+
+        public void SetButton(int btnId, bool v)
+        {
+            joy.SetBtn(v, ID, (uint) btnId);
+        }
+
         private vJoy initVjoy(uint id)
         {
             var joystick = new vJoy();
@@ -45,21 +57,10 @@ namespace SimShift.Controllers
                     return joystick;
             }*/
             bool AxisX = joystick.GetVJDAxisExist(id, HID_USAGES.HID_USAGE_X);
-            if (joystick.AcquireVJD(id) == false)
-                MessageBox.Show("Could not acquire vJoy " + id);
+            if (joystick.AcquireVJD(id) == false) MessageBox.Show("Could not acquire vJoy " + id);
             Console.WriteLine(AxisX);
             return joystick;
         }
-
-        public void SetButton(int btnId, bool v)
-        {
-            joy.SetBtn(v, ID, (uint)btnId);
-        }
-        public void SetAxis(HID_USAGES axisId, double v)
-        {
-            joy.SetAxis((int)(v * Math.Pow(2, 16)), ID, axisId);
-        }
-
     }
 
     /*

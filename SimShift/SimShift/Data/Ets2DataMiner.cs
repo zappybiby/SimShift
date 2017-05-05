@@ -7,59 +7,130 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
+
 using Ets2SdkClient;
+
 using SimShift.Entities;
+
 using SimTelemetry.Domain.Memory;
 
 namespace SimShift.Data
 {
     public class Ets2DataMiner : SimShift.Data.Common.IDataMiner
     {
-        public string Application
-        {
-            get { return "eurotrucks2"; }
-        }
+        public List<Ets2Car> Cars = new List<Ets2Car>();
 
-        public string Name
-        {
-            get { return "Euro Truck Simulator 2"; }
-        }
-
-        public bool Running { get; set; }
-        public bool IsActive { get; set; }
-        public bool RunEvent { get; set; }
-
-        public bool SelectManually
-        {
-            get { return false; }
-        }
+        /*** MyTelemetry data source & update control ***/
+        private readonly MmTimer _telemetryUpdater = new MmTimer(10);
 
         private Process _ap;
 
+        private MemoryProvider miner;
+
+        private bool sdkBusy = false;
+
+        private Ets2SdkTelemetry sdktel;
+
+        private Socket server;
+
+        public Ets2DataMiner()
+        {
+            server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+
+            sdktel = new Ets2SdkTelemetry(10);
+            sdktel.Data += (data, timestamp) =>
+                {
+                    MyTelemetry = data;
+
+                    var veh = (data.TruckId.StartsWith("vehicle.") ? data.TruckId.Substring(8) : data.TruckId);
+                    var newData = new SimShift.Data.Common.GenericDataDefinition(
+                        veh,
+                        data.Time / 1000000.0f,
+                        data.Paused,
+                        data.Drivetrain.Gear,
+                        data.Drivetrain.GearsForward,
+                        data.Drivetrain.EngineRpm,
+                        data.Drivetrain.Fuel,
+                        data.Controls.GameThrottle,
+                        data.Controls.GameBrake,
+                        data.Drivetrain.Speed);
+                    Telemetry = newData;
+                    if (DataReceived != null) DataReceived(this, new EventArgs());
+                };
+            sdktel.Data += sdktel_Data;
+        }
+
         public Process ActiveProcess
         {
-            get { return _ap; }
+            get
+            {
+                return _ap;
+            }
             set
             {
                 _ap = value;
-                if (miner == null && _ap != null)
-                AdvancedMiner();
+                if (miner == null && _ap != null) AdvancedMiner();
+            }
+        }
+
+        public string Application
+        {
+            get
+            {
+                return "eurotrucks2";
+            }
+        }
+
+        public EventHandler DataReceived { get; set; }
+
+        public bool EnableWeirdAntistall
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public bool IsActive { get; set; }
+
+        public Ets2Telemetry MyTelemetry { get; private set; }
+
+        public string Name
+        {
+            get
+            {
+                return "Euro Truck Simulator 2";
+            }
+        }
+
+        public bool RunEvent { get; set; }
+
+        public bool Running { get; set; }
+
+        public bool SelectManually
+        {
+            get
+            {
+                return false;
             }
         }
 
         public bool SupportsCar
         {
-            get { return true; }
+            get
+            {
+                return true;
+            }
         }
+
+        public SimShift.Data.Common.IDataDefinition Telemetry { get; private set; }
 
         public bool TransmissionSupportsRanges
         {
-            get { return true; }
-        }
-
-        public bool EnableWeirdAntistall
-        {
-            get { return true; }
+            get
+            {
+                return true;
+            }
         }
 
         public void EvtStart()
@@ -77,40 +148,6 @@ namespace SimShift.Data
             // Not supported
         }
 
-        public EventHandler DataReceived { get; set; }
-        private Ets2SdkTelemetry sdktel;
-
-        private MemoryProvider miner;
-
-        public List<Ets2Car> Cars = new List<Ets2Car>(); 
-
-        public Ets2Telemetry MyTelemetry { get; private set; }
-        public SimShift.Data.Common.IDataDefinition Telemetry { get; private set; }
-
-        /*** MyTelemetry data source & update control ***/
-        private readonly MmTimer _telemetryUpdater = new MmTimer(10);
-        private Socket server;
-        public Ets2DataMiner()
-        {
-        
-                 server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
-            sdktel = new Ets2SdkTelemetry(10);
-            sdktel.Data += (data, timestamp) =>
-            {
-                MyTelemetry = data;
-
-                var veh = (data.TruckId.StartsWith("vehicle.") ? data.TruckId.Substring(8) : data.TruckId);
-                var newData = new SimShift.Data.Common.GenericDataDefinition(veh, data.Time / 1000000.0f, data.Paused, data.Drivetrain.Gear,
-                    data.Drivetrain.GearsForward, data.Drivetrain.EngineRpm, data.Drivetrain.Fuel,
-                    data.Controls.GameThrottle, data.Controls.GameBrake, data.Drivetrain.Speed);
-                Telemetry = newData;
-                if (DataReceived != null)
-                    DataReceived(this, new EventArgs());
-            };
-            sdktel.Data += sdktel_Data;
-        }
-
         private void AdvancedMiner()
         {
             var reader = new MemoryReader();
@@ -124,11 +161,18 @@ namespace SimShift.Data
             var ptr1Offset = 0;
             var spdOffset = scanner.Scan<byte>(MemoryRegionType.READWRITE, "DEC9D947??DECADEC1D955FC");
             var cxOffset = scanner.Scan<byte>(MemoryRegionType.READWRITE, "F30F5C4E??F30F59C0F30F59");
-            var cyOffset = cxOffset + 4;// scanner.Scan<byte>(MemoryRegionType.READWRITE, "5F8B0A890E8B4A??894EXX8B4AXX894EXX");
-            var czOffset = cxOffset + 8;// scanner.Scan<byte>(MemoryRegionType.READWRITE, "8B4A08??894EXXD9420CD95E0C");
+            var cyOffset =
+                cxOffset + 4; // scanner.Scan<byte>(MemoryRegionType.READWRITE, "5F8B0A890E8B4A??894EXX8B4AXX894EXX");
+            var czOffset =
+                cxOffset + 8; // scanner.Scan<byte>(MemoryRegionType.READWRITE, "8B4A08??894EXXD9420CD95E0C");
             scanner.Disable();
 
-            var carsPool = new MemoryPool("Cars", MemoryAddress.StaticAbsolute, staticAddr, new int[] { 0, staticOffset}, 64*4);
+            var carsPool = new MemoryPool(
+                "Cars",
+                MemoryAddress.StaticAbsolute,
+                staticAddr,
+                new int[] { 0, staticOffset },
+                64 * 4);
 
             miner.Add(carsPool);
 
@@ -142,11 +186,10 @@ namespace SimShift.Data
 
                 miner.Add(carPool);
 
-                Cars.Add(new Ets2Car {ID = k});
+                Cars.Add(new Ets2Car { ID = k });
             }
         }
 
-        private bool sdkBusy=false;
         private void sdktel_Data(Ets2Telemetry data, bool newTimestamp)
         {
             if (sdkBusy) return;
@@ -171,59 +214,58 @@ namespace SimShift.Data
                 }
 
                 var ep = new IPEndPoint(IPAddress.Parse("192.168.1.158"), 12345);
-                var r = (data.Drivetrain.EngineRpm - 300)/(2500 - 300);
+                var r = (data.Drivetrain.EngineRpm - 300) / (2500 - 300);
                 if (data.Drivetrain.EngineRpm < 300) r = -1;
-                var s = ((int) (r*10000)).ToString() + "," +
-                        ((int) (data.Controls.GameThrottle*1000)).ToString() + "," + ((data.Paused) ? 1 : 0);
+                var s = ((int) (r * 10000)).ToString() + "," + ((int) (data.Controls.GameThrottle * 1000)).ToString()
+                        + "," + ((data.Paused) ? 1 : 0);
                 var sb = ASCIIEncoding.ASCII.GetBytes(s);
                 var dgram = ASCIIEncoding.ASCII.GetBytes(s);
 
                 server.SendTo(dgram, ep);
             }
             catch
-            {
-                
-            }
+            { }
             sdkBusy = false;
         }
     }
 
     public class Ets2Car
     {
-        public int ID;
+        public PointF[] Box;
 
-        public bool Tracked;
-
-        public float Speed;
-
-        public float X;
-        public float Y;
-        public float Z;
+        public float Distance;
 
         public float Heading;
 
+        public int ID;
+
         public float Length;
 
-        private float lastX = 0.0f;
-        private float lastY = 0.0f;
+        public float Speed;
 
-        public PointF[] Box;
+        public bool Tracked;
+
+        public float TTI;
+
+        public float X;
+
+        public float Y;
+
+        public float Z;
+
+        private float lastX = 0.0f;
+
+        private float lastY = 0.0f;
 
         public bool Valid
         {
             get
             {
-                if (Box == null || Math.Abs(Speed) > 200 || Math.Abs(X) > 1E7 || Math.Abs(Z) > 1E7 || float.IsNaN(X) ||
-                    float.IsNaN(Z) || float.IsInfinity(X) || float.IsInfinity(Z))
-                    return false;
-                else
-                    return true;
-
+                if (Box == null || Math.Abs(Speed) > 200 || Math.Abs(X) > 1E7 || Math.Abs(Z) > 1E7 || float.IsNaN(X)
+                    || float.IsNaN(Z) || float.IsInfinity(X) || float.IsInfinity(Z)) return false;
+                else return true;
             }
         }
-
-        public float Distance;
-        public float TTI;
 
         public void Tick()
         {
@@ -232,25 +274,26 @@ namespace SimShift.Data
             if (Math.Abs(dx) >= 0.02f || Math.Abs(dy) >= 0.02f)
             {
                 Heading = (float) (Math.PI - Math.Atan2(dy, dx));
-
             }
             // Rotated polygon
             var carL = 12.0f;
             var carW = 3.0f;
             var hg = -Heading; //
             Box = new PointF[]
-                {
-                    new PointF(X + carL/2*(float) Math.Cos(hg) - carW/2*(float) Math.Sin(hg),
-                        Z + carL/2*(float) Math.Sin(hg) + carW/2*(float) Math.Cos(hg)),
-                    new PointF(X - carL/2*(float) Math.Cos(hg) - carW/2*(float) Math.Sin(hg),
-                        Z - carL/2*(float) Math.Sin(hg) + carW/2*(float) Math.Cos(hg)),
-                    new PointF(X - carL/2*(float) Math.Cos(hg) + carW/2*(float) Math.Sin(hg),
-                        Z - carL/2*(float) Math.Sin(hg) - carW/2*(float) Math.Cos(hg)),
-                    new PointF(X + carL/2*(float) Math.Cos(hg) + carW/2*(float) Math.Sin(hg),
-                        Z + carL/2*(float) Math.Sin(hg) - carW/2*(float) Math.Cos(hg)),
-                };
-
-
+                      {
+                          new PointF(
+                              X + carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg),
+                              Z + carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)),
+                          new PointF(
+                              X - carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg),
+                              Z - carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)),
+                          new PointF(
+                              X - carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg),
+                              Z - carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)),
+                          new PointF(
+                              X + carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg),
+                              Z + carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)),
+                      };
 
             lastX = X;
             lastY = Z;

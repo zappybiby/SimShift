@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+
 using SimShift.Services;
 using SimShift.Utils;
 
@@ -11,13 +12,8 @@ namespace SimShift.Entities
     public class Profiles : IConfigurable
     {
         public List<Profile> Loaded = new List<Profile>();
+
         public List<string> Unloaded = new List<string>();
-        public string UniqueID { get; private set; }
-
-        public event EventHandler LoadedProfile;
-
-        public string MasterFile { get; private set; }
-        public string PatternFile { get; private set; }
 
         public Profiles(string app, string car)
         {
@@ -40,37 +36,26 @@ namespace SimShift.Entities
                 Main.Store(ExportParameters(), MasterFile);
             }
 
-
             Main.Load(this, MasterFile);
         }
 
-        #region Implementation of IConfigurable
+        public event EventHandler LoadedProfile;
 
         public IEnumerable<string> AcceptsConfigs
         {
-            get { return new string[] {"Profiles"}; }
+            get
+            {
+                return new string[] { "Profiles" };
+            }
         }
 
         public string Active { get; private set; }
 
-        public void ResetParameters()
-        {
-            Loaded.Clear();
-            Unloaded.Clear();
-        }
+        public string MasterFile { get; private set; }
 
-        public void Load(string profile, float staticMass)
-        {
-            if(Loaded.Any(x=>x.Name == profile))
-            {
-                Debug.WriteLine("Loading profile "+profile);
-                Active = profile;
-                Loaded.FirstOrDefault(x => x.Name == profile).Load(staticMass);
+        public string PatternFile { get; private set; }
 
-                if(LoadedProfile != null)
-                    LoadedProfile(this, new EventArgs());
-            }
-        }
+        public string UniqueID { get; private set; }
 
         public void ApplyParameter(IniValueObject obj)
         {
@@ -78,7 +63,7 @@ namespace SimShift.Entities
             {
                 case "Load":
                     var p = new Profile(this, obj.ReadAsString());
-                    if(p.Loaded==false)
+                    if (p.Loaded == false)
                     {
                         Unloaded.Add(obj.ReadAsString());
                     }
@@ -110,6 +95,22 @@ namespace SimShift.Entities
             return obj;
         }
 
-        #endregion
+        public void Load(string profile, float staticMass)
+        {
+            if (Loaded.Any(x => x.Name == profile))
+            {
+                Debug.WriteLine("Loading profile " + profile);
+                Active = profile;
+                Loaded.FirstOrDefault(x => x.Name == profile).Load(staticMass);
+
+                if (LoadedProfile != null) LoadedProfile(this, new EventArgs());
+            }
+        }
+
+        public void ResetParameters()
+        {
+            Loaded.Clear();
+            Unloaded.Clear();
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+
 using SimShift.Data.Common;
 using SimShift.Entities;
 
@@ -11,15 +12,24 @@ namespace SimShift.Services
     public enum DrivetrainCalibrationStage
     {
         None,
+
         StartIdleRpm,
+
         FinishIdleRpm,
+
         StartMaxRpm,
+
         FinishMaxRpm,
+
         StartGears,
+
         FinishGears,
+
         StartGearRatios,
+
         //..
         EndGearRatios,
+
         ShiftToFirst
     }
 
@@ -33,64 +43,102 @@ namespace SimShift.Services
     /// </summary>
     public class DrivetrainCalibrator : IControlChainObj
     {
-        public bool Enabled { get { return Calibrating; } }
-        public bool Active { get { return Calibrating; } }
+        private string calibrateShiftStyle = "up_1thr";
 
-        public IEnumerable<string> SimulatorsOnly { get { return new String[0]; } }
-        public IEnumerable<string> SimulatorsBan { get { return new String[0]; } }
+        private bool calibrationPreDone = false;
 
+        private double clutch;
+
+        private int gear;
+
+        private float gearRatioSpeedCruise = 0.0f;
+
+        private double maxRpmMeasured = 0;
+
+        private double maxRpmTarget = 0;
+
+        private DrivetrainCalibrationStage nextStage;
+
+        private double previousEngineRpm = 0;
+
+        private double previousThrottle = 0;
+
+        private bool reqClutch;
+
+        private bool reqThrottle;
+
+        private double sample = 0;
+
+        private int samplesTaken = 0;
+
+        private int shiftToFirstRangeAttempt = 0;
+
+        private DrivetrainCalibrationStage stage;
+
+        private double throttle;
+
+        public static int UncalibratedGear { get; set; }
+
+        public bool Active
+        {
+            get
+            {
+                return Calibrating;
+            }
+        }
 
         //
         public bool Calibrating { get; private set; }
 
-        public DateTime MeasurementSettletime { get; private set; }
+        public bool Enabled
+        {
+            get
+            {
+                return Calibrating;
+            }
+        }
 
         public bool MeasurementSettled
         {
-            get { return DateTime.Now > MeasurementSettletime; }
+            get
+            {
+                return DateTime.Now > MeasurementSettletime;
+            }
         }
 
-        private bool reqThrottle;
-        private bool reqClutch;
-        private bool reqGears { get { return Main.Transmission.OverruleShifts; } set { Main.Transmission.OverruleShifts = value; } }
+        public DateTime MeasurementSettletime { get; private set; }
 
-        private double throttle;
-        private double clutch;
-        private int gear;
-
-        private DrivetrainCalibrationStage stage;
-        private DrivetrainCalibrationStage nextStage;
-
-        #region Implementation of IControlChainObj
-
-        public bool Requires(JoyControls c)
+        public IEnumerable<string> SimulatorsBan
         {
-            switch(c)
+            get
             {
-                case JoyControls.Throttle:
-                    return reqThrottle;
-                case JoyControls.Clutch:
-                    return reqClutch;
+                return new String[0];
+            }
+        }
 
-                case JoyControls.Gear1:
-                case JoyControls.Gear2:
-                case JoyControls.Gear3:
-                case JoyControls.Gear4:
-                case JoyControls.Gear5:
-                case JoyControls.Gear6:
-                case JoyControls.Gear7:
-                case JoyControls.Gear8:
-                case JoyControls.GearR:
-                    return false;//return reqGears;
+        public IEnumerable<string> SimulatorsOnly
+        {
+            get
+            {
+                return new String[0];
+            }
+        }
 
-                default:
-                    return false;
+        private bool reqGears
+        {
+            get
+            {
+                return Main.Transmission.OverruleShifts;
+            }
+            set
+            {
+                Main.Transmission.OverruleShifts = value;
             }
         }
 
         public double GetAxis(JoyControls c, double val)
         {
-            switch(c)
+            switch (c)
             {
                 case JoyControls.Throttle:
                     return throttle;
@@ -100,35 +148,45 @@ namespace SimShift.Services
                     return clutch;
                     break;
 
-                default:
-                    return val;
+                default: return val;
             }
         }
 
         public bool GetButton(JoyControls c, bool val)
         {
-            switch(c)
+            switch (c)
             {
+                case JoyControls.Gear1: return 1 == gear;
+                case JoyControls.Gear2: return 2 == gear;
+                case JoyControls.Gear3: return 3 == gear;
+                case JoyControls.Gear4: return 4 == gear;
+                case JoyControls.Gear5: return 5 == gear;
+                case JoyControls.Gear6: return 6 == gear;
+                case JoyControls.Gear7: return 7 == gear;
+                case JoyControls.Gear8: return 8 == gear;
+                case JoyControls.GearR: return -1 == gear;
+                default: return val;
+            }
+        }
+
+        public bool Requires(JoyControls c)
+        {
+            switch (c)
+            {
+                case JoyControls.Throttle: return reqThrottle;
+                case JoyControls.Clutch: return reqClutch;
+
                 case JoyControls.Gear1:
-                    return 1 == gear;
                 case JoyControls.Gear2:
-                    return 2 == gear;
                 case JoyControls.Gear3:
-                    return 3 == gear;
                 case JoyControls.Gear4:
-                    return 4 == gear;
                 case JoyControls.Gear5:
-                    return 5 == gear;
                 case JoyControls.Gear6:
-                    return 6 == gear;
                 case JoyControls.Gear7:
-                    return 7 == gear;
                 case JoyControls.Gear8:
-                    return 8 == gear;
-                case JoyControls.GearR:
-                    return -1 == gear;
-                default:
-                    return val;
+                case JoyControls.GearR: return false; //return reqGears;
+
+                default: return false;
             }
         }
 
@@ -137,43 +195,29 @@ namespace SimShift.Services
             //
         }
 
-        private double previousEngineRpm = 0;
-        private double previousThrottle = 0;
-        private double maxRpmTarget = 0;
-        private double maxRpmMeasured = 0;
-        private bool calibrationPreDone = false;
-        private string calibrateShiftStyle = "up_1thr";
-        private int samplesTaken = 0;
-        private double sample = 0;
-
-        private int shiftToFirstRangeAttempt = 0;
-
-        private float gearRatioSpeedCruise = 0.0f;
-
         public void TickTelemetry(IDataMiner data)
         {
             if (!Main.Data.Active.SupportsCar) return;
             bool wasCalibrating = Calibrating;
             Calibrating = !Main.Drivetrain.Calibrated;
-            if(!wasCalibrating && Calibrating)
+            if (!wasCalibrating && Calibrating)
             {
                 Debug.WriteLine("now calibrating");
                 stage = DrivetrainCalibrationStage.StartIdleRpm;
             }
 
-            if(stage!=DrivetrainCalibrationStage.None && !Calibrating)
-                stage = DrivetrainCalibrationStage.None;
+            if (stage != DrivetrainCalibrationStage.None && !Calibrating) stage = DrivetrainCalibrationStage.None;
             ;
-            switch(stage)
+            switch (stage)
             {
-                case DrivetrainCalibrationStage.None :
+                case DrivetrainCalibrationStage.None:
                     reqGears = false;
                     reqThrottle = false;
                     reqClutch = false;
                     break;
 
                 case DrivetrainCalibrationStage.StartIdleRpm:
-                    
+
                     reqClutch = true;
                     reqThrottle = true;
                     reqGears = true;
@@ -184,24 +228,26 @@ namespace SimShift.Services
                         clutch = 1;
                         gear = 0;
                     }
-                    else if (data.Telemetry.EngineRpm>2000)
+                    else if (data.Telemetry.EngineRpm > 2000)
                     {
                         throttle = 0;
                         clutch = 1;
                         gear = 0;
-                    }else
+                    }
+                    else
                     {
                         throttle = 0;
                         clutch = 1;
                         gear = 0;
 
-                        if (Math.Abs(data.Telemetry.EngineRpm - previousEngineRpm) < 1){
+                        if (Math.Abs(data.Telemetry.EngineRpm - previousEngineRpm) < 1)
+                        {
                             stage = DrivetrainCalibrationStage.FinishIdleRpm;
 
                             MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 2750));
                         }
                     }
-                        previousEngineRpm = data.Telemetry.EngineRpm;
+                    previousEngineRpm = data.Telemetry.EngineRpm;
                     break;
                 case DrivetrainCalibrationStage.FinishIdleRpm:
                     if (MeasurementSettled)
@@ -226,12 +272,12 @@ namespace SimShift.Services
                     reqClutch = true;
                     reqThrottle = true;
                     reqGears = true;
-                    
+
                     clutch = 1;
                     throttle = 1;
                     maxRpmMeasured = 0;
 
-                    MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0,1500));
+                    MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 1500));
                     stage = DrivetrainCalibrationStage.FinishMaxRpm;
 
                     break;
@@ -242,7 +288,7 @@ namespace SimShift.Services
 
                     if (MeasurementSettled)
                     {
-                        if (Math.Abs(maxRpmMeasured-Main.Drivetrain.StallRpm) < 500)
+                        if (Math.Abs(maxRpmMeasured - Main.Drivetrain.StallRpm) < 500)
                         {
                             Debug.WriteLine("Totally messed up MAX RPM.. resetting");
                             stage = DrivetrainCalibrationStage.StartIdleRpm;
@@ -251,8 +297,7 @@ namespace SimShift.Services
                         {
                             Debug.WriteLine("Max RPM approx: " + maxRpmMeasured);
 
-                            Main.Drivetrain.MaximumRpm = maxRpmMeasured-300;
-
+                            Main.Drivetrain.MaximumRpm = maxRpmMeasured - 300;
 
                             stage = DrivetrainCalibrationStage.ShiftToFirst;
                             nextStage = DrivetrainCalibrationStage.StartGears;
@@ -269,7 +314,7 @@ namespace SimShift.Services
                     clutch = 1;
                     gear++;
                     Main.Transmission.Shift(data.Telemetry.Gear, gear, calibrateShiftStyle);
-                    MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0,500));
+                    MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 500));
 
                     stage = DrivetrainCalibrationStage.FinishGears;
 
@@ -278,7 +323,7 @@ namespace SimShift.Services
 
                     if (MeasurementSettled && !Main.Transmission.IsShifting)
                     {
-                        if(data.Telemetry.Gear != gear)
+                        if (data.Telemetry.Gear != gear)
                         {
                             gear--;
                             // Car doesn't have this gear.
@@ -288,7 +333,6 @@ namespace SimShift.Services
                             {
                                 Debug.WriteLine("That's not right");
                                 stage = DrivetrainCalibrationStage.StartGears;
-
                             }
                             else
                             {
@@ -304,7 +348,7 @@ namespace SimShift.Services
                         }
                         else
                         {
-                            stage=DrivetrainCalibrationStage.StartGears;
+                            stage = DrivetrainCalibrationStage.StartGears;
                         }
                     }
                     break;
@@ -314,8 +358,10 @@ namespace SimShift.Services
                     {
                         if (data.Telemetry.Gear != 1)
                         {
-                            Main.Transmission.Shift(shiftToFirstRangeAttempt*Main.Transmission.RangeSize + 1, 1,
-                                                    calibrateShiftStyle);
+                            Main.Transmission.Shift(
+                                shiftToFirstRangeAttempt * Main.Transmission.RangeSize + 1,
+                                1,
+                                calibrateShiftStyle);
                             shiftToFirstRangeAttempt++;
 
                             MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 100));
@@ -328,20 +374,18 @@ namespace SimShift.Services
                         }
                     }
 
-
                     break;
-
 
                 case DrivetrainCalibrationStage.EndGearRatios:
 
                     if (Main.Drivetrain.GearRatios.Length >= data.Telemetry.Gear)
                     {
-                        if(data.Telemetry.Gear<=0)
+                        if (data.Telemetry.Gear <= 0)
                         {
                             stage = DrivetrainCalibrationStage.StartGearRatios;
                             break;
                         }
-                        if (data.Telemetry.EngineRpm > Main.Drivetrain.StallRpm*1.15)
+                        if (data.Telemetry.EngineRpm > Main.Drivetrain.StallRpm * 1.15)
                         {
                             var gr = Main.Drivetrain.GearRatios[data.Telemetry.Gear - 1];
                             if (gr != 0)
@@ -365,9 +409,9 @@ namespace SimShift.Services
                             // start sampling
                             if (sample == 0) sample = ratio;
                             else sample = sample * 0.9 + ratio * 0.1;
-                            samplesTaken ++;
+                            samplesTaken++;
 
-                            if(samplesTaken==50)
+                            if (samplesTaken == 50)
                             {
                                 Main.Drivetrain.GearRatios[data.Telemetry.Gear - 1] = sample;
                             }
@@ -385,7 +429,7 @@ namespace SimShift.Services
                     break;
 
                 case DrivetrainCalibrationStage.StartGearRatios:
-                    
+
                     reqGears = false;
                     reqThrottle = false;
                     reqClutch = false;
@@ -393,17 +437,16 @@ namespace SimShift.Services
                     // Activate get-home-mode; which shifts at 4x stall rpm
                     Main.Transmission.GetHomeMode = true;
 
-                    if (data.Telemetry.EngineRpm > Main.Drivetrain.StallRpm*2)
+                    if (data.Telemetry.EngineRpm > Main.Drivetrain.StallRpm * 2)
                     {
                         // Driving at reasonable rpm's.
 
                         if (data.Telemetry.Gear > 0)
                         {
-                            if (Main.Drivetrain.GearRatios.Length >= data.Telemetry.Gear &&
-                                data.Telemetry.EngineRpm > Main.Drivetrain.StallRpm * 2)
+                            if (Main.Drivetrain.GearRatios.Length >= data.Telemetry.Gear
+                                && data.Telemetry.EngineRpm > Main.Drivetrain.StallRpm * 2)
                             {
                                 var gr = Main.Drivetrain.GearRatios[data.Telemetry.Gear - 1];
-
 
                                 if (gr == 0)
                                 {
@@ -416,7 +459,8 @@ namespace SimShift.Services
 
                         var GearsCalibrated = true;
                         for (int i = 0; i < Main.Drivetrain.Gears; i++)
-                        {    if (Main.Drivetrain.GearRatios[i] < 1)
+                        {
+                            if (Main.Drivetrain.GearRatios[i] < 1)
                             {
                                 UncalibratedGear = i;
 
@@ -442,15 +486,10 @@ namespace SimShift.Services
                                 MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 3));
                             }
                         }
-
                     }
 
                     break;
             }
         }
-
-        public static int UncalibratedGear { get; set; }
-
-        #endregion
     }
 }

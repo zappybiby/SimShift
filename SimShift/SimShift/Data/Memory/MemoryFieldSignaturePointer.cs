@@ -2,12 +2,6 @@
 {
     public class MemoryFieldSignaturePointer
     {
-        public int Offset { get; private set; }
-        public string Signature { get; private set; }
-        public bool IsDirty { get; private set; }
-        public bool Additive { get; private set; }
-
-        
         public MemoryFieldSignaturePointer(string signature, bool additive)
         {
             Signature = signature;
@@ -21,6 +15,14 @@
             Additive = additive;
             IsDirty = false;
         }
+
+        public bool Additive { get; private set; }
+
+        public bool IsDirty { get; private set; }
+
+        public int Offset { get; private set; }
+
+        public string Signature { get; private set; }
 
         public void MarkDirty()
         {

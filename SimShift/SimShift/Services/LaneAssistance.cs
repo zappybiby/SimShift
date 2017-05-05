@@ -9,12 +9,17 @@ using System.Linq;
 using System.Media;
 using System.Text;
 using System.Windows.Forms;
+
 using AForge;
 using AForge.Imaging;
 using AForge.Imaging.Filters;
+
 using Ets2SdkClient;
+
 using MathNet.Numerics;
+
 using Microsoft.Win32.SafeHandles;
+
 using SimShift.Data;
 using SimShift.Data.Common;
 using SimShift.Dialogs;
@@ -38,52 +43,85 @@ namespace SimShift.Services
     /// </summary>
     public class LaneAssistance : IControlChainObj
     {
-        private float speed = 0.0f;
-
-        public bool Enabled { get { return true; } }
-        public bool Active { get; private set; }
-
-        public IEnumerable<string> SimulatorsOnly { get { return new String[0]; } }
-        public IEnumerable<string> SimulatorsBan { get { return new String[0]; } }
-
-        public double SteerAngle { get; private set; }
-        public double LockedSteerAngle { get; private set; }
-
-        public bool ButtonActive { get { return DateTime.Now > ButtonCooldownPeriod; } }
-
-        private SoundPlayer beep = new SoundPlayer(@"C:\Projects\Software\SimShift\Resources\alert.wav");
         public DateTime ButtonCooldownPeriod = DateTime.Now;
 
-        #region Implementation of IControlChainObj
+        private SoundPlayer beep = new SoundPlayer(@"C:\Projects\Software\SimShift\Resources\alert.wav");
 
+        private int keepAlive = 0;
 
-        public bool Requires(JoyControls c)
+        private List<Ets2NavigationSegment> NearbySegments = new List<Ets2NavigationSegment>();
+
+        private float speed = 0.0f;
+
+        public static Ets2Item currentRoad { get; private set; }
+
+        public static Ets2Point hook { get; private set; }
+
+        public static PointF lookPoint { get; private set; }
+
+        public static double yawRoad { get; private set; }
+
+        public bool Active { get; private set; }
+
+        public bool ButtonActive
         {
-            switch(c)
+            get
             {
-                case JoyControls.Steering:
-                    return Active;
-
-                default:
-                    return false;
+                return DateTime.Now > ButtonCooldownPeriod;
             }
         }
 
+        public bool Enabled
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public double LockedSteerAngle { get; private set; }
+
+        public IEnumerable<string> SimulatorsBan
+        {
+            get
+            {
+                return new String[0];
+            }
+        }
+
+        public IEnumerable<string> SimulatorsOnly
+        {
+            get
+            {
+                return new String[0];
+            }
+        }
+
+        public double SteerAngle { get; private set; }
+
         public double GetAxis(JoyControls c, double val)
         {
-            switch(c)
+            switch (c)
             {
-                case JoyControls.Steering:
-                    return SteerAngle;
+                case JoyControls.Steering: return SteerAngle;
 
-                default:
-                    return val;
+                default: return val;
             }
         }
 
         public bool GetButton(JoyControls c, bool val)
         {
             return val;
+        }
+
+        public bool Requires(JoyControls c)
+        {
+            switch (c)
+            {
+                case JoyControls.Steering: return Active;
+
+                default: return false;
+            }
         }
 
         public void TickControls()
@@ -101,7 +139,7 @@ namespace SimShift.Services
             var currentSteerAngle = Main.GetAxisIn(JoyControls.Steering);
 
             // User overrides steering
-            if (Active && Math.Abs(currentSteerAngle-LockedSteerAngle)>0.05)
+            if (Active && Math.Abs(currentSteerAngle - LockedSteerAngle) > 0.05)
             {
                 Active = false;
                 Debug.WriteLine("[LA] User override steering");
@@ -113,15 +151,6 @@ namespace SimShift.Services
             }
         }
 
-        private int keepAlive = 0;
-
-        public static Ets2Item currentRoad { get; private set; }
-        public static Ets2Point hook { get; private set; }
-        public static PointF lookPoint { get; private set; }
-        public static double yawRoad { get; private set; }
-
-        private List<Ets2NavigationSegment> NearbySegments = new List<Ets2NavigationSegment>(); 
-
         public void TickTelemetry(IDataMiner data)
         {
             speed = data.Telemetry.Speed;
@@ -131,11 +160,11 @@ namespace SimShift.Services
                 var ets2Tel = (Ets2DataMiner) data;
                 var x = ets2Tel.MyTelemetry.Physics.CoordinateX;
                 var z = ets2Tel.MyTelemetry.Physics.CoordinateZ;
-                var yaw = 2*Math.PI*(ets2Tel.MyTelemetry.Physics.RotationX);
-                var lah = 1.5f + ets2Tel.MyTelemetry.Physics.SpeedKmh/100.0f*7.5f;
-                x += (float)Math.Sin(yaw)*-lah;
-                z += (float)Math.Cos(yaw) * -lah;
-                var me = new Ets2Point(x, 0, z, (float)yaw);
+                var yaw = 2 * Math.PI * (ets2Tel.MyTelemetry.Physics.RotationX);
+                var lah = 1.5f + ets2Tel.MyTelemetry.Physics.SpeedKmh / 100.0f * 7.5f;
+                x += (float) Math.Sin(yaw) * -lah;
+                z += (float) Math.Cos(yaw) * -lah;
+                var me = new Ets2Point(x, 0, z, (float) yaw);
                 lookPoint = new PointF(x, z);
                 // Get map
                 var map = Main.LoadedMap;
@@ -152,13 +181,12 @@ namespace SimShift.Services
                 var activeSegmentOption = default(Ets2NavigationSegment.Ets2NavigationSegmentOption);
                 float dist = float.MaxValue;
 
-            rescanSegment:
+                rescanSegment:
                 // Find closest segment
                 for (int segI = 0; segI < NearbySegments.Count; segI++)
                 {
                     var seg = NearbySegments[segI];
-                    if (seg == null)
-                        continue;
+                    if (seg == null) continue;
                     if (!seg.Solutions.Any())
                     {
                         continue;
@@ -166,8 +194,7 @@ namespace SimShift.Services
 
                     foreach (var sol in seg.Solutions)
                     {
-                        if (sol.HiResPoints == null || !sol.HiResPoints.Any())
-                            NearbySegments[segI].GenerateHiRes(sol);
+                        if (sol.HiResPoints == null || !sol.HiResPoints.Any()) NearbySegments[segI].GenerateHiRes(sol);
 
                         var dst = sol.HiResPoints.Min(k => k.DistanceTo(me));
                         if (dist > dst)
@@ -177,7 +204,6 @@ namespace SimShift.Services
                             activeSegmentOption = sol;
                         }
                     }
-
                 }
                 if (!NearbySegments.Any(k => k != null) || dist > 5)
                 {
@@ -195,8 +221,7 @@ namespace SimShift.Services
                     }
                 }
 
-                if (activeSegmentOption == null)
-                    return;
+                if (activeSegmentOption == null) return;
 
                 var lineDistanceError = 0.0;
                 var angleDistancError = 0.0;
@@ -223,16 +248,16 @@ namespace SimShift.Services
                             do
                             {
                                 m++;
-                                if (m >= activeSegmentOption.HiResPoints.Count)
-                                    break;
+                                if (m >= activeSegmentOption.HiResPoints.Count) break;
                                 bestPointP1 = activeSegmentOption.HiResPoints[m];
-                            } while (bestPoint.DistanceTo(bestPointP1) < 0.1f && m + 1 < activeSegmentOption.HiResPoints.Count);
+                            }
+                            while (bestPoint.DistanceTo(bestPointP1) < 0.1f
+                                   && m + 1 < activeSegmentOption.HiResPoints.Count);
                         }
                     }
                 }
                 var min = activeSegmentOption.HiResPoints.Min(k => k.DistanceTo(me));
-                if (bestPoint == null)
-                    return;
+                if (bestPoint == null) return;
 
                 var lx1 = bestPoint.X - Math.Sin(-bestPoint.Heading) * 5;
                 var lz1 = bestPoint.Z - Math.Cos(-bestPoint.Heading) * 5;
@@ -248,32 +273,33 @@ namespace SimShift.Services
                 var pz1 = me.Z - lz1;
                 var px2 = lz2 - lz1;
                 var pz2 = -(lx2 - lx1);
-                var qwer = Math.Sqrt(px2*px2 + pz2*pz2);
+                var qwer = Math.Sqrt(px2 * px2 + pz2 * pz2);
                 Console.WriteLine(qwer);
                 // Reference to top (otherwise 90deg offset) - CCW
-                yawRoad = activeSegment.Type == Ets2NavigationSegmentType.Road ? -bestPoint.Heading + Math.PI/2 : bestPoint.Heading - Math.PI/2;
+                yawRoad = activeSegment.Type == Ets2NavigationSegmentType.Road
+                              ? -bestPoint.Heading + Math.PI / 2
+                              : bestPoint.Heading - Math.PI / 2;
 
                 hook = bestPoint;
-                lineDistanceError = (px1*px2 + pz1*pz2)/Math.Sqrt(px2*px2 + pz2*pz2);
+                lineDistanceError = (px1 * px2 + pz1 * pz2) / Math.Sqrt(px2 * px2 + pz2 * pz2);
                 angleDistancError = yaw - yawRoad;
-                angleDistancError = angleDistancError%(Math.PI*2);
-                 //lineDistanceError = -lineDistanceError;
+                angleDistancError = angleDistancError % (Math.PI * 2);
+                //lineDistanceError = -lineDistanceError;
                 if (lineDistanceError > 7) lineDistanceError = 7;
                 if (lineDistanceError < -7) lineDistanceError = -7;
                 //if (Math.Abs(angleDistancError) < Math.PI/4) lineDistanceError = -lineDistanceError;
                 Console.WriteLine(lineDistanceError.ToString("0.00m") + " | " + angleDistancError.ToString("0.000rad"));
 
-                var gain = 2.5f + ets2Tel.Telemetry.Speed/2.5f;
+                var gain = 2.5f + ets2Tel.Telemetry.Speed / 2.5f;
 
-                SteerAngle = 0.5f - lineDistanceError/gain;// - angleDistancError * 0.1f;
+                SteerAngle = 0.5f - lineDistanceError / gain; // - angleDistancError * 0.1f;
                 //Debug.WriteLine(lineDistanceError + "px error / " + angleDistancError + " angle error / " + SteerAngle);
             }
         }
 
         private void FindNewSegments(Ets2NavigationRoute route, Ets2Point me)
         {
-            if (route == null || route.Segments == null)
-                return;
+            if (route == null || route.Segments == null) return;
             var segs = new List<Ets2NavigationSegment>();
 
             var dstLimit = 1250;
@@ -284,8 +310,7 @@ namespace SimShift.Services
                 var dstEntry = seg.Entry.Point.DistanceTo(me) < dstLimit;
                 var dstExit = seg.Exit.Point.DistanceTo(me) < dstLimit;
 
-                if (dstEntry || dstExit)
-                    segs.Add(seg);
+                if (dstEntry || dstExit) segs.Add(seg);
             }
             if (!segs.Any() && dstLimit == 1250)
             {
@@ -295,50 +320,17 @@ namespace SimShift.Services
             NearbySegments = segs;
         }
 
-        private float RoadDistance(Ets2Item road, float x, float y)
-        {
-            if (road == null)
-                return float.MaxValue;
-            if (road.StartNode == null || road.EndNode == null)
-                return float.MaxValue;
-
-            if (Math.Abs(road.StartNode.X - x) > 500)
-                return float.MaxValue;
-            if (Math.Abs(road.StartNode.Z - y) > 500)
-                return float.MaxValue;
-            if (road.RoadPolygons == null)
-                road.GenerateRoadPolygon(64);
-
-            var minPerPoint = float.MaxValue;
-
-            foreach (var pt in road.RoadPolygons)
-            {
-
-                var dx1 = pt.X - x;
-                var dy1 = pt.Y - y;
-                var r1 = (float)Math.Sqrt(dx1 * dx1 + dy1 * dy1);
-
-                if (minPerPoint >= r1)
-                    minPerPoint = r1;
-            }
-
-            return minPerPoint;
-        }
-
         private bool OutsideRoad(Ets2Item road, float x, float y)
         {
-            if (road == null)
-                return true;
-            if (road.StartNode == null || road.EndNode == null)
-                return true;
+            if (road == null) return true;
+            if (road.StartNode == null || road.EndNode == null) return true;
             var minX = Math.Min(road.StartNode.X, road.EndNode.X);
             var maxX = Math.Max(road.StartNode.X, road.EndNode.X);
             var minY = Math.Min(road.StartNode.Z, road.EndNode.Z);
             var maxY = Math.Max(road.StartNode.Z, road.EndNode.Z);
 
             var margin = 10.5f;
-            if (minX - margin >= x && maxX + margin <= x &&
-                minY - margin >= y && maxY + margin <= y)
+            if (minX - margin >= x && maxX + margin <= x && minY - margin >= y && maxY + margin <= y)
             {
                 return false;
             }
@@ -348,7 +340,27 @@ namespace SimShift.Services
             }
         }
 
-        #endregion
+        private float RoadDistance(Ets2Item road, float x, float y)
+        {
+            if (road == null) return float.MaxValue;
+            if (road.StartNode == null || road.EndNode == null) return float.MaxValue;
 
+            if (Math.Abs(road.StartNode.X - x) > 500) return float.MaxValue;
+            if (Math.Abs(road.StartNode.Z - y) > 500) return float.MaxValue;
+            if (road.RoadPolygons == null) road.GenerateRoadPolygon(64);
+
+            var minPerPoint = float.MaxValue;
+
+            foreach (var pt in road.RoadPolygons)
+            {
+                var dx1 = pt.X - x;
+                var dy1 = pt.Y - y;
+                var r1 = (float) Math.Sqrt(dx1 * dx1 + dy1 * dy1);
+
+                if (minPerPoint >= r1) minPerPoint = r1;
+            }
+
+            return minPerPoint;
+        }
     }
 }

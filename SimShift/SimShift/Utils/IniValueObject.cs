@@ -6,17 +6,6 @@ namespace SimShift.Utils
 {
     public class IniValueObject
     {
-        public IEnumerable<string> NestedGroup { get; private set; }
-        public string Group { get { return NestedGroup.ElementAt(NestedGroup.Count() - 1); } }
-        public string NestedGroupName { get { return string.Join(".", NestedGroup); } }
-
-        public string Key { get; private set; }
-        public string RawValue { get; private set; }
-
-        protected string Value { get; private set; }
-        protected string[] ValueArray { get; private set; }
-        public bool IsTuple { get; private set; }
-
         public IniValueObject(IEnumerable<string> nestedGroup, string key, string rawValue)
         {
             NestedGroup = nestedGroup;
@@ -45,26 +34,46 @@ namespace SimShift.Utils
                         val = val.Substring(1, val.Length - 2);
 
                     ValueArray[i] = val.Trim();
-
                 }
             }
             else
             {
-
                 IsTuple = false;
                 Value = value;
             }
         }
 
+        public string Group
+        {
+            get
+            {
+                return NestedGroup.ElementAt(NestedGroup.Count() - 1);
+            }
+        }
+
+        public bool IsTuple { get; private set; }
+
+        public string Key { get; private set; }
+
+        public IEnumerable<string> NestedGroup { get; private set; }
+
+        public string NestedGroupName
+        {
+            get
+            {
+                return string.Join(".", NestedGroup);
+            }
+        }
+
+        public string RawValue { get; private set; }
+
+        protected string Value { get; private set; }
+
+        protected string[] ValueArray { get; private set; }
+
         public bool BelongsTo(string group)
         {
             return NestedGroup.Contains(group);
-        }
-
-        public int ReadAsInteger(int index)
-        {
-            if (!IsTuple) throw new Exception("This is not a tuple value");
-            return int.Parse(ValueArray[index]);
         }
 
         public double ReadAsDouble(int index)
@@ -73,10 +82,31 @@ namespace SimShift.Utils
             return double.Parse(ValueArray[index]);
         }
 
+        public double ReadAsDouble()
+        {
+            return IsTuple ? ReadAsDouble(0) : double.Parse(Value);
+        }
+
         public float ReadAsFloat(int index)
         {
             if (!IsTuple) throw new Exception("This is not a tuple value");
             return float.Parse(ValueArray[index]);
+        }
+
+        public float ReadAsFloat()
+        {
+            return IsTuple ? ReadAsFloat(0) : float.Parse(Value);
+        }
+
+        public int ReadAsInteger(int index)
+        {
+            if (!IsTuple) throw new Exception("This is not a tuple value");
+            return int.Parse(ValueArray[index]);
+        }
+
+        public int ReadAsInteger()
+        {
+            return IsTuple ? ReadAsInteger(0) : int.Parse(Value);
         }
 
         public string ReadAsString(int index)
@@ -88,22 +118,6 @@ namespace SimShift.Utils
         public string ReadAsString()
         {
             return IsTuple ? ReadAsString(0) : Value;
-        }
-
-        public int ReadAsInteger()
-        {
-            return IsTuple ? ReadAsInteger(0) : int.Parse(Value);
-        }
-
-        public double ReadAsDouble()
-        {
-            return IsTuple ? ReadAsDouble(0) : double.Parse(Value);
-        }
-
-
-        public float ReadAsFloat()
-        {
-            return IsTuple ? ReadAsFloat(0) : float.Parse(Value);
         }
 
         public IEnumerable<string> ReadAsStringArray()

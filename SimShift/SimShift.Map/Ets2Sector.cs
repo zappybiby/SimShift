@@ -10,19 +10,6 @@ namespace SimShift.MapTool
 {
     public class Ets2Sector
     {
-        public string FilePath { get; private set; }
-        public Ets2Mapper Mapper { get; private set; }
-
-        // Status flags:
-        public bool Empty { get; private set; }
-        public bool NoFooterError { get; private set; }
-
-        public List<Ets2Node> Nodes { get; private set; }
-        public List<Ets2Item> Items { get; private set; }
-
-        private int FooterStart { get; set; }
-        public byte[] Stream { get; private set; }
-
         private Dictionary<int, int> FileMap = new Dictionary<int, int>();
 
         public Ets2Sector(Ets2Mapper mapper, string file)
@@ -38,87 +25,27 @@ namespace SimShift.MapTool
             Empty = Stream.Length < 60;
         }
 
-        public void ParseNodes()
-        {
-            if (Empty) return;
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
+        // Status flags:
+        public bool Empty { get; private set; }
 
-            // First determine the number of positions in this file
-            var nodesPieces = BitConverter.ToInt32(Stream, 0x10);
+        public string FilePath { get; private set; }
 
-            int i = Stream.Length;
+        public List<Ets2Item> Items { get; private set; }
 
-            do
-            {
-                i -= 56; // each block is 56 bytes long
+        public Ets2Mapper Mapper { get; private set; }
 
-                var node = new Ets2Node(Stream, i);
-                if (node.NodeUID == 0)
-                {
-                    FooterStart = i + 56 - 4;
-                    break;
-                }
-                Nodes.Add(node);
+        public List<Ets2Node> Nodes { get; private set; }
 
-                if (Mapper.Nodes.ContainsKey(node.NodeUID) == false)
-                    Mapper.Nodes.TryAdd(node.NodeUID, node);
+        public bool NoFooterError { get; private set; }
 
-                var count = BitConverter.ToInt32(Stream, i - 4);
-                if (count >= nodesPieces && count == Nodes.Count)
-                {
-                    FooterStart = i - 4;
-                    break;
-                }
+        public byte[] Stream { get; private set; }
 
-            } while (i > 60);
-            //Console.WriteLine("Thereby footer starts at " + FooterStart.ToString("X16"));
-            if (FooterStart < 0)
-            {
-                NoFooterError = true;
-                return;
-            }
-
-            sw.Stop();
-            //Console.WriteLine(Path.GetFileNameWithoutExtension(FilePath) + " contains " + Nodes.Count +
-            //                  " nodes; parsed in " + sw.ElapsedMilliseconds + "ms");
-        }
-
-        public void ParseItems()
-        {
-            if (Empty) return;
-            if (NoFooterError) return;
-
-            foreach (var node in Nodes)
-            {
-                FindItems(node, true);
-            }
-        }
-
-        private IEnumerable<int> SearchUID(byte[] uid)
-        {
-            return Stream.IndexesOfUlong(uid);
-            byte firstMatchByte = uid[0];
-            for (int i = 0; i < FooterStart - 8; i++)
-            {
-                if (firstMatchByte == Stream[i])
-                {
-                    byte[] match = new byte[8];
-                    Array.Copy(Stream, i, match, 0, 8);
-                    if (match.SequenceEqual<byte>(uid))
-                    {
-                        //yield return i;
-                        i += 8;
-                    }
-                }
-            }
-        }
+        private int FooterStart { get; set; }
 
         public Ets2Item FindItem(ulong uid)
         {
             Tuple<string, int> inp;
-            if (uid == 0)
-                return null;
+            if (uid == 0) return null;
             /*if (Mapper.ItemCache.TryGetValue(uid, out inp))
             {
                 var item = new Ets2Item(uid,
@@ -170,16 +97,14 @@ namespace SimShift.MapTool
                 Ets2Item itemForward;
                 if (Mapper.Items.TryGetValue(node.ForwardItemUID, out itemForward))
                 {
-                    if (itemForward.Apply(node))
-                        node.ForwardItem = itemForward;
+                    if (itemForward.Apply(node)) node.ForwardItem = itemForward;
                 }
                 else
                 {
                     itemForward = FindItem(node.ForwardItemUID);
                     if (itemForward == null)
                     {
-                        if (postpone)
-                            Mapper.Find(node, node.ForwardItemUID, false);
+                        if (postpone) Mapper.Find(node, node.ForwardItemUID, false);
                     }
                     else
                     {
@@ -187,8 +112,7 @@ namespace SimShift.MapTool
                         Mapper.Items.TryAdd(node.ForwardItemUID, itemForward);
                         node.ForwardItem = itemForward;
 
-                        if (itemForward.Apply(node))
-                            node.ForwardItem = itemForward;
+                        if (itemForward.Apply(node)) node.ForwardItem = itemForward;
                     }
                 }
             }
@@ -197,16 +121,14 @@ namespace SimShift.MapTool
                 Ets2Item itemBackward;
                 if (Mapper.Items.TryGetValue(node.BackwardItemUID, out itemBackward))
                 {
-                    if (itemBackward.Apply(node))
-                        node.BackwardItem = itemBackward;
+                    if (itemBackward.Apply(node)) node.BackwardItem = itemBackward;
                 }
                 else
                 {
                     itemBackward = FindItem(node.BackwardItemUID);
                     if (itemBackward == null)
                     {
-                        if (postpone)
-                            Mapper.Find(node, node.BackwardItemUID, true);
+                        if (postpone) Mapper.Find(node, node.BackwardItemUID, true);
                     }
                     else
                     {
@@ -214,16 +136,90 @@ namespace SimShift.MapTool
                         Mapper.Items.TryAdd(node.BackwardItemUID, itemBackward);
                         node.BackwardItem = itemBackward;
 
-                        if (itemBackward.Apply(node))
-                            node.BackwardItem = itemBackward;
+                        if (itemBackward.Apply(node)) node.BackwardItem = itemBackward;
                     }
                 }
             }
         }
 
+        public void ParseItems()
+        {
+            if (Empty) return;
+            if (NoFooterError) return;
+
+            foreach (var node in Nodes)
+            {
+                FindItems(node, true);
+            }
+        }
+
+        public void ParseNodes()
+        {
+            if (Empty) return;
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            // First determine the number of positions in this file
+            var nodesPieces = BitConverter.ToInt32(Stream, 0x10);
+
+            int i = Stream.Length;
+
+            do
+            {
+                i -= 56; // each block is 56 bytes long
+
+                var node = new Ets2Node(Stream, i);
+                if (node.NodeUID == 0)
+                {
+                    FooterStart = i + 56 - 4;
+                    break;
+                }
+                Nodes.Add(node);
+
+                if (Mapper.Nodes.ContainsKey(node.NodeUID) == false) Mapper.Nodes.TryAdd(node.NodeUID, node);
+
+                var count = BitConverter.ToInt32(Stream, i - 4);
+                if (count >= nodesPieces && count == Nodes.Count)
+                {
+                    FooterStart = i - 4;
+                    break;
+                }
+            }
+            while (i > 60);
+            //Console.WriteLine("Thereby footer starts at " + FooterStart.ToString("X16"));
+            if (FooterStart < 0)
+            {
+                NoFooterError = true;
+                return;
+            }
+
+            sw.Stop();
+            //Console.WriteLine(Path.GetFileNameWithoutExtension(FilePath) + " contains " + Nodes.Count +
+            //                  " nodes; parsed in " + sw.ElapsedMilliseconds + "ms");
+        }
+
         public override string ToString()
         {
             return "Sector " + Path.GetFileNameWithoutExtension(FilePath);
+        }
+
+        private IEnumerable<int> SearchUID(byte[] uid)
+        {
+            return Stream.IndexesOfUlong(uid);
+            byte firstMatchByte = uid[0];
+            for (int i = 0; i < FooterStart - 8; i++)
+            {
+                if (firstMatchByte == Stream[i])
+                {
+                    byte[] match = new byte[8];
+                    Array.Copy(Stream, i, match, 0, 8);
+                    if (match.SequenceEqual<byte>(uid))
+                    {
+                        //yield return i;
+                        i += 8;
+                    }
+                }
+            }
         }
     }
 }

@@ -3,7 +3,9 @@
     public enum MemoryRegionType
     {
         EXECUTE,
+
         READ,
+
         READWRITE
     }
 }

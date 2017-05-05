@@ -10,20 +10,23 @@ namespace SimShift.MapTool
 {
     public class Ets2NavigationRoute
     {
-        public Ets2Item Start;
         public Ets2Item End;
 
-        public Ets2Mapper Mapper;
         public bool Loading = false;
 
+        public Ets2Mapper Mapper;
+
         public List<Tuple<Ets2Item, int, int>> Prefabs;
+
         public List<Ets2Item> Roads;
 
         public List<Ets2NavigationSegment> Segments;
 
+        public Ets2Item Start;
+
         private Ets2Point From;
+
         private Ets2Point To;
- 
 
         public Ets2NavigationRoute(Ets2Item start, Ets2Item end, Ets2Point from, Ets2Point to, Ets2Mapper mapper)
         {
@@ -33,8 +36,7 @@ namespace SimShift.MapTool
             To = to;
             Mapper = mapper;
 
-            if (Start != End)
-            ThreadPool.QueueUserWorkItem(new WaitCallback(FindRoute));
+            if (Start != End) ThreadPool.QueueUserWorkItem(new WaitCallback(FindRoute));
         }
 
         private void FindRoute(object state)
@@ -79,8 +81,7 @@ namespace SimShift.MapTool
                         toWalk = node;
                     }
                 }
-                if (toWalk == null)
-                    break;
+                if (toWalk == null) break;
 
                 nodesToWalk.Remove(toWalk);
 
@@ -94,7 +95,7 @@ namespace SimShift.MapTool
 
                     if (nodeMap.ContainsKey(newNode.ItemUID) && nodeMap[newNode.ItemUID].Item1 > newWeight)
                         nodeMap[newNode.ItemUID] = new Tuple<float, Ets2Item>(newWeight, toWalk);
-                            // add route with weight + previous node
+                    // add route with weight + previous node
                 }
             }
 
@@ -111,7 +112,7 @@ namespace SimShift.MapTool
                 routeNodes.Add(route);
                 var prefabSeg = new Ets2NavigationSegment(route);
                 segments.Add(prefabSeg);
-                
+
                 // find the next prefab in the route description
                 var gotoNew = nodeMap[route.ItemUID].Item2;
                 if (gotoNew == null) break;
@@ -172,12 +173,11 @@ namespace SimShift.MapTool
                     var prevRoad = seg > 0 ? segments[seg - 1] : null;
                     var nextRoad = seg + 1 < segments.Count ? segments[seg + 1] : null;
 
-
                     // Link segments together
                     if (prevRoad != null) segments[seg].Entry = prevRoad.Entry;
                     if (nextRoad != null) segments[seg].Exit = nextRoad.Exit;
 
-                    segments[seg].GenerateOptions(prevRoad,nextRoad);
+                    segments[seg].GenerateOptions(prevRoad, nextRoad);
                 }
 
                 // Generate lane data
@@ -186,7 +186,7 @@ namespace SimShift.MapTool
                     var prefFab = seg > 0 ? segments[seg - 1] : null;
                     var nextFab = seg + 1 < segments.Count ? segments[seg + 1] : null;
 
-                segments[seg].GenerateOptions(prefFab, nextFab);
+                    segments[seg].GenerateOptions(prefFab, nextFab);
                 }
             }
 
@@ -239,7 +239,7 @@ namespace SimShift.MapTool
                                 if (roadOpt.Points.Any(x => x.CloseTo(exitPoint)))
                                 {
                                     // We've got a match ! :D
-                                    opt.ExitLane= roadOpt.EntryLane;
+                                    opt.ExitLane = roadOpt.EntryLane;
                                     roadOpt.Valid = roadOpt.EntryLane >= 0 && roadOpt.ExitLane >= 0;
                                 }
                             }
@@ -247,8 +247,6 @@ namespace SimShift.MapTool
 
                         opt.Valid = opt.EntryLane >= 0 && opt.ExitLane >= 0;
                     }
-                    
-
                 }
 
                 // Generate prefab routes
@@ -257,9 +255,8 @@ namespace SimShift.MapTool
                     var nextPrefab = segments[seg + 1];
                     var prevPrefab = segments[seg - 1];
 
-                    if (nextPrefab.Type != Ets2NavigationSegmentType.Prefab ||
-                        prevPrefab.Type != Ets2NavigationSegmentType.Prefab)
-                        continue;
+                    if (nextPrefab.Type != Ets2NavigationSegmentType.Prefab
+                        || prevPrefab.Type != Ets2NavigationSegmentType.Prefab) continue;
 
                     // Deduct road options by matching entry/exits
                     for (int solI = 0; solI < segments[seg].Options.Count; solI++)
@@ -287,6 +284,5 @@ namespace SimShift.MapTool
             Prefabs = routeNodes.Select(x => new Tuple<Ets2Item, int, int>(x, 0, 0)).ToList();
             Loading = false;
         }
-
     }
 }

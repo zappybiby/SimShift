@@ -6,28 +6,82 @@ namespace SimTelemetry.Domain.Memory
 {
     public class MemoryFieldSignature<T> : MemoryField<T>
     {
-        public int[] AddressTree { get; protected set; }
+        public MemoryFieldSignature(
+            string name,
+            MemoryAddress type,
+            string signature,
+            IEnumerable<MemoryFieldSignaturePointer> pointers,
+            int size)
+            : base(name, type, 0, size)
+        {
+            Signature = signature;
+            Pointers = pointers;
+            Initialized = false;
+        }
 
-        public IEnumerable<MemoryFieldSignaturePointer> Pointers { get; protected set; }
-        public string Signature { get; protected set; }
+        public MemoryFieldSignature(
+            string name,
+            MemoryAddress type,
+            string signature,
+            IEnumerable<int> pointers,
+            int size)
+            : base(name, type, 0, size)
+        {
+            Signature = signature;
+            Pointers = pointers.Select(pointer => new MemoryFieldSignaturePointer(pointer, false)).ToList();
+            Initialized = false;
+        }
+
+        public MemoryFieldSignature(
+            string name,
+            MemoryAddress type,
+            string signature,
+            IEnumerable<MemoryFieldSignaturePointer> pointers,
+            int size,
+            Func<T, T> convert)
+            : base(name, type, 0, size)
+        {
+            Signature = signature;
+            Pointers = pointers;
+            Initialized = false;
+            Conversion = convert;
+        }
+
+        public MemoryFieldSignature(
+            string name,
+            MemoryAddress type,
+            string signature,
+            IEnumerable<int> pointers,
+            int size,
+            Func<T, T> convert)
+            : base(name, type, 0, size)
+        {
+            Signature = signature;
+            Pointers = pointers.Select(pointer => new MemoryFieldSignaturePointer(pointer, false)).ToList();
+            Initialized = false;
+            Conversion = convert;
+        }
+
+        public int[] AddressTree { get; protected set; }
 
         public bool Initialized { get; protected set; }
 
+        public IEnumerable<MemoryFieldSignaturePointer> Pointers { get; protected set; }
+
+        public string Signature { get; protected set; }
+
         public override void Refresh()
         {
-            if (!Initialized)
-                Scan();
+            if (!Initialized) Scan();
 
-            if (!Initialized)
-                return;
+            if (!Initialized) return;
 
             base.Refresh();
         }
 
         public virtual void Scan()
         {
-            if (Memory.Scanner.Enabled == false)
-                throw new Exception("Please enable SignatureScanner first");
+            if (Memory.Scanner.Enabled == false) throw new Exception("Please enable SignatureScanner first");
 
             var result = Memory.Scanner.Scan<uint>(MemoryRegionType.EXECUTE, Signature);
 
@@ -48,7 +102,7 @@ namespace SimTelemetry.Domain.Memory
                     {
                         // The result is directly our address
                         Address = (int) result;
-                        AddressTree[0] = (int)result;
+                        AddressTree[0] = (int) result;
                     }
                     else
                     {
@@ -65,13 +119,11 @@ namespace SimTelemetry.Domain.Memory
 
                         int treeInd = 0;
 
-                        foreach(var ptr in Pointers)
+                        foreach (var ptr in Pointers)
                         {
                             AddressTree[treeInd++] = computedAddress;
-                            if (ptr.Additive)
-                                computedAddress += ptr.Offset;
-                            else
-                                computedAddress = Memory.Reader.ReadInt32(computedAddress + ptr.Offset);
+                            if (ptr.Additive) computedAddress += ptr.Offset;
+                            else computedAddress = Memory.Reader.ReadInt32(computedAddress + ptr.Offset);
                         }
                         AddressTree[treeInd] = computedAddress;
 
@@ -79,12 +131,11 @@ namespace SimTelemetry.Domain.Memory
                     }
                     break;
                 case MemoryAddress.Dynamic:
-                    Offset = (int)result;
+                    Offset = (int) result;
 
                     foreach (var ptr in Pointers)
                     {
-                        if (ptr.Additive)
-                            Offset += ptr.Offset;
+                        if (ptr.Additive) Offset += ptr.Offset;
                     }
                     break;
                 default:
@@ -93,38 +144,6 @@ namespace SimTelemetry.Domain.Memory
             }
 
             Initialized = true;
-        }
-
-        public MemoryFieldSignature(string name, MemoryAddress type, string signature, IEnumerable<MemoryFieldSignaturePointer> pointers, int size)
-            : base(name, type, 0, size)
-        {
-            Signature = signature;
-            Pointers = pointers;
-            Initialized = false;
-        }
-        public MemoryFieldSignature(string name, MemoryAddress type, string signature, IEnumerable<int> pointers, int size)
-            : base(name, type, 0, size)
-        {
-            Signature = signature;
-            Pointers = pointers.Select(pointer => new MemoryFieldSignaturePointer(pointer, false)).ToList();
-            Initialized = false;
-        }
-
-        public MemoryFieldSignature(string name, MemoryAddress type, string signature, IEnumerable<MemoryFieldSignaturePointer> pointers, int size, Func<T,T> convert)
-            : base(name, type, 0, size)
-        {
-            Signature = signature;
-            Pointers = pointers;
-            Initialized = false;
-            Conversion = convert;
-        }
-        public MemoryFieldSignature(string name, MemoryAddress type, string signature, IEnumerable<int> pointers, int size, Func<T, T> convert)
-            : base(name, type, 0, size)
-        {
-            Signature = signature;
-            Pointers = pointers.Select(pointer => new MemoryFieldSignaturePointer(pointer, false)).ToList();
-            Initialized = false;
-            Conversion = convert;
         }
     }
 }

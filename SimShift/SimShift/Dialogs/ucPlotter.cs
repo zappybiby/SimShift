@@ -11,24 +11,26 @@ namespace SimShift.Dialogs
 {
     public partial class ucPlotter : UserControl
     {
+        public List<List<double>> values = new List<List<double>>();
+
         private int channels = 0;
 
-        public List<List<double>> values = new List<List<double>>();
-        private List<float> valueScale = new List<float>();
+        private Pen gridPen = new Pen(Color.DarkSeaGreen, 1.0f);
+
         private int gridsHorizontal = 20;
+
         private int gridsVertical = 20;
+
+        private Pen[] pens = new Pen[]
+                                 {
+                                     new Pen(Color.Yellow, 1.0f), new Pen(Color.Red, 1.0f),
+                                     new Pen(Color.DeepSkyBlue, 1.0f), new Pen(Color.GreenYellow, 1.0f),
+                                     new Pen(Color.Magenta, 3.0f)
+                                 };
 
         private float samplesPerDiv = 10;
 
-        private Pen gridPen = new Pen(Color.DarkSeaGreen, 1.0f);
-        private Pen[] pens = new Pen[]
-                                       {
-                                           new Pen(Color.Yellow, 1.0f),
-                                           new Pen(Color.Red, 1.0f),
-                                           new Pen(Color.DeepSkyBlue, 1.0f),
-                                           new Pen(Color.GreenYellow, 1.0f),
-                                           new Pen(Color.Magenta, 3.0f)
-                                       };
+        private List<float> valueScale = new List<float>();
 
         public ucPlotter(int ch, float[] scale)
         {
@@ -36,18 +38,18 @@ namespace SimShift.Dialogs
             for (int k = 0; k < ch; k++)
             {
                 values.Add(new List<double>());
-            valueScale.Add(scale[k]/gridsVertical*2);
+                valueScale.Add(scale[k] / gridsVertical * 2);
             }
             var emptyList = new List<double>();
             for (int k = 0; k < ch; k++)
             {
                 emptyList.Add(0);
             }
-            for (int i = 0; i < 1000;i++)
+            for (int i = 0; i < 1000; i++)
             {
-                    Add(emptyList);
+                Add(emptyList);
             }
-                InitializeComponent();
+            InitializeComponent();
             SetStyle(ControlStyles.UserPaint, true);
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
@@ -55,12 +57,12 @@ namespace SimShift.Dialogs
 
         public int Frequency { get; set; }
 
-        public void Add(List<double> v )
+        public void Add(List<double> v)
         {
             for (int k = 0; k < channels; k++)
             {
                 values[k].Add(v[k]);
-                while (values[k].Count > samplesPerDiv*gridsHorizontal)
+                while (values[k].Count > samplesPerDiv * gridsHorizontal)
                 {
                     values[k].RemoveAt(0);
                 }
@@ -76,21 +78,20 @@ namespace SimShift.Dialogs
             var g = e.Graphics;
 
             g.FillRectangle(Brushes.Black, e.ClipRectangle);
-            g.DrawString(Frequency.ToString("000"), new Font("Arial",8), Brushes.White, 0,0 );
+            g.DrawString(Frequency.ToString("000"), new Font("Arial", 8), Brushes.White, 0, 0);
             var w = e.ClipRectangle.Width;
             var h = e.ClipRectangle.Height;
 
-            
-            var pxHor = w/gridsHorizontal;
-            var pxVer = h/gridsVertical;
-            
-            for(int i = 0; i <= gridsHorizontal; i++)
+            var pxHor = w / gridsHorizontal;
+            var pxVer = h / gridsVertical;
+
+            for (int i = 0; i <= gridsHorizontal; i++)
             {
-                g.DrawLine(gridPen, pxHor*i, 0, pxHor*i, h);
+                g.DrawLine(gridPen, pxHor * i, 0, pxHor * i, h);
             }
-            for(int i = 0; i <= gridsVertical; i++)
+            for (int i = 0; i <= gridsVertical; i++)
             {
-                g.DrawLine(gridPen, 0, pxVer*i, w, pxVer*i);
+                g.DrawLine(gridPen, 0, pxVer * i, w, pxVer * i);
             }
 
             // Display all values
@@ -99,9 +100,7 @@ namespace SimShift.Dialogs
                 try
                 {
                     if (pens.Length >= chIndex && values.Count >= chIndex && valueScale.Count >= chIndex)
-                    {
-
-                    }
+                    { }
                     else break;
 
                     var chPen = pens[chIndex];
@@ -109,22 +108,22 @@ namespace SimShift.Dialogs
                     var scale = valueScale[chIndex];
 
                     var lastX = 0.0f;
-                    var lastY = (float) h/2.0f;
+                    var lastY = (float) h / 2.0f;
 
                     for (int sampleIndex = 0; sampleIndex < ch.Count; sampleIndex++)
                     {
                         var v = ch[sampleIndex];
-                        var curX = (float) (sampleIndex*w/ch.Count);
-                        var curY = (float)(gridsVertical / 2 - v / scale) * pxVer;
+                        var curX = (float) (sampleIndex * w / ch.Count);
+                        var curY = (float) (gridsVertical / 2 - v / scale) * pxVer;
 
                         g.DrawLine(chPen, lastX, lastY, curX, curY);
 
                         lastX = curX;
                         lastY = curY;
                     }
-                }catch(Exception ex)
-                {
                 }
+                catch (Exception ex)
+                { }
             }
         }
     }

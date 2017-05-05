@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
 using SimShift.Data.Common;
 using SimShift.Entities;
 
@@ -12,44 +13,54 @@ namespace SimShift.Services
     /// </summary>
     class EarlyClutch : IControlChainObj
     {
-        public bool Enabled { get; private set; }
-        public bool Active { get; private set; }
-
-        public IEnumerable<string> SimulatorsOnly { get { return new String[0]; } }
-        public IEnumerable<string> SimulatorsBan { get { return new String[0]; } }
+        private bool clutchctrl = false;
 
         //
         private bool clutching = false;
-        private bool clutchctrl = false;
 
         private bool triggered = false;
-        #region Implementation of IControlChainObj
 
-        public bool Requires(JoyControls c)
+        public bool Active { get; private set; }
+
+        public bool Enabled { get; private set; }
+
+        public IEnumerable<string> SimulatorsBan
         {
-            switch(c)
+            get
             {
-                case JoyControls.Clutch:
-                    return clutching;
-                default:
-                    return false;
+                return new String[0];
+            }
+        }
+
+        public IEnumerable<string> SimulatorsOnly
+        {
+            get
+            {
+                return new String[0];
             }
         }
 
         public double GetAxis(JoyControls c, double val)
         {
-            switch(c)
+            switch (c)
             {
-                case JoyControls.Clutch:
-                    return clutching ? 1 : val;
-                default:
-                    return val;
+                case JoyControls.Clutch: return clutching ? 1 : val;
+                default: return val;
             }
         }
 
         public bool GetButton(JoyControls c, bool val)
         {
             return val;
+        }
+
+        public bool Requires(JoyControls c)
+        {
+            switch (c)
+            {
+                case JoyControls.Clutch: return clutching;
+                default: return false;
+            }
         }
 
         public void TickControls()
@@ -60,24 +71,21 @@ namespace SimShift.Services
 
         public void TickTelemetry(IDataMiner data)
         {
-            if (data.Telemetry.Speed * 3.6 > 55)
-                triggered = true;
+            if (data.Telemetry.Speed * 3.6 > 55) triggered = true;
 
-            if (triggered && data.Telemetry.Speed * 3.6  < 35)
+            if (triggered && data.Telemetry.Speed * 3.6 < 35)
             {
                 clutchctrl = true;
             }
-            else if (data.Telemetry.Speed*3.6 > 35)
+            else if (data.Telemetry.Speed * 3.6 > 35)
             {
                 clutchctrl = false;
             }
-            if (data.Telemetry.Speed*3.6 < 10 && Main.GetAxisIn(JoyControls.Throttle) > 0.1)
+            if (data.Telemetry.Speed * 3.6 < 10 && Main.GetAxisIn(JoyControls.Throttle) > 0.1)
             {
                 clutchctrl = false;
                 triggered = false;
             }
         }
-
-        #endregion
     }
 }

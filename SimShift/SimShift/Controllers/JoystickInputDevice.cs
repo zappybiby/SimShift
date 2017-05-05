@@ -1,22 +1,30 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Microsoft.Win32;
 
 namespace SimShift.Controllers
 {
     public class JoystickInputDevice
     {
-        private const string RegKeyAxisData = @"SYSTEM\ControlSet001\Control\MediaProperties\PrivateProperties\Joystick\OEM";
-        private const string RegKeyPlace = @"System\CurrentControlSet\Control\MediaProperties\PrivateProperties\Joystick\OEM\";
-        private const string RegReferencePlace = @"System\CurrentControlSet\Control\MediaResources\Joystick\DINPUT.DLL\CurrentJoystickSettings";
+        private const string RegKeyAxisData =
+            @"SYSTEM\ControlSet001\Control\MediaProperties\PrivateProperties\Joystick\OEM";
 
-        public int id;
-        public JOYCAPS data;
+        private const string RegKeyPlace =
+            @"System\CurrentControlSet\Control\MediaProperties\PrivateProperties\Joystick\OEM\";
+
+        private const string RegReferencePlace =
+            @"System\CurrentControlSet\Control\MediaResources\Joystick\DINPUT.DLL\CurrentJoystickSettings";
+
+        /******************* STATIC ******************/
+        static int deviceNumber = 0;
 
         public Dictionary<int, string> AxisNames = new Dictionary<int, string>();
 
-        public string Name { get; private set; }
+        public JOYCAPS data;
+
+        public int id;
 
         public JoystickInputDevice(JOYCAPS captured, int device)
         {
@@ -42,7 +50,7 @@ namespace SimShift.Controllers
             string USBDevice = Convert.ToString(rf.GetValue("Joystick" + (1 + id).ToString() + "OEMName"));
             RegistryKey usb = Registry.CurrentUser.OpenSubKey(RegKeyPlace);
             usb = usb.OpenSubKey(USBDevice);
-            Name = (string)usb.GetValue("OEMName");
+            Name = (string) usb.GetValue("OEMName");
 
             // Get axis names
             RegistryKey axisMaster = Registry.LocalMachine.OpenSubKey(RegKeyAxisData).OpenSubKey(USBDevice);
@@ -56,7 +64,7 @@ namespace SimShift.Controllers
                     foreach (string name in axisMaster.GetSubKeyNames())
                     {
                         RegistryKey axis = axisMaster.OpenSubKey(name);
-                        AxisNames.Add(Convert.ToInt32(name), (string)axis.GetValue(""));
+                        AxisNames.Add(Convert.ToInt32(name), (string) axis.GetValue(""));
                         axis.Close();
                     }
                     axisMaster.Close();
@@ -66,6 +74,8 @@ namespace SimShift.Controllers
             usb.Close();
         }
 
+        public string Name { get; private set; }
+
         public static IEnumerable<JoystickInputDevice> Search(string name)
         {
             var results1 = Search();
@@ -74,9 +84,6 @@ namespace SimShift.Controllers
             return results2;
         }
 
-
-        /******************* STATIC ******************/
-        static int deviceNumber = 0;
         public static IEnumerable<JoystickInputDevice> Search()
         {
             List<JoystickInputDevice> Joysticks = new List<JoystickInputDevice>();
@@ -94,6 +101,5 @@ namespace SimShift.Controllers
 
             return Joysticks;
         }
-
     }
 }

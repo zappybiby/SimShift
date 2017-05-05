@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+
 using SimShift.Services;
 using SimShift.Utils;
 
@@ -9,16 +10,7 @@ namespace SimShift.Entities
     public class Profile : IConfigurable
     {
         public bool Loaded = false;
-        public string Name { get; private set; }
 
-        public string Antistall { get; private set; }
-        public string CruiseControl { get; private set; }
-        public string ShiftCurve { get; private set; }
-        public List<ConfigurableShiftPattern> ShiftPattern { get; private set; }
-        public string SpeedLimiter { get; private set; }
-        public string TractionControl { get; private set; }
-
-        private Profiles Car { get; set; }
         private float TrailerMass = 0;
 
         public Profile(Profiles car, string file)
@@ -67,43 +59,39 @@ namespace SimShift.Entities
             Main.Load(this, phFile);
         }
 
-        public void Load(float staticMass)
+        public IEnumerable<string> AcceptsConfigs
         {
-            //
-            Main.Transmission.StaticMass = staticMass;
-            TrailerMass = staticMass;
-
-            Main.Load(Main.Antistall, "Settings/Antistall/" + Antistall + ".ini");
-            Main.Load(Main.CruiseControl, "Settings/CruiseControl/" + CruiseControl + ".ini");
-
-            Main.Drivetrain.File = "Settings/Drivetrain/" + Car.UniqueID + ".ini";
-            Main.Drivetrain.Calibrated = Main.Load(Main.Drivetrain, "Settings/Drivetrain/" + Car.UniqueID + ".ini");
-
-            Main.Load(Main.Transmission, "Settings/ShiftCurve/" + ShiftCurve + ".ini");
-            Main.Load(Main.Speedlimiter, "Settings/SpeedLimiter/" + SpeedLimiter + ".ini");
-
-            Main.TractionControl.File = TractionControl;
-            Main.Load(Main.TractionControl, "Settings/TractionControl/" + TractionControl + ".ini");
-
+            get
+            {
+                return new string[] { "Profiles" };
+            }
         }
 
-        #region Implementation of IConfigurable
+        public string Antistall { get; private set; }
 
-        public IEnumerable<string> AcceptsConfigs { get { return new string[] { "Profiles"};}}
-        public void ResetParameters()
-        {
-            ShiftPattern= new List<ConfigurableShiftPattern>();
-        }
+        public string CruiseControl { get; private set; }
+
+        public string Name { get; private set; }
+
+        public string ShiftCurve { get; private set; }
+
+        public List<ConfigurableShiftPattern> ShiftPattern { get; private set; }
+
+        public string SpeedLimiter { get; private set; }
+
+        public string TractionControl { get; private set; }
+
+        private Profiles Car { get; set; }
 
         public void ApplyParameter(IniValueObject obj)
         {
-            switch(obj.Key)
+            switch (obj.Key)
             {
                 case "Antistall":
                     Antistall = obj.ReadAsString();
                     break;
                 case "CruiseControl":
-                    CruiseControl= obj.ReadAsString();
+                    CruiseControl = obj.ReadAsString();
                     break;
                 case "ShiftCurve":
                     ShiftCurve = obj.ReadAsString();
@@ -132,15 +120,41 @@ namespace SimShift.Entities
             obj.Add(new IniValueObject(AcceptsConfigs, "TractionControl", TractionControl));
             foreach (var s in ShiftPattern)
             {
-                if(s.Region.IndexOf("_")<0) continue;
+                if (s.Region.IndexOf("_") < 0) continue;
                 var part = s.Region.Substring(0, s.Region.IndexOf("_"));
                 var thr = s.Region.Substring(s.Region.IndexOf("_") + 1);
-                obj.Add(new IniValueObject(AcceptsConfigs, "ShiftPattern", string.Format("({0},{1},{2})", part, thr, s.File)));
+                obj.Add(
+                    new IniValueObject(
+                        AcceptsConfigs,
+                        "ShiftPattern",
+                        string.Format("({0},{1},{2})", part, thr, s.File)));
             }
 
             return obj;
         }
 
-        #endregion
+        public void Load(float staticMass)
+        {
+            //
+            Main.Transmission.StaticMass = staticMass;
+            TrailerMass = staticMass;
+
+            Main.Load(Main.Antistall, "Settings/Antistall/" + Antistall + ".ini");
+            Main.Load(Main.CruiseControl, "Settings/CruiseControl/" + CruiseControl + ".ini");
+
+            Main.Drivetrain.File = "Settings/Drivetrain/" + Car.UniqueID + ".ini";
+            Main.Drivetrain.Calibrated = Main.Load(Main.Drivetrain, "Settings/Drivetrain/" + Car.UniqueID + ".ini");
+
+            Main.Load(Main.Transmission, "Settings/ShiftCurve/" + ShiftCurve + ".ini");
+            Main.Load(Main.Speedlimiter, "Settings/SpeedLimiter/" + SpeedLimiter + ".ini");
+
+            Main.TractionControl.File = TractionControl;
+            Main.Load(Main.TractionControl, "Settings/TractionControl/" + TractionControl + ".ini");
+        }
+
+        public void ResetParameters()
+        {
+            ShiftPattern = new List<ConfigurableShiftPattern>();
+        }
     }
 }

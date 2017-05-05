@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+
 using SimShift.Data.Common;
 using SimShift.Entities;
 
@@ -11,9 +12,13 @@ namespace SimShift.Services
     public enum LaunchControlState
     {
         Inactive,
+
         Waiting,
+
         Revving,
+
         Pulling,
+
         Slipping
     }
 
@@ -23,29 +28,21 @@ namespace SimShift.Services
     /// </summary>
     public class LaunchControl : IControlChainObj
     {
-        public bool Enabled { get { return state != LaunchControlState.Waiting; } }
-        public bool Active { get { return state == LaunchControlState.Pulling; } }
-
-        public IEnumerable<string> SimulatorsOnly { get { return new String[0]; } }
-        public IEnumerable<string> SimulatorsBan { get { return new String[0]; } }
-
-        //
-        protected bool LaunchControlActive { get; set; }
-
-        private LaunchControlState state;
-        private double _outThrottle;
         private double _outClutch;
 
+        private double _outThrottle;
+
+        private double previousAcc = 0;
+
+        private double previousSpeed = 0;
+
+        private DateTime previousTime;
+
+        private double pullThrottle = 0;
+
         private bool revvedUp = false;
-        public double LaunchRpm { get; private set; }
-        public double PullingClutchProp { get; private set; }
-        public double PullingThrottleProp { get; private set; }
-        public double RevvingProp { get; private set; }
-        public double PeakAcceleration { get; private set; }
 
-        public bool TemporaryLoadTc { get; private set; }
-
-        private bool tcLoaded { get; set; }
+        private LaunchControlState state;
 
         public LaunchControl()
         {
@@ -57,59 +54,81 @@ namespace SimShift.Services
             PeakAcceleration = 10;
         }
 
-        void Data_CarChanged(object sender, EventArgs e)
+        public bool Active
         {
-            LaunchRpm = Main.Drivetrain.MaximumRpm / 3 + 1000;
-            LaunchRpm = Main.Drivetrain.StallRpm*3;
-            LaunchRpm = Main.Drivetrain.MaximumRpm - 500;
-            LaunchRpm = 3000;
-            if (LaunchRpm > Main.Drivetrain.MaximumRpm)
-                LaunchRpm = Main.Drivetrain.StallRpm*2.5;
-            RevvingProp = LaunchRpm/1000-2.25;
-            PullingThrottleProp = LaunchRpm / 1000-1.75;
-            if (RevvingProp < 1)
+            get
             {
-                PullingThrottleProp++;
-                RevvingProp = 1;
-            }
-
-            TemporaryLoadTc = true;
-        }
-
-        #region Implementation of IControlChainObj
-
-        public bool Requires(JoyControls c)
-        {
-            switch (c)
-            {
-                case JoyControls.Throttle:
-                case JoyControls.Clutch:
-                    return LaunchControlActive;
-
-                default:
-                    return false;
+                return state == LaunchControlState.Pulling;
             }
         }
+
+        public bool Enabled
+        {
+            get
+            {
+                return state != LaunchControlState.Waiting;
+            }
+        }
+
+        public double LaunchRpm { get; private set; }
+
+        public double PeakAcceleration { get; private set; }
+
+        public double PullingClutchProp { get; private set; }
+
+        public double PullingThrottleProp { get; private set; }
+
+        public double RevvingProp { get; private set; }
+
+        public IEnumerable<string> SimulatorsBan
+        {
+            get
+            {
+                return new String[0];
+            }
+        }
+
+        public IEnumerable<string> SimulatorsOnly
+        {
+            get
+            {
+                return new String[0];
+            }
+        }
+
+        public bool TemporaryLoadTc { get; private set; }
+
+        //
+        protected bool LaunchControlActive { get; set; }
+
+        private bool tcLoaded { get; set; }
 
         public double GetAxis(JoyControls c, double val)
         {
-            
-            switch(c)
+            switch (c)
             {
-                case JoyControls.Throttle:
-                    return _outThrottle;
-                    
-                case JoyControls.Clutch:
-                    return _outClutch;
-                    
-                default:
-                    return val;
+                case JoyControls.Throttle: return _outThrottle;
+
+                case JoyControls.Clutch: return _outClutch;
+
+                default: return val;
             }
         }
 
         public bool GetButton(JoyControls c, bool val)
         {
             return val;
+        }
+
+        public bool Requires(JoyControls c)
+        {
+            switch (c)
+            {
+                case JoyControls.Throttle:
+                case JoyControls.Clutch: return LaunchControlActive;
+
+                default: return false;
+            }
         }
 
         public void TickControls()
@@ -128,7 +147,7 @@ namespace SimShift.Services
                     break;
 
                 case LaunchControlState.Waiting:
-                    if (th > 0.1 && br>0.05)
+                    if (th > 0.1 && br > 0.05)
                     {
                         Debug.WriteLine("Revving up engine, waiting for brake to be released");
                         state = LaunchControlState.Revving;
@@ -163,27 +182,20 @@ namespace SimShift.Services
                         state = LaunchControlState.Inactive; // abort
                     }
                     break;
-
             }
         }
 
-        private double previousSpeed = 0;
-        private DateTime previousTime;
-        private double previousAcc = 0;
-        private double pullThrottle = 0;
-
         public void TickTelemetry(IDataMiner data)
         {
-            var acc = (data.Telemetry.Speed - previousSpeed) /
-                      (DateTime.Now.Subtract(previousTime).TotalMilliseconds / 1000);
+            var acc = (data.Telemetry.Speed - previousSpeed)
+                      / (DateTime.Now.Subtract(previousTime).TotalMilliseconds / 1000);
             var pullSpeed = Main.Drivetrain.CalculateSpeedForRpm(data.Telemetry.Gear - 1, data.Telemetry.EngineRpm);
 
             LaunchControlActive = state != LaunchControlState.Inactive;
 
             switch (state)
             {
-                case LaunchControlState.Inactive:
-                    break;
+                case LaunchControlState.Inactive: break;
 
                 case LaunchControlState.Waiting:
                     _outThrottle = 0;
@@ -201,8 +213,7 @@ namespace SimShift.Services
                     _outClutch = 1 - PullingClutchProp * previousAcc / PeakAcceleration;
                     if (_outClutch > 0.8) _outClutch = 0.8;
 
-                    if (data.Telemetry.EngineRpm - 300 > LaunchRpm)
-                        state = LaunchControlState.Slipping;
+                    if (data.Telemetry.EngineRpm - 300 > LaunchRpm) state = LaunchControlState.Slipping;
                     break;
 
                 case LaunchControlState.Slipping:
@@ -212,21 +223,21 @@ namespace SimShift.Services
                     _outClutch = 1 - PullingClutchProp * previousAcc / PeakAcceleration;
                     if (_outClutch > 0.8) _outClutch = 0.8;
 
-                    if (data.Telemetry.EngineRpm  < LaunchRpm)
-                        state = LaunchControlState.Pulling;
+                    if (data.Telemetry.EngineRpm < LaunchRpm) state = LaunchControlState.Pulling;
 
                     break;
             }
 
             if (TemporaryLoadTc)
             {
-                if (!tcLoaded && data.Telemetry.Gear == 1 && LaunchControlActive && Main.TractionControl.File.Contains("notc"))
+                if (!tcLoaded && data.Telemetry.Gear == 1 && LaunchControlActive
+                    && Main.TractionControl.File.Contains("notc"))
                 {
                     tcLoaded = true;
                     Main.Load(Main.TractionControl, "Settings/TractionControl/launch.ini");
                 }
 
-                if(tcLoaded && data.Telemetry.Gear != 1)
+                if (tcLoaded && data.Telemetry.Gear != 1)
                 {
                     tcLoaded = false;
                     Main.Load(Main.TractionControl, "Settings/TractionControl/notc.ini");
@@ -248,11 +259,27 @@ namespace SimShift.Services
 
             previousSpeed = data.Telemetry.Speed;
             previousTime = DateTime.Now;
-            previousAcc = acc*0.25 + previousAcc*0.75;
+            previousAcc = acc * 0.25 + previousAcc * 0.75;
 
             //Debug.WriteLine(previousAcc);
         }
 
-        #endregion
+        void Data_CarChanged(object sender, EventArgs e)
+        {
+            LaunchRpm = Main.Drivetrain.MaximumRpm / 3 + 1000;
+            LaunchRpm = Main.Drivetrain.StallRpm * 3;
+            LaunchRpm = Main.Drivetrain.MaximumRpm - 500;
+            LaunchRpm = 3000;
+            if (LaunchRpm > Main.Drivetrain.MaximumRpm) LaunchRpm = Main.Drivetrain.StallRpm * 2.5;
+            RevvingProp = LaunchRpm / 1000 - 2.25;
+            PullingThrottleProp = LaunchRpm / 1000 - 1.75;
+            if (RevvingProp < 1)
+            {
+                PullingThrottleProp++;
+                RevvingProp = 1;
+            }
+
+            TemporaryLoadTc = true;
+        }
     }
 }

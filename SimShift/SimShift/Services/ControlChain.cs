@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+
 using SimShift.Data;
 using SimShift.Data.Common;
 using SimShift.Entities;
@@ -9,19 +10,16 @@ namespace SimShift.Services
 {
     public class ControlChain
     {
-        private List<IControlChainObj> chain = new List<IControlChainObj>();
+        private string ActiveSimulator;
 
         private List<JoyControls> Axis = new List<JoyControls>();
-        private List<JoyControls> Buttons = new List<JoyControls>();
-
-        public IEnumerable<IControlChainObj> Chain { get { return chain; } }
-
-        public Dictionary<JoyControls, Dictionary<string, double>> AxisProgression { get { return axisProgression; } } 
 
         private Dictionary<JoyControls, Dictionary<string, double>> axisProgression =
             new Dictionary<JoyControls, Dictionary<string, double>>();
 
-        private string ActiveSimulator;
+        private List<JoyControls> Buttons = new List<JoyControls>();
+
+        private List<IControlChainObj> chain = new List<IControlChainObj>();
 
         public ControlChain()
         {
@@ -30,10 +28,8 @@ namespace SimShift.Services
             chain.Add(Main.ACC);
             chain.Add(Main.Speedlimiter);
             //chain.Add(Main.CruiseControl);
-            if (Main.VST)
-                chain.Add(Main.VariableSpeedControl);
-            else
-                chain.Add(Main.Transmission);
+            if (Main.VST) chain.Add(Main.VariableSpeedControl);
+            else chain.Add(Main.Transmission);
             chain.Add(Main.Antistall);
             chain.Add(Main.TractionControl);
             //chain.Add(Main.LaunchControl);
@@ -45,7 +41,6 @@ namespace SimShift.Services
             //chain.Add(new Ets2PowerMeter());
             chain.Add(new Dashboard());
             //chain.Add(Main.TransmissionCalibrator);
-
 
             Axis.Add(JoyControls.Steering);
             Axis.Add(JoyControls.Throttle);
@@ -76,11 +71,25 @@ namespace SimShift.Services
                 axisProgression.Add(a, new Dictionary<string, double>());
                 foreach (var m in chain)
                 {
-                    if (m != null)
-                        axisProgression[a].Add(m.GetType().Name, 0);
+                    if (m != null) axisProgression[a].Add(m.GetType().Name, 0);
                 }
             }
+        }
 
+        public Dictionary<JoyControls, Dictionary<string, double>> AxisProgression
+        {
+            get
+            {
+                return axisProgression;
+            }
+        }
+
+        public IEnumerable<IControlChainObj> Chain
+        {
+            get
+            {
+                return chain;
+            }
         }
 
         public void Tick(IDataMiner data)
@@ -96,12 +105,16 @@ namespace SimShift.Services
 
             // Put it serially through each control block
             // Each time a block requires a control, it receives the current value of that control
-            foreach(var obj in chain.Where(FilterSimulators))
+            foreach (var obj in chain.Where(FilterSimulators))
             {
-                buttonValues = buttonValues.ToDictionary(c => c.Key, k => obj.Requires(k.Key) ? obj.GetButton(k.Key, k.Value) : k.Value);
-                axisValues = axisValues.ToDictionary(c => c.Key, k => obj.Requires(k.Key) ? obj.GetAxis(k.Key, k.Value) : k.Value);
+                buttonValues = buttonValues.ToDictionary(
+                    c => c.Key,
+                    k => obj.Requires(k.Key) ? obj.GetButton(k.Key, k.Value) : k.Value);
+                axisValues = axisValues.ToDictionary(
+                    c => c.Key,
+                    k => obj.Requires(k.Key) ? obj.GetAxis(k.Key, k.Value) : k.Value);
 
-                foreach(var kvp in axisValues)
+                foreach (var kvp in axisValues)
                 {
                     axisProgression[kvp.Key][obj.GetType().Name] = kvp.Value;
                 }
@@ -119,7 +132,7 @@ namespace SimShift.Services
                 var v = b.Value;
                 if (v > 1) v = 1;
                 if (v < 0) v = 0;
-                Main.SetAxisOut(b.Key,v);
+                Main.SetAxisOut(b.Key, v);
             }
         }
 
@@ -127,13 +140,11 @@ namespace SimShift.Services
         {
             if (arg.SimulatorsOnly.Any())
             {
-                if (!arg.SimulatorsOnly.Contains(ActiveSimulator))
-                    return false;
+                if (!arg.SimulatorsOnly.Contains(ActiveSimulator)) return false;
             }
             if (arg.SimulatorsBan.Any())
             {
-                if (arg.SimulatorsBan.Contains(ActiveSimulator))
-                    return false;
+                if (arg.SimulatorsBan.Contains(ActiveSimulator)) return false;
             }
 
             return arg.Enabled;

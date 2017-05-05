@@ -11,8 +11,11 @@ namespace SimShift.Utils
     internal struct Rect
     {
         public int Left;
+
         public int Top;
+
         public int Right;
+
         public int Bottom;
 
         public Rect(int left, int top, int right, int bottom)

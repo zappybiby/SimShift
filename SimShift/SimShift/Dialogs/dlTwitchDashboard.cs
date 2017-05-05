@@ -34,8 +34,6 @@ namespace SimShift.Dialogs
         void updateUi_Tick(object sender, EventArgs e)
         {
             dsh.Invalidate();
-
         }
-
     }
 }

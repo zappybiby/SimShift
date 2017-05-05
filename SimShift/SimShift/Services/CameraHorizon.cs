@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+
 using SimShift.Data;
 using SimShift.Data.Common;
 using SimShift.Entities;
@@ -13,25 +14,32 @@ namespace SimShift.Services
     public class CameraHorizon : IControlChainObj
     {
         public double CameraAngle = 0;
+
+        public bool Active
+        {
+            get
+            {
+                return Math.Abs(CameraAngle) > 0.05;
+            }
+        }
+
         public bool CameraHackEnabled { get; set; }
 
-        public IEnumerable<string> SimulatorsOnly { get { return new String[] {"TestDrive2"}; } }
-        public IEnumerable<string> SimulatorsBan { get { return new String[0]; } }
-
-        public bool Active { get { return Math.Abs(CameraAngle) > 0.05; } }
         public bool Enabled { get; private set; }
 
-        #region Implementation of IControlChainObj
-
-        public bool Requires(JoyControls c)
+        public IEnumerable<string> SimulatorsBan
         {
-            switch(c)
+            get
             {
-                case JoyControls.CameraHorizon:
-                    return true;
+                return new String[0];
+            }
+        }
 
-                default:
-                    return false;
+        public IEnumerable<string> SimulatorsOnly
+        {
+            get
+            {
+                return new String[] { "TestDrive2" };
             }
         }
 
@@ -45,9 +53,19 @@ namespace SimShift.Services
             return val;
         }
 
+        public bool Requires(JoyControls c)
+        {
+            switch (c)
+            {
+                case JoyControls.CameraHorizon: return true;
+
+                default: return false;
+            }
+        }
+
         public void TickControls()
         {
-            CameraAngle = Main.GetAxisIn(JoyControls.CameraHorizon)*0.1 + CameraAngle*0.9;
+            CameraAngle = Main.GetAxisIn(JoyControls.CameraHorizon) * 0.1 + CameraAngle * 0.9;
         }
 
         public void TickTelemetry(IDataMiner data)
@@ -64,15 +82,13 @@ namespace SimShift.Services
             }
             if (CameraHackEnabled)
             {
-                data.Write(TelemetryChannel.CameraHorizon, (float)(CameraAngle * CameraAngle * CameraAngle * -25));
-                
-            } else if (CameraAngle != 0)
+                data.Write(TelemetryChannel.CameraHorizon, (float) (CameraAngle * CameraAngle * CameraAngle * -25));
+            }
+            else if (CameraAngle != 0)
             {
                 CameraAngle = 0;
                 data.Write(TelemetryChannel.CameraHorizon, 0.0f);
             }
         }
-
-        #endregion
     }
 }

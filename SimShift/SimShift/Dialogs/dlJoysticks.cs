@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+
 using SimShift.Entities;
 using SimShift.Services;
 
@@ -14,11 +15,16 @@ namespace SimShift.Dialogs
     public partial class dlJoysticks : Form
     {
         public List<ucJoystickChannel> controlsIn = new List<ucJoystickChannel>();
+
         public List<ucJoystickChannel> controlsOut = new List<ucJoystickChannel>();
+
         public List<ucJoystickChannel> joysticks = new List<ucJoystickChannel>();
-        private Timer _mUpdateJoysticks;
 
         private Timer _mCalibrateButton;
+
+        private Timer _mUpdateJoysticks;
+
+        int buttonId = 0;
 
         public dlJoysticks()
         {
@@ -38,8 +44,8 @@ namespace SimShift.Dialogs
                 var ucIn = new ucJoystickChannel(c, true);
                 var ucOut = new ucJoystickChannel(c, false);
 
-                ucIn.Location = new Point(3, 23 + ucIn.Height*c_);
-                ucOut.Location = new Point(3, 23 + ucOut.Height*c_);
+                ucIn.Location = new Point(3, 23 + ucIn.Height * c_);
+                ucOut.Location = new Point(3, 23 + ucOut.Height * c_);
 
                 controlsIn.Add(ucIn);
                 controlsOut.Add(ucOut);
@@ -52,7 +58,7 @@ namespace SimShift.Dialogs
             }
 
             var a = 0;
-            for (a = 0; a < 8;a++)
+            for (a = 0; a < 8; a++)
             {
                 var uc = new ucJoystickChannel(true, a);
                 uc.Location = new Point(3, 23 + uc.Height * a);
@@ -64,7 +70,7 @@ namespace SimShift.Dialogs
             for (int b = 0; b < 32; b++)
             {
                 var uc = new ucJoystickChannel(false, b);
-                uc.Location = new Point(3, 23 + uc.Height*(a + b));
+                uc.Location = new Point(3, 23 + uc.Height * (a + b));
 
                 joysticks.Add(uc);
                 gbController.Controls.Add(uc);
@@ -86,7 +92,7 @@ namespace SimShift.Dialogs
                 c.Tick();
             }
         }
-        int buttonId = 0;
+
         private void btDoCal_Click(object sender, EventArgs e)
         {
             if (_mCalibrateButton == null)
@@ -95,7 +101,7 @@ namespace SimShift.Dialogs
                 {
                     buttonId = int.Parse(cbControl.SelectedItem.ToString().Split(",".ToCharArray()).FirstOrDefault());
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     MessageBox.Show("Cannot parse button");
                 }
@@ -112,27 +118,27 @@ namespace SimShift.Dialogs
                 _mCalibrateButton = new Timer();
                 _mCalibrateButton.Interval = 1500;
                 _mCalibrateButton.Tick += (o, args) =>
-                                              {
-                                                  if (buttonState == 0)
-                                                  {
-                                                      buttonState = 1;
-                                                      Main.SetAxisOut((JoyControls)buttonId, 1);
-                                                      Main.SetButtonOut((JoyControls)buttonId, true);
-                                                  }
-                                                  else if (buttonState == 1)
-                                                  {
-                                                      buttonState = 2;
-                                                      Main.SetAxisOut((JoyControls)buttonId, 0.5);
-                                                      Main.SetButtonOut((JoyControls)buttonId, true);
-                                                  }
-                                                  else
+                    {
+                        if (buttonState == 0)
+                        {
+                            buttonState = 1;
+                            Main.SetAxisOut((JoyControls) buttonId, 1);
+                            Main.SetButtonOut((JoyControls) buttonId, true);
+                        }
+                        else if (buttonState == 1)
+                        {
+                            buttonState = 2;
+                            Main.SetAxisOut((JoyControls) buttonId, 0.5);
+                            Main.SetButtonOut((JoyControls) buttonId, true);
+                        }
+                        else
 
-                                                  {
-                                                      buttonState = 0;
-                                                      Main.SetAxisOut((JoyControls)buttonId, 0);
-                                                      Main.SetButtonOut((JoyControls)buttonId, false);
-                                                  }
-                                              };
+                        {
+                            buttonState = 0;
+                            Main.SetAxisOut((JoyControls) buttonId, 0);
+                            Main.SetButtonOut((JoyControls) buttonId, false);
+                        }
+                    };
                 _mCalibrateButton.Start();
 
                 btDoCal.Text = "Stop calibration";
@@ -142,8 +148,8 @@ namespace SimShift.Dialogs
                 _mCalibrateButton.Stop();
                 _mCalibrateButton = null;
 
-                Main.SetAxisOut((JoyControls)buttonId, 0);
-                Main.SetButtonOut((JoyControls)buttonId, false);
+                Main.SetAxisOut((JoyControls) buttonId, 0);
+                Main.SetButtonOut((JoyControls) buttonId, false);
 
                 btDoCal.Text = "Toggle for calibration";
             }

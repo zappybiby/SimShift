@@ -4,16 +4,16 @@ namespace SimShift.MapTool
 {
     public class Ets2Company
     {
-        public Ets2Mapper Mapper { get; private set; }
+        public int MaxX;
 
-        public Ets2Prefab Prefab;
-        public string PrefabID { get; private set; }
+        public int MaxY;
 
         public int MinX;
+
         public int MinY;
-        public int MaxX;
-        public int MaxY;
-        
+
+        public Ets2Prefab Prefab;
+
         public Ets2Company(string line, Ets2Mapper mapper)
         {
             Mapper = mapper;
@@ -29,8 +29,11 @@ namespace SimShift.MapTool
             // find prefab obj
             Prefab = mapper.PrefabsLookup.FirstOrDefault(x => x.IDSII == PrefabID);
 
-            if (Prefab!=null)
-                Prefab.Company = this;
+            if (Prefab != null) Prefab.Company = this;
         }
+
+        public Ets2Mapper Mapper { get; private set; }
+
+        public string PrefabID { get; private set; }
     }
 }

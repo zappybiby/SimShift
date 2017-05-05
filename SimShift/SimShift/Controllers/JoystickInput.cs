@@ -9,22 +9,27 @@ using System.Timers;
 namespace SimShift.Controllers
 {
     public delegate void JoystickButtonPress(JoystickInput joystickDevice, int button, bool state);
+
     public delegate void JoystickButtonEvent(JoystickInput joystickDevice, int button);
 
     public class JoystickInput
     {
-        private JOYINFOEX _joyInfo;
-        private JoystickInputDevice dev;
-        private Timer joystickUpdate;
-
-        public JoystickButtonPress State;
         public JoystickButtonEvent Press;
+
         public JoystickButtonEvent Release;
 
-        public Dictionary<int, string> AxisNames { get { return dev.AxisNames; } }
+        public JoystickButtonPress State;
+
+        private readonly double[] _axisState = new double[0];
 
         private readonly bool[] _buttonState = new bool[0];
-        private readonly double[] _axisState = new double[0];
+
+        private JOYINFOEX _joyInfo;
+
+        private JoystickInputDevice dev;
+
+        private Timer joystickUpdate;
+
         private int pov;
 
         public JoystickInput(JoystickInputDevice dev)
@@ -45,57 +50,29 @@ namespace SimShift.Controllers
             _buttonState = new bool[32];
             for (int i = 0; i < 32; i++)
             {
-                _buttonState[i] =false;
+                _buttonState[i] = false;
             }
 
             _joyInfo.dwSize = Marshal.SizeOf(_joyInfo);
             _joyInfo.dwFlags = JoystickFlags.JOY_RETURNALL;
         }
 
-        private void JoystickUpdateTick(object sender, EventArgs e)
+        public Dictionary<int, string> AxisNames
         {
-            JoystickMethods.joyGetPosEx(dev.id, out _joyInfo);
-
-            _axisState[0] = _joyInfo.dwXpos;
-            _axisState[1] = _joyInfo.dwYpos;
-            _axisState[2] = _joyInfo.dwZpos;
-            _axisState[3] = _joyInfo.dwRpos;
-            _axisState[4] = _joyInfo.dwUpos;
-            _axisState[5] = _joyInfo.dwVpos;
-
-            pov = _joyInfo.dwPOV;
-
-            // Take all button inputs.
-            for (int i = 0; i < 32; i++)
+            get
             {
-                var bitmask = _joyInfo.dwButtons & ((int)Math.Pow(2, i));
-                if (bitmask != 0)
-                {
-                    // Pressed
-                    if (!_buttonState[i])
-                    {
-                        // EVENT press
-                        if (State != null)
-                            State(this, i, true);
-                        if (Press != null)
-                            Press(this, i);
-
-                    }
-                    _buttonState[i] = true;
-                }
-                else
-                {
-                    if (_buttonState[i])
-                    {
-                        // EVENT release
-                        if (State != null)
-                            State(this, i, false);
-                        if (Release != null)
-                            Release(this, i);
-                    }
-                    _buttonState[i] = false;
-                }
+                return dev.AxisNames;
             }
+        }
+
+        public double GetAxis(int id)
+        {
+            return id < _axisState.Length ? _axisState[id] : 0;
+        }
+
+        public bool GetButton(int id)
+        {
+            return id < _buttonState.Length && _buttonState[id];
         }
 
         public bool GetPov(int i)
@@ -107,7 +84,7 @@ namespace SimShift.Controllers
             // bit 2 = top
             // bit 3 = right
             // bit 4 = bottom
-            switch(pov)
+            switch (pov)
             {
                 case 0xFFFF:
                     thruthtable = 0x00;
@@ -148,14 +125,45 @@ namespace SimShift.Controllers
             return ((thruthtable & (1 << i)) != 0);
         }
 
-        public double GetAxis(int id)
+        private void JoystickUpdateTick(object sender, EventArgs e)
         {
-            return id < _axisState.Length ? _axisState[id] : 0;
-        }
+            JoystickMethods.joyGetPosEx(dev.id, out _joyInfo);
 
-        public bool GetButton(int id)
-        {
-            return id < _buttonState.Length && _buttonState[id];
+            _axisState[0] = _joyInfo.dwXpos;
+            _axisState[1] = _joyInfo.dwYpos;
+            _axisState[2] = _joyInfo.dwZpos;
+            _axisState[3] = _joyInfo.dwRpos;
+            _axisState[4] = _joyInfo.dwUpos;
+            _axisState[5] = _joyInfo.dwVpos;
+
+            pov = _joyInfo.dwPOV;
+
+            // Take all button inputs.
+            for (int i = 0; i < 32; i++)
+            {
+                var bitmask = _joyInfo.dwButtons & ((int) Math.Pow(2, i));
+                if (bitmask != 0)
+                {
+                    // Pressed
+                    if (!_buttonState[i])
+                    {
+                        // EVENT press
+                        if (State != null) State(this, i, true);
+                        if (Press != null) Press(this, i);
+                    }
+                    _buttonState[i] = true;
+                }
+                else
+                {
+                    if (_buttonState[i])
+                    {
+                        // EVENT release
+                        if (State != null) State(this, i, false);
+                        if (Release != null) Release(this, i);
+                    }
+                    _buttonState[i] = false;
+                }
+            }
         }
     }
 }
