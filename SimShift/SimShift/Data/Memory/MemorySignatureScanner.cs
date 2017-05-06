@@ -113,8 +113,7 @@ namespace SimTelemetry.Domain.Memory
                         signatureObject = new MemorySignatureScanObject(00, false, true);
                         break;
                     default:
-                        signatureObject =
-                            new MemorySignatureScanObject((byte) Convert.ToUInt32(sigHex, 16), false, false);
+                        signatureObject = new MemorySignatureScanObject((byte) Convert.ToUInt32(sigHex, 16), false, false);
                         break;
                 }
                 signatureObjects.Add(signatureObject);
@@ -146,10 +145,7 @@ namespace SimTelemetry.Domain.Memory
             return results;
         }
 
-        private void ScanRegion<T>(
-            MemoryRegion region,
-            IEnumerable<MemorySignatureScanObject> signature,
-            Action<T, int> addAction)
+        private void ScanRegion<T>(MemoryRegion region, IEnumerable<MemorySignatureScanObject> signature, Action<T, int> addAction)
         {
             if (region.Data.Length == 0) return;
 

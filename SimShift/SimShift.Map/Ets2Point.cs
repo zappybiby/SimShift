@@ -52,8 +52,7 @@ namespace SimShift.MapTool
 
         public override string ToString()
         {
-            return "P " + Math.Round(X, 2) + "," + Math.Round(Z, 2) + " / " + Math.Round(Heading / Math.PI * 180, 1)
-                   + "deg (" + Math.Round(Heading, 3) + ")";
+            return "P " + Math.Round(X, 2) + "," + Math.Round(Z, 2) + " / " + Math.Round(Heading / Math.PI * 180, 1) + "deg (" + Math.Round(Heading, 3) + ")";
         }
     }
 }

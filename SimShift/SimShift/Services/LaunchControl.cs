@@ -187,8 +187,7 @@ namespace SimShift.Services
 
         public void TickTelemetry(IDataMiner data)
         {
-            var acc = (data.Telemetry.Speed - previousSpeed)
-                      / (DateTime.Now.Subtract(previousTime).TotalMilliseconds / 1000);
+            var acc = (data.Telemetry.Speed - previousSpeed) / (DateTime.Now.Subtract(previousTime).TotalMilliseconds / 1000);
             var pullSpeed = Main.Drivetrain.CalculateSpeedForRpm(data.Telemetry.Gear - 1, data.Telemetry.EngineRpm);
 
             LaunchControlActive = state != LaunchControlState.Inactive;
@@ -230,8 +229,7 @@ namespace SimShift.Services
 
             if (TemporaryLoadTc)
             {
-                if (!tcLoaded && data.Telemetry.Gear == 1 && LaunchControlActive
-                    && Main.TractionControl.File.Contains("notc"))
+                if (!tcLoaded && data.Telemetry.Gear == 1 && LaunchControlActive && Main.TractionControl.File.Contains("notc"))
                 {
                     tcLoaded = true;
                     Main.Load(Main.TractionControl, "Settings/TractionControl/launch.ini");

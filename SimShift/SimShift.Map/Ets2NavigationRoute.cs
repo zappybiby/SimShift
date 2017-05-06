@@ -93,8 +93,7 @@ namespace SimShift.MapTool
                     var newWeight = jump.Value.Item1 + currentWeight;
                     var newNode = jump.Key;
 
-                    if (nodeMap.ContainsKey(newNode.ItemUID) && nodeMap[newNode.ItemUID].Item1 > newWeight)
-                        nodeMap[newNode.ItemUID] = new Tuple<float, Ets2Item>(newWeight, toWalk);
+                    if (nodeMap.ContainsKey(newNode.ItemUID) && nodeMap[newNode.ItemUID].Item1 > newWeight) nodeMap[newNode.ItemUID] = new Tuple<float, Ets2Item>(newWeight, toWalk);
                     // add route with weight + previous node
                 }
             }
@@ -255,8 +254,7 @@ namespace SimShift.MapTool
                     var nextPrefab = segments[seg + 1];
                     var prevPrefab = segments[seg - 1];
 
-                    if (nextPrefab.Type != Ets2NavigationSegmentType.Prefab
-                        || prevPrefab.Type != Ets2NavigationSegmentType.Prefab) continue;
+                    if (nextPrefab.Type != Ets2NavigationSegmentType.Prefab || prevPrefab.Type != Ets2NavigationSegmentType.Prefab) continue;
 
                     // Deduct road options by matching entry/exits
                     for (int solI = 0; solI < segments[seg].Options.Count; solI++)

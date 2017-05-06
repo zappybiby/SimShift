@@ -2,17 +2,7 @@ namespace SimShift.Data.Common
 {
     public class GenericDataDefinition : IDataDefinition
     {
-        public GenericDataDefinition(
-            string car,
-            float time,
-            bool paused,
-            int gear,
-            int gears,
-            float engineRpm,
-            float fuel,
-            float throttle,
-            float brake,
-            float speed)
+        public GenericDataDefinition(string car, float time, bool paused, int gear, int gears, float engineRpm, float fuel, float throttle, float brake, float speed)
         {
             Car = car;
             Time = time;

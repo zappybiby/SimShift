@@ -43,8 +43,7 @@ namespace SimShift.MapTool
                     HideUI = (sector.Stream[offset + 0x37] & 0x02) != 0;
 
                     // Make sure these UID's exist in the world.
-                    if ((StartNodeUID != 0 && sector.Mapper.Nodes.ContainsKey(StartNodeUID))
-                        || (EndNodeUID != 0 && sector.Mapper.Nodes.ContainsKey(EndNodeUID)))
+                    if ((StartNodeUID != 0 && sector.Mapper.Nodes.ContainsKey(StartNodeUID)) || (EndNodeUID != 0 && sector.Mapper.Nodes.ContainsKey(EndNodeUID)))
                     {
                         Valid = true;
 
@@ -306,8 +305,7 @@ namespace SimShift.MapTool
                     Valid = City != string.Empty && NodeID != 0 && sector.Mapper.Nodes.ContainsKey(NodeID);
                     if (!Valid)
                     {
-                        Console.WriteLine(
-                            "Unknown city ID " + CityID.ToString("X16") + " at " + ItemUID.ToString("X16"));
+                        Console.WriteLine("Unknown city ID " + CityID.ToString("X16") + " at " + ItemUID.ToString("X16"));
                     }
                     else
                     {

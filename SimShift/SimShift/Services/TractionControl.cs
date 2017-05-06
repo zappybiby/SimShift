@@ -189,9 +189,7 @@ namespace SimShift.Services
                 if (Antistall.Stalling) WheelSpeed = 0;
                 SlipAngle = WheelSpeed / EngineSpeed;
                 Slipping = (SlipAngle - AllowedSlip > 1.0);
-                if (Main.Drivetrain.CalculateSpeedForRpm(
-                        data.Telemetry.Gear - 1,
-                        (float) Main.Drivetrain.StallRpm * 1.2f) >= data.Telemetry.Speed)
+                if (Main.Drivetrain.CalculateSpeedForRpm(data.Telemetry.Gear - 1, (float) Main.Drivetrain.StallRpm * 1.2f) >= data.Telemetry.Speed)
                 {
                     Slipping = false;
                 }

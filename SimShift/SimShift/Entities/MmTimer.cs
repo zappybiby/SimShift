@@ -117,12 +117,7 @@ namespace SimShift.Entities
         private static extern UInt32 timeKillEvent(UInt32 id);
 
         [DllImport("winmm.dll")]
-        private static extern UInt32 timeSetEvent(
-            UInt32 delay,
-            UInt32 resolution,
-            TimerEventHandler handler,
-            IntPtr user,
-            UInt32 eventType);
+        private static extern UInt32 timeSetEvent(UInt32 delay, UInt32 resolution, TimerEventHandler handler, IntPtr user, UInt32 eventType);
 
         private void TimerHandler(int id, int msg, IntPtr user, int dw1, int dw2)
         {

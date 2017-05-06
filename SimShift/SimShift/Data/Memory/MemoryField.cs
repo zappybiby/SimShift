@@ -64,13 +64,7 @@ namespace SimTelemetry.Domain.Memory
             AddressType = type;
         }
 
-        public MemoryField(
-            string name,
-            MemoryAddress type,
-            MemoryPool pool,
-            int offset,
-            int size,
-            Func<T, T> conversion)
+        public MemoryField(string name, MemoryAddress type, MemoryPool pool, int offset, int size, Func<T, T> conversion)
         {
             Name = name;
             ValueType = typeof(T);
@@ -192,8 +186,7 @@ namespace SimTelemetry.Domain.Memory
             if (Memory == null) return;
 
             var computedAddress = 0;
-            if (Address != 0 && Offset != 0)
-                computedAddress = Memory.Reader.ReadInt32(Memory.BaseAddress + Address) + Offset;
+            if (Address != 0 && Offset != 0) computedAddress = Memory.Reader.ReadInt32(Memory.BaseAddress + Address) + Offset;
             else
             {
                 computedAddress = AddressType == MemoryAddress.Static ? Memory.BaseAddress + Address : Address;
