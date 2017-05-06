@@ -23,8 +23,7 @@ namespace SimShift.MapTool
     {
         public Dictionary<string, Ets2Item> Cities = new Dictionary<string, Ets2Item>();
 
-        public Dictionary<Tuple<string, string>, Ets2Item> Companies =
-            new Dictionary<Tuple<string, string>, Ets2Item>();
+        public Dictionary<Tuple<string, string>, Ets2Item> Companies = new Dictionary<Tuple<string, string>, Ets2Item>();
 
         public ConcurrentDictionary<ulong, Ets2Item> Items = new ConcurrentDictionary<ulong, Ets2Item>();
 
@@ -71,13 +70,7 @@ namespace SimShift.MapTool
 
         public void Find(Ets2Node node, ulong item, bool isBackward)
         {
-            var req = new Ets2ItemSearchRequest
-                          {
-                              ItemUID = item,
-                              Node = node,
-                              IsBackward = isBackward,
-                              IsForward = !isBackward
-                          };
+            var req = new Ets2ItemSearchRequest { ItemUID = item, Node = node, IsBackward = isBackward, IsForward = !isBackward };
 
             ItemSearchRequests.Add(req);
         }
@@ -85,12 +78,7 @@ namespace SimShift.MapTool
         public Ets2Item FindClosestRoadPrefab(PointF location)
         {
             // Find road or prefab closest by
-            var closestPrefab = Items.Values
-                .Where(
-                    x => x.HideUI == false && x.Type == Ets2ItemType.Prefab && x.Prefab != null
-                         && x.Prefab.Curves.Any()).OrderBy(
-                    x => Math.Sqrt(Math.Pow(location.X - x.PrefabNode.X, 2) + Math.Pow(location.Y - x.PrefabNode.Z, 2)))
-                .FirstOrDefault();
+            var closestPrefab = Items.Values.Where(x => x.HideUI == false && x.Type == Ets2ItemType.Prefab && x.Prefab != null && x.Prefab.Curves.Any()).OrderBy(x => Math.Sqrt(Math.Pow(location.X - x.PrefabNode.X, 2) + Math.Pow(location.Y - x.PrefabNode.Z, 2))).FirstOrDefault();
             return closestPrefab;
         }
 
@@ -121,8 +109,7 @@ namespace SimShift.MapTool
             var start = FindClosestRoadPrefab(from);
             var end = FindClosestRoadPrefab(to);
 
-            Console.WriteLine(
-                "Navigating from " + start.ItemUID.ToString("X16") + " to " + end.ItemUID.ToString("X16"));
+            Console.WriteLine("Navigating from " + start.ItemUID.ToString("X16") + " to " + end.ItemUID.ToString("X16"));
             // Look up pre-fab closest by these 2 points
             return new Ets2NavigationRoute(start, end, new Ets2Point(from), new Ets2Point(to), this);
         }
@@ -178,8 +165,7 @@ namespace SimShift.MapTool
 
             // Now find all that were not ofund
             ItemSearchRequests.Clear();
-            Console.WriteLine(
-                ItemSearchRequests.Count + " were not found; attempting to search them through all sectors");
+            Console.WriteLine(ItemSearchRequests.Count + " were not found; attempting to search them through all sectors");
             foreach (var req in ItemSearchRequests)
             {
                 Ets2Item item = Sectors.Select(sec => sec.FindItem(req.ItemUID)).FirstOrDefault(tmp => tmp != null);
@@ -220,15 +206,12 @@ namespace SimShift.MapTool
             BuildNavigationCache();
 
             // Lookup all cities
-            Cities = Items.Values.Where(x => x.Type == Ets2ItemType.City).GroupBy(x => x.City)
-                .Select(x => x.FirstOrDefault()).ToDictionary(x => x.City, x => x);
+            Cities = Items.Values.Where(x => x.Type == Ets2ItemType.City).GroupBy(x => x.City).Select(x => x.FirstOrDefault()).ToDictionary(x => x.City, x => x);
 
             Console.WriteLine(Items.Values.Count(x => x.Type == Ets2ItemType.Building) + " buildings were found");
             Console.WriteLine(Items.Values.Count(x => x.Type == Ets2ItemType.Road) + " roads were found");
             Console.WriteLine(Items.Values.Count(x => x.Type == Ets2ItemType.Prefab) + " prefabs were found");
-            Console.WriteLine(
-                Items.Values.Count(x => x.Type == Ets2ItemType.Prefab && x.Prefab != null && x.Prefab.Curves.Any())
-                + " road prefabs were found");
+            Console.WriteLine(Items.Values.Count(x => x.Type == Ets2ItemType.Prefab && x.Prefab != null && x.Prefab.Curves.Any()) + " road prefabs were found");
             Console.WriteLine(Items.Values.Count(x => x.Type == Ets2ItemType.Service) + " service points were found");
             Console.WriteLine(Items.Values.Count(x => x.Type == Ets2ItemType.Company) + " companies were found");
             Console.WriteLine(Items.Values.Count(x => x.Type == Ets2ItemType.City) + " cities were found");
@@ -250,18 +233,14 @@ namespace SimShift.MapTool
                     var endNode = default(Ets2Item);
 
                     var fw = node.ForwardItem != null && node.ForwardItem.Type == Ets2ItemType.Road;
-                    var road = node.ForwardItem != null && node.ForwardItem.Type == Ets2ItemType.Prefab
-                                   ? node.BackwardItem
-                                   : node.ForwardItem;
+                    var road = node.ForwardItem != null && node.ForwardItem.Type == Ets2ItemType.Prefab ? node.BackwardItem : node.ForwardItem;
                     var totalLength = 0.0f;
                     var weight = 0.0f;
                     List<Ets2Item> roadList = new List<Ets2Item>();
                     while (road != null)
                     {
                         if (road.StartNode == null || road.EndNode == null) break;
-                        var length = (float) Math.Sqrt(
-                            Math.Pow(road.StartNode.X - road.EndNode.X, 2)
-                            + Math.Pow(road.StartNode.Z - road.EndNode.Z, 2));
+                        var length = (float) Math.Sqrt(Math.Pow(road.StartNode.X - road.EndNode.X, 2) + Math.Pow(road.StartNode.Z - road.EndNode.Z, 2));
                         var spd = 1;
                         if (road.RoadLook != null)
                         {
@@ -296,8 +275,7 @@ namespace SimShift.MapTool
 
                     if (prefab.ItemUID == 0x002935DED8C0345C)
                     {
-                        Console.WriteLine(
-                            node.NodeUID.ToString("X16") + " following to " + endNode.ItemUID.ToString("X16"));
+                        Console.WriteLine(node.NodeUID.ToString("X16") + " following to " + endNode.ItemUID.ToString("X16"));
                     }
 
                     // If there is no end-node found, it is a dead-end road.
@@ -305,17 +283,13 @@ namespace SimShift.MapTool
                     {
                         if (prefab.Navigation.ContainsKey(endNode) == false)
                         {
-                            prefab.Navigation.Add(
-                                endNode,
-                                new Tuple<float, float, IEnumerable<Ets2Item>>(weight, totalLength, roadList));
+                            prefab.Navigation.Add(endNode, new Tuple<float, float, IEnumerable<Ets2Item>>(weight, totalLength, roadList));
                         }
                         if (endNode.Navigation.ContainsKey(prefab) == false)
                         {
                             var reversedRoadList = new List<Ets2Item>(roadList);
                             reversedRoadList.Reverse();
-                            endNode.Navigation.Add(
-                                prefab,
-                                new Tuple<float, float, IEnumerable<Ets2Item>>(weight, totalLength, reversedRoadList));
+                            endNode.Navigation.Add(prefab, new Tuple<float, float, IEnumerable<Ets2Item>>(weight, totalLength, reversedRoadList));
                         }
                     }
                 }
@@ -394,8 +368,7 @@ namespace SimShift.MapTool
             }
 
             // COMPANIES
-            CompaniesLookup = File.ReadAllLines(LUTFolder + "-companies.csv").Select(x => new Ets2Company(x, this))
-                .ToList();
+            CompaniesLookup = File.ReadAllLines(LUTFolder + "-companies.csv").Select(x => new Ets2Company(x, this)).ToList();
 
             // CITIES
             CitiesLookup = File.ReadAllLines(LUTFolder + "-cities.csv").Select(

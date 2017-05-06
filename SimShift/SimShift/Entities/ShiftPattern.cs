@@ -55,16 +55,7 @@ namespace SimShift.Entities
                 string absThrStr = fr.AbsoluteThrottle ? "abs" : "rel";
                 string gearStr = fr.UseNewGear ? "new" : fr.UseOldGear ? "old" : "neu";
 
-                frames.Add(
-                    new IniValueObject(
-                        AcceptsConfigs,
-                        "Frame",
-                        string.Format(
-                            "Frame=({0:0.00},{1:0.00},{2},{3})",
-                            fr.Throttle,
-                            fr.Clutch,
-                            absThrStr,
-                            gearStr)));
+                frames.Add(new IniValueObject(AcceptsConfigs, "Frame", string.Format("Frame=({0:0.00},{1:0.00},{2},{3})", fr.Throttle, fr.Clutch, absThrStr, gearStr)));
             }
 
             return frames;

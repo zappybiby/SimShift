@@ -6,12 +6,7 @@ namespace SimTelemetry.Domain.Memory
 {
     public class MemoryFieldSignature<T> : MemoryField<T>
     {
-        public MemoryFieldSignature(
-            string name,
-            MemoryAddress type,
-            string signature,
-            IEnumerable<MemoryFieldSignaturePointer> pointers,
-            int size)
+        public MemoryFieldSignature(string name, MemoryAddress type, string signature, IEnumerable<MemoryFieldSignaturePointer> pointers, int size)
             : base(name, type, 0, size)
         {
             Signature = signature;
@@ -19,12 +14,7 @@ namespace SimTelemetry.Domain.Memory
             Initialized = false;
         }
 
-        public MemoryFieldSignature(
-            string name,
-            MemoryAddress type,
-            string signature,
-            IEnumerable<int> pointers,
-            int size)
+        public MemoryFieldSignature(string name, MemoryAddress type, string signature, IEnumerable<int> pointers, int size)
             : base(name, type, 0, size)
         {
             Signature = signature;
@@ -32,13 +22,7 @@ namespace SimTelemetry.Domain.Memory
             Initialized = false;
         }
 
-        public MemoryFieldSignature(
-            string name,
-            MemoryAddress type,
-            string signature,
-            IEnumerable<MemoryFieldSignaturePointer> pointers,
-            int size,
-            Func<T, T> convert)
+        public MemoryFieldSignature(string name, MemoryAddress type, string signature, IEnumerable<MemoryFieldSignaturePointer> pointers, int size, Func<T, T> convert)
             : base(name, type, 0, size)
         {
             Signature = signature;
@@ -47,13 +31,7 @@ namespace SimTelemetry.Domain.Memory
             Conversion = convert;
         }
 
-        public MemoryFieldSignature(
-            string name,
-            MemoryAddress type,
-            string signature,
-            IEnumerable<int> pointers,
-            int size,
-            Func<T, T> convert)
+        public MemoryFieldSignature(string name, MemoryAddress type, string signature, IEnumerable<int> pointers, int size, Func<T, T> convert)
             : base(name, type, 0, size)
         {
             Signature = signature;

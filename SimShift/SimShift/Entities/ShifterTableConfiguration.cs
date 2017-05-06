@@ -20,11 +20,7 @@ namespace SimShift.Entities
 
         public Dictionary<int, Dictionary<double, double>> tableThrottle;
 
-        public ShifterTableConfiguration(
-            ShifterTableConfigurationDefault def,
-            IDrivetrain drivetrain,
-            int spdPerGear,
-            float staticMass)
+        public ShifterTableConfiguration(ShifterTableConfigurationDefault def, IDrivetrain drivetrain, int spdPerGear, float staticMass)
         {
             Mode = def;
             SpdPerGear = spdPerGear;
@@ -74,8 +70,7 @@ namespace SimShift.Entities
                 var fuel = Drivetrain.CalculateFuelConsumption(r, 1);
                 var ratio = drivetrain.CalculatePower(r, 1) / fuel;
 
-                l += r + "," + Drivetrain.CalculatePower(r, 1) + "," + Drivetrain.CalculatePower(r, 0) + "," + fuel
-                     + "," + ratio + "\r\n";
+                l += r + "," + Drivetrain.CalculatePower(r, 1) + "," + Drivetrain.CalculatePower(r, 0) + "," + fuel + "," + ratio + "\r\n";
             }
             //File.WriteAllText("./ets2engine.csv", l);
         }
@@ -198,10 +193,7 @@ namespace SimShift.Entities
                         tableGear[speed].Add(load, gear + 1);
                         break;
                     }
-                    if (!gearSet)
-                        tableGear[speed].Add(
-                            load,
-                            latestGearThatWasNotStalling == 1 ? 1 : latestGearThatWasNotStalling + 1);
+                    if (!gearSet) tableGear[speed].Add(load, latestGearThatWasNotStalling == 1 ? 1 : latestGearThatWasNotStalling + 1);
                 }
             }
         }
@@ -312,8 +304,7 @@ namespace SimShift.Entities
                     }
                     else
                     {
-                        if (Drivetrain is Ets2Drivetrain && Drivetrain.Gears >= 10)
-                            bestFuelGear = Math.Max(2, bestFuelGear);
+                        if (Drivetrain is Ets2Drivetrain && Drivetrain.Gears >= 10) bestFuelGear = Math.Max(2, bestFuelGear);
                         tableGear[speed].Add(load, bestFuelGear + 1);
                     }
                 }
@@ -362,10 +353,7 @@ namespace SimShift.Entities
                     //if (speed < 30 )
                     //    tableGear[speed].Add(load, latestGearThatWasNotStalling);
                     //else 
-                    if (!gearSet)
-                        tableGear[speed].Add(
-                            load,
-                            (latestGearThatWasNotStalling == 1 ? 1 : latestGearThatWasNotStalling + 1));
+                    if (!gearSet) tableGear[speed].Add(load, (latestGearThatWasNotStalling == 1 ? 1 : latestGearThatWasNotStalling + 1));
                     else
                     {
                         tableGear[speed].Add(load, bestPowerGear + 1);
@@ -412,22 +400,14 @@ namespace SimShift.Entities
                 loadB = tableGear[(int) speedA].Keys.Skip(1).FirstOrDefault();
             }
 
-            var gear = 1.0 / (speedB - speedA) / (loadB - loadA)
-                       * (tableGear[(int) speedA][loadA] * (speedB - speed) * (loadB - load)
-                          + tableGear[(int) speedB][loadA] * (speed - speedA) * (loadB - load)
-                          + tableGear[(int) speedA][loadB] * (speedB - speed) * (load - loadA)
-                          + tableGear[(int) speedB][loadB] * (speed - speedA) * (load - loadA));
+            var gear = 1.0 / (speedB - speedA) / (loadB - loadA) * (tableGear[(int) speedA][loadA] * (speedB - speed) * (loadB - load) + tableGear[(int) speedB][loadA] * (speed - speedA) * (loadB - load) + tableGear[(int) speedA][loadB] * (speedB - speed) * (load - loadA) + tableGear[(int) speedB][loadB] * (speed - speedA) * (load - loadA));
             if (double.IsNaN(gear)) gear = 1;
             // Look up the closests RPM.
             var closestsSpeed = tableGear.Keys.OrderBy(x => Math.Abs(speed - x)).FirstOrDefault();
             var closestsLoad = tableGear[closestsSpeed].Keys.OrderBy(x => Math.Abs(x - load)).FirstOrDefault();
 
             //return new ShifterTableLookupResult((int)Math.Round(gear), closestsSpeed, closestsLoad);
-            return new ShifterTableLookupResult(
-                tableGear[closestsSpeed][closestsLoad],
-                tableThrottle[closestsSpeed][closestsLoad],
-                closestsSpeed,
-                closestsLoad);
+            return new ShifterTableLookupResult(tableGear[closestsSpeed][closestsLoad], tableThrottle[closestsSpeed][closestsLoad], closestsSpeed, closestsLoad);
         }
 
         public void MinimumSpeedPerGear(int minimum)

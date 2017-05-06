@@ -61,26 +61,13 @@ namespace SimShift.Data.Memory
         public static extern Int32 GetLastError();
 
         [DllImport("psapi.dll")]
-        public static extern uint GetMappedFileName(
-            IntPtr hProcess,
-            IntPtr hAddress,
-            [Out] StringBuilder lpBaseName,
-            [In] [MarshalAs(UnmanagedType.U4)] int nSize);
+        public static extern uint GetMappedFileName(IntPtr hProcess, IntPtr hAddress, [Out] StringBuilder lpBaseName, [In] [MarshalAs(UnmanagedType.U4)] int nSize);
 
         [DllImport("psapi.dll")]
-        public static extern uint GetModuleFileNameEx(
-            IntPtr hProcess,
-            IntPtr hModule,
-            [Out] StringBuilder lpBaseName,
-            [In] [MarshalAs(UnmanagedType.U4)] int nSize);
+        public static extern uint GetModuleFileNameEx(IntPtr hProcess, IntPtr hModule, [Out] StringBuilder lpBaseName, [In] [MarshalAs(UnmanagedType.U4)] int nSize);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern IntPtr MapViewOfFile(
-            IntPtr hFileMappingObject,
-            uint dwDesiredAccess,
-            uint dwFileOffsetHigh,
-            uint dwFileOffsetLow,
-            uint dwNumberOfBytesToMap);
+        public static extern IntPtr MapViewOfFile(IntPtr hFileMappingObject, uint dwDesiredAccess, uint dwFileOffsetHigh, uint dwFileOffsetLow, uint dwNumberOfBytesToMap);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr OpenFileMapping(uint dwDesiredAccess, bool bInheritHandle, string lpName);
@@ -89,30 +76,16 @@ namespace SimShift.Data.Memory
         public static extern IntPtr OpenProcess(UInt32 dwDesiredAccess, Int32 bInheritHandle, UInt32 dwProcessId);
 
         [DllImport("kernel32.dll")]
-        public static extern Int32 ReadProcessMemory(
-            IntPtr hProcess,
-            IntPtr lpBaseAddress,
-            [In, Out] byte[] buffer,
-            UInt32 size,
-            out IntPtr lpNumberOfBytesRead);
+        public static extern Int32 ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [In, Out] byte[] buffer, UInt32 size, out IntPtr lpNumberOfBytesRead);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool UnmapViewOfFile(IntPtr lpBaseAddress);
 
         [DllImport("kernel32.dll")]
-        public static extern int VirtualQueryEx(
-            IntPtr hProcess,
-            IntPtr lpAddress,
-            out MEMORY_BASIC_INFORMATION lpBuffer,
-            uint dwLength);
+        public static extern int VirtualQueryEx(IntPtr hProcess, IntPtr lpAddress, out MEMORY_BASIC_INFORMATION lpBuffer, uint dwLength);
 
         [DllImport("kernel32.dll")]
-        public static extern bool WriteProcessMemory(
-            IntPtr hProcess,
-            IntPtr lpBaseAddress,
-            byte[] lpBuffer,
-            UIntPtr nSize,
-            out int lpNumberOfBytesWritten);
+        public static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, UIntPtr nSize, out int lpNumberOfBytesWritten);
 
         [StructLayout(LayoutKind.Sequential)]
         public struct MEMORY_BASIC_INFORMATION

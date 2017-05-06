@@ -24,23 +24,11 @@ namespace SimTelemetry.Domain.Memory
             : base(name, type, address, size, conversion)
         { }
 
-        public MemoryFieldLazy(
-            string name,
-            MemoryAddress type,
-            int address,
-            int offset,
-            int size,
-            Func<T, T> conversion)
+        public MemoryFieldLazy(string name, MemoryAddress type, int address, int offset, int size, Func<T, T> conversion)
             : base(name, type, address, offset, size, conversion)
         { }
 
-        public MemoryFieldLazy(
-            string name,
-            MemoryAddress type,
-            MemoryPool pool,
-            int offset,
-            int size,
-            Func<T, T> conversion)
+        public MemoryFieldLazy(string name, MemoryAddress type, MemoryPool pool, int offset, int size, Func<T, T> conversion)
             : base(name, type, pool, offset, size, conversion)
         { }
 

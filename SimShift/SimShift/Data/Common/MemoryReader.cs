@@ -48,12 +48,7 @@ namespace SimShift.Data.Common
         {
             IntPtr ptrBytesReaded;
             var buffer = new byte[bytesToRead];
-            ProcessMemoryReaderApi.ReadProcessMemory(
-                m_hProcess,
-                memoryAddress,
-                buffer,
-                bytesToRead,
-                out ptrBytesReaded);
+            ProcessMemoryReaderApi.ReadProcessMemory(m_hProcess, memoryAddress, buffer, bytesToRead, out ptrBytesReaded);
             return buffer;
         }
 

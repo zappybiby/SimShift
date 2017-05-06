@@ -251,8 +251,7 @@ namespace SimShift.Services
                                 if (m >= activeSegmentOption.HiResPoints.Count) break;
                                 bestPointP1 = activeSegmentOption.HiResPoints[m];
                             }
-                            while (bestPoint.DistanceTo(bestPointP1) < 0.1f
-                                   && m + 1 < activeSegmentOption.HiResPoints.Count);
+                            while (bestPoint.DistanceTo(bestPointP1) < 0.1f && m + 1 < activeSegmentOption.HiResPoints.Count);
                         }
                     }
                 }
@@ -276,9 +275,7 @@ namespace SimShift.Services
                 var qwer = Math.Sqrt(px2 * px2 + pz2 * pz2);
                 Console.WriteLine(qwer);
                 // Reference to top (otherwise 90deg offset) - CCW
-                yawRoad = activeSegment.Type == Ets2NavigationSegmentType.Road
-                              ? -bestPoint.Heading + Math.PI / 2
-                              : bestPoint.Heading - Math.PI / 2;
+                yawRoad = activeSegment.Type == Ets2NavigationSegmentType.Road ? -bestPoint.Heading + Math.PI / 2 : bestPoint.Heading - Math.PI / 2;
 
                 hook = bestPoint;
                 lineDistanceError = (px1 * px2 + pz1 * pz2) / Math.Sqrt(px2 * px2 + pz2 * pz2);

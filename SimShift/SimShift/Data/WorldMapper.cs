@@ -66,11 +66,7 @@ namespace SimShift.Data
                     string[] pointData = li.Split(",".ToCharArray());
                     lock (active.points)
                     {
-                        active.points.Add(
-                            new WorldMapPoint(
-                                float.Parse(pointData[0]),
-                                float.Parse(pointData[1]),
-                                float.Parse(pointData[2])));
+                        active.points.Add(new WorldMapPoint(float.Parse(pointData[0]), float.Parse(pointData[1]), float.Parse(pointData[2])));
                     }
                 }
             }
@@ -83,8 +79,7 @@ namespace SimShift.Data
             var cellZ = (int) (z / 512);
             lock (cells)
             {
-                if (cells.Any(d => d.X == cellX && d.Z == cellZ))
-                    return cells.FirstOrDefault(d => d.X == cellX && d.Z == cellZ);
+                if (cells.Any(d => d.X == cellX && d.Z == cellZ)) return cells.FirstOrDefault(d => d.X == cellX && d.Z == cellZ);
 
                 Debug.WriteLine("Created cell " + cellX + "," + cellZ);
                 c = new WorldMapCell(cellX, cellZ);

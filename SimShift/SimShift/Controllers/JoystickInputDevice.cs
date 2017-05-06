@@ -8,14 +8,11 @@ namespace SimShift.Controllers
 {
     public class JoystickInputDevice
     {
-        private const string RegKeyAxisData =
-            @"SYSTEM\ControlSet001\Control\MediaProperties\PrivateProperties\Joystick\OEM";
+        private const string RegKeyAxisData = @"SYSTEM\ControlSet001\Control\MediaProperties\PrivateProperties\Joystick\OEM";
 
-        private const string RegKeyPlace =
-            @"System\CurrentControlSet\Control\MediaProperties\PrivateProperties\Joystick\OEM\";
+        private const string RegKeyPlace = @"System\CurrentControlSet\Control\MediaProperties\PrivateProperties\Joystick\OEM\";
 
-        private const string RegReferencePlace =
-            @"System\CurrentControlSet\Control\MediaResources\Joystick\DINPUT.DLL\CurrentJoystickSettings";
+        private const string RegReferencePlace = @"System\CurrentControlSet\Control\MediaResources\Joystick\DINPUT.DLL\CurrentJoystickSettings";
 
         /******************* STATIC ******************/
         static int deviceNumber = 0;

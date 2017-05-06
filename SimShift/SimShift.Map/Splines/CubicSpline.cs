@@ -75,12 +75,7 @@ namespace SimShift.Map.Splines
         /// <param name="startSlope">Optional slope constraint for the first point. Single.NaN means no constraint.</param>
         /// <param name="endSlope">Optional slope constraint for the final point. Single.NaN means no constraint.</param>
         /// <param name="debug">Turn on console output. Default is false.</param>
-        public CubicSpline(
-            float[] x,
-            float[] y,
-            float startSlope = float.NaN,
-            float endSlope = float.NaN,
-            bool debug = false)
+        public CubicSpline(float[] x, float[] y, float startSlope = float.NaN, float endSlope = float.NaN, bool debug = false)
         {
             Fit(x, y, startSlope, endSlope, debug);
         }
@@ -95,13 +90,7 @@ namespace SimShift.Map.Splines
         /// <param name="endSlope">Optional slope constraint for the final point. Single.NaN means no constraint.</param>
         /// <param name="debug">Turn on console output. Default is false.</param>
         /// <returns>The computed y values for each xs.</returns>
-        public static float[] Compute(
-            float[] x,
-            float[] y,
-            float[] xs,
-            float startSlope = float.NaN,
-            float endSlope = float.NaN,
-            bool debug = false)
+        public static float[] Compute(float[] x, float[] y, float[] xs, float startSlope = float.NaN, float endSlope = float.NaN, bool debug = false)
         {
             CubicSpline spline = new CubicSpline();
             return spline.FitAndEval(x, y, xs, startSlope, endSlope, debug);
@@ -116,13 +105,7 @@ namespace SimShift.Map.Splines
         /// <param name="nOutputPoints">How many output points to create.</param>
         /// <param name="xs">Output (interpolated) x values.</param>
         /// <param name="ys">Output (interpolated) y values.</param>
-        public static void FitGeometric(
-            float[] x,
-            float[] y,
-            float[] directions,
-            int nOutputPoints,
-            out float[] xs,
-            out float[] ys)
+        public static void FitGeometric(float[] x, float[] y, float[] directions, int nOutputPoints, out float[] xs, out float[] ys)
         {
             // Compute distances
             int n = x.Length;
@@ -237,12 +220,7 @@ namespace SimShift.Map.Splines
         /// <param name="startSlope">Optional slope constraint for the first point. Single.NaN means no constraint.</param>
         /// <param name="endSlope">Optional slope constraint for the final point. Single.NaN means no constraint.</param>
         /// <param name="debug">Turn on console output. Default is false.</param>
-        public void Fit(
-            float[] x,
-            float[] y,
-            float startSlope = float.NaN,
-            float endSlope = float.NaN,
-            bool debug = false)
+        public void Fit(float[] x, float[] y, float startSlope = float.NaN, float endSlope = float.NaN, bool debug = false)
         {
             if (Single.IsInfinity(startSlope) || Single.IsInfinity(endSlope))
             {
@@ -339,13 +317,7 @@ namespace SimShift.Map.Splines
         /// <param name="endSlope">Optional slope constraint for the final point. Single.NaN means no constraint.</param>
         /// <param name="debug">Turn on console output. Default is false.</param>
         /// <returns>The computed y values for each xs.</returns>
-        public float[] FitAndEval(
-            float[] x,
-            float[] y,
-            float[] xs,
-            float startSlope = float.NaN,
-            float endSlope = float.NaN,
-            bool debug = false)
+        public float[] FitAndEval(float[] x, float[] y, float[] xs, float startSlope = float.NaN, float endSlope = float.NaN, bool debug = false)
         {
             Fit(x, y, startSlope, endSlope, debug);
             return Eval(xs, debug);

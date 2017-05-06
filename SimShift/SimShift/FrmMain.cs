@@ -465,15 +465,11 @@ namespace SimShift
                 var l = pane.Controls["name" + name];
                 if (mod.Active) l.ForeColor = Color.Aqua;
                 else l.ForeColor = Color.White;
-                if (typeof(TransmissionCalibrator) == mod.GetType())
-                    l.Text = "TC " + Math.Round(Main.TransmissionCalibrator.err, 1) + "|"
-                             + (Main.TransmissionCalibrator.State.ToString());
+                if (typeof(TransmissionCalibrator) == mod.GetType()) l.Text = "TC " + Math.Round(Main.TransmissionCalibrator.err, 1) + "|" + (Main.TransmissionCalibrator.State.ToString());
                 if (typeof(Speedlimiter) == mod.GetType()) l.Text = "SpeedLimit " + (Main.Speedlimiter.SpeedLimit);
                 if (typeof(ACC) == mod.GetType()) l.Text = "ACC " + Math.Round(3.6 * Main.ACC.SpeedCruise);
-                if (typeof(CruiseControl) == mod.GetType())
-                    l.Text = "CruiseControl " + Math.Round(3.6 * Main.CruiseControl.SpeedCruise);
-                if (typeof(VariableSpeedTransmission) == mod.GetType())
-                    l.Text = "VST " + Math.Round(Main.VariableSpeedControl.SetSpeed);
+                if (typeof(CruiseControl) == mod.GetType()) l.Text = "CruiseControl " + Math.Round(3.6 * Main.CruiseControl.SpeedCruise);
+                if (typeof(VariableSpeedTransmission) == mod.GetType()) l.Text = "VST " + Math.Round(Main.VariableSpeedControl.SetSpeed);
             }
 
             if (controlsChanged)
@@ -513,8 +509,7 @@ namespace SimShift
                 this.Invoke(new voidDelegate(UpdateSimulatorStatusLabel), new object[0]);
                 return;
             }
-            lbSimStatus.Text = (Main.Data.AutoMode ? "Automatic Select" : "Manual Select") + "\nSimulator: "
-                               + (Main.Data.Active != null ? Main.Data.Active.Name : "None");
+            lbSimStatus.Text = (Main.Data.AutoMode ? "Automatic Select" : "Manual Select") + "\nSimulator: " + (Main.Data.Active != null ? Main.Data.Active.Name : "None");
         }
     }
 }

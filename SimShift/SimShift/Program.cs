@@ -23,9 +23,7 @@ namespace SimShift
             log.Close();
         }
 
-        static void CurrentDomain_FirstChanceException(
-            object sender,
-            System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
+        static void CurrentDomain_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
         {
             Log("FirstChanceException", e.Exception);
         }
@@ -37,8 +35,7 @@ namespace SimShift
 
         private static void Log(string what, Exception e)
         {
-            var h = "------------------ " + what + " ----------------\r\n" + e.Message + "\r\nSTACKTRACE: "
-                    + e.StackTrace + "\r\n" + e.ToString() + "\r\n";
+            var h = "------------------ " + what + " ----------------\r\n" + e.Message + "\r\nSTACKTRACE: " + e.StackTrace + "\r\n" + e.ToString() + "\r\n";
             var h2 = ASCIIEncoding.ASCII.GetBytes(h);
             log.Write(h2, 0, h2.Length);
         }

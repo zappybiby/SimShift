@@ -14,9 +14,7 @@ namespace SimShift.MapTool
                 for (byte* hNext = H, hEnd = H + Haystack.Length; hNext < hEnd; i++, hNext++)
                 {
                     bool Found = true;
-                    for (byte* hInc = hNext, nInc = N, nEnd = N + Needle.LongLength;
-                         Found && nInc < nEnd;
-                         Found = *nInc == *hInc, nInc++, hInc++)
+                    for (byte* hInc = hNext, nInc = N, nEnd = N + Needle.LongLength; Found && nInc < nEnd; Found = *nInc == *hInc, nInc++, hInc++)
                     {
                         ;
                     }

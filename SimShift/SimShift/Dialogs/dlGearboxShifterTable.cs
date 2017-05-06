@@ -15,11 +15,7 @@ namespace SimShift.Dialogs
 {
     public partial class dlGearboxShifterTable : Form
     {
-        private ShifterTableConfiguration activeConfiguration = new ShifterTableConfiguration(
-            ShifterTableConfigurationDefault.PowerEfficiency,
-            new Ets2Drivetrain(),
-            1,
-            0);
+        private ShifterTableConfiguration activeConfiguration = new ShifterTableConfiguration(ShifterTableConfigurationDefault.PowerEfficiency, new Ets2Drivetrain(), 1, 0);
 
         private int dataGridOverheadB = 0;
 
@@ -31,13 +27,7 @@ namespace SimShift.Dialogs
         {
             var myEngine = new Ets2Drivetrain();
             Main.Load(myEngine, "Settings/Drivetrain/eurotrucks2.iveco.hiway.ini");
-            activeConfiguration = Main.Running
-                                      ? Main.Transmission.configuration
-                                      : new ShifterTableConfiguration(
-                                          ShifterTableConfigurationDefault.Efficiency,
-                                          myEngine,
-                                          19,
-                                          25000);
+            activeConfiguration = Main.Running ? Main.Transmission.configuration : new ShifterTableConfiguration(ShifterTableConfigurationDefault.Efficiency, myEngine, 19, 25000);
 
             string headline = "RPM";
             for (int k = 0; k <= 10; k++)
@@ -148,10 +138,7 @@ namespace SimShift.Dialogs
                         break;
                 }
             }
-            Color rgb = Color.FromArgb(
-                Convert.ToByte(r * 255.0f),
-                Convert.ToByte(g * 255.0f),
-                Convert.ToByte(b * 255.0f));
+            Color rgb = Color.FromArgb(Convert.ToByte(r * 255.0f), Convert.ToByte(g * 255.0f), Convert.ToByte(b * 255.0f));
             return rgb;
         }
 
@@ -159,9 +146,7 @@ namespace SimShift.Dialogs
         {
             this.sim.Location = new Point(sim.Location.X, this.Height - simGraphOverheadB);
             this.sim.Size = new Size(this.Width - dataGridOverheadR, sim.Height);
-            this.shifterTable.Size = new Size(
-                this.Width - dataGridOverheadR,
-                sim.Location.Y - shifterTable.Location.Y - dataGridOverheadB);
+            this.shifterTable.Size = new Size(this.Width - dataGridOverheadR, sim.Location.Y - shifterTable.Location.Y - dataGridOverheadB);
         }
 
         private void LoadTable()
@@ -208,9 +193,7 @@ namespace SimShift.Dialogs
             {
                 for (int spd = 1; spd <= spdBins; spd++)
                 {
-                    if (shifterTable.Rows[row].Cells[spd].Value != null)
-                        shifterTable.Rows[row].Cells[spd].Style.BackColor =
-                            gearColors[int.Parse(shifterTable.Rows[row].Cells[spd].Value.ToString())];
+                    if (shifterTable.Rows[row].Cells[spd].Value != null) shifterTable.Rows[row].Cells[spd].Style.BackColor = gearColors[int.Parse(shifterTable.Rows[row].Cells[spd].Value.ToString())];
                 }
             }
         }

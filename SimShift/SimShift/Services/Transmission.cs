@@ -42,11 +42,7 @@ namespace SimShift.Services
 
         public Transmission()
         {
-            configuration = new ShifterTableConfiguration(
-                ShifterTableConfigurationDefault.PeakRpm,
-                Main.Drivetrain,
-                20,
-                0);
+            configuration = new ShifterTableConfiguration(ShifterTableConfigurationDefault.PeakRpm, Main.Drivetrain, 20, 0);
 
             LoadShiftPattern("up_1thr", "normal");
             LoadShiftPattern("up_0thr", "normal");
@@ -362,11 +358,7 @@ namespace SimShift.Services
 
         public void RecalcTable()
         {
-            configuration = new ShifterTableConfiguration(
-                configuration.Mode,
-                Main.Drivetrain,
-                configuration.SpdPerGear,
-                configuration.Mass);
+            configuration = new ShifterTableConfiguration(configuration.Mode, Main.Drivetrain, configuration.SpdPerGear, configuration.Mass);
         }
 
         public bool Requires(JoyControls c)
@@ -402,11 +394,7 @@ namespace SimShift.Services
 
         public void ResetParameters()
         {
-            configuration = new ShifterTableConfiguration(
-                ShifterTableConfigurationDefault.PeakRpm,
-                Main.Drivetrain,
-                10,
-                0);
+            configuration = new ShifterTableConfiguration(ShifterTableConfigurationDefault.PeakRpm, Main.Drivetrain, 10, 0);
 
             if (Main.Data.Active.Application == "TestDrive2") LoadShiftPattern("up_1thr", "fast");
             else LoadShiftPattern("up_1thr", "normal");
@@ -419,8 +407,7 @@ namespace SimShift.Services
         {
             if (IsShifting) return;
 
-            if (EnableSportShiftdown && Main.GetAxisIn(JoyControls.Throttle) < 0.2)
-                KickdownTime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, (int) KickdownTimeout / 10));
+            if (EnableSportShiftdown && Main.GetAxisIn(JoyControls.Throttle) < 0.2) KickdownTime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, (int) KickdownTimeout / 10));
             else KickdownTime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, (int) KickdownTimeout));
 
             if (PowerShift) style = "PowerShift";
@@ -486,8 +473,7 @@ namespace SimShift.Services
                         {
                             IsShifting = false;
                             shiftRetry = 0;
-                            TransmissionFreezeUntill =
-                                DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, ShiftDeadTime + 50 * ShiftCtrlNewGear));
+                            TransmissionFreezeUntill = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, ShiftDeadTime + 50 * ShiftCtrlNewGear));
                         }
                         else
                         {
@@ -560,8 +546,7 @@ namespace SimShift.Services
                             {
                                 IsShifting = false;
                                 shiftRetry = 0;
-                                TransmissionFreezeUntill =
-                                    DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, ShiftDeadTime + 20 * ShiftCtrlNewGear));
+                                TransmissionFreezeUntill = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, ShiftDeadTime + 20 * ShiftCtrlNewGear));
                             }
                         }
                     }
@@ -598,8 +583,7 @@ namespace SimShift.Services
             }
             else
             {
-                if (EnableSportShiftdown)
-                    transmissionThrottle = Math.Max(Main.GetAxisIn(JoyControls.Brake) * 8, transmissionThrottle);
+                if (EnableSportShiftdown) transmissionThrottle = Math.Max(Main.GetAxisIn(JoyControls.Brake) * 8, transmissionThrottle);
                 transmissionThrottle = Math.Min(1, Math.Max(0, transmissionThrottle));
                 var lookupResult = configuration.Lookup(data.Telemetry.Speed * 3.6, transmissionThrottle);
                 idealGear = lookupResult.Gear;
@@ -608,8 +592,7 @@ namespace SimShift.Services
                 if (Main.Data.Active.Application == "eurotrucks2")
                 {
                     var ets2Miner = (Ets2DataMiner) (data);
-                    var maxGears = (int) Math.Round(
-                        Main.Drivetrain.Gears * (1 - ets2Miner.MyTelemetry.Damage.WearTransmission));
+                    var maxGears = (int) Math.Round(Main.Drivetrain.Gears * (1 - ets2Miner.MyTelemetry.Damage.WearTransmission));
 
                     if (idealGear >= maxGears) idealGear = maxGears;
                 }
@@ -657,16 +640,14 @@ namespace SimShift.Services
 
                     var maxPwr = Main.Drivetrain.CalculateMaxPower();
 
-                    var engineRpmCurrentGear =
-                        Main.Drivetrain.CalculateRpmForSpeed(ShifterOldGear - 1, data.Telemetry.Speed);
+                    var engineRpmCurrentGear = Main.Drivetrain.CalculateRpmForSpeed(ShifterOldGear - 1, data.Telemetry.Speed);
                     var pwrCurrentGear = Main.Drivetrain.CalculatePower(engineRpmCurrentGear, data.Telemetry.Throttle);
 
                     var engineRpmNewGear = Main.Drivetrain.CalculateRpmForSpeed(idealGear - 1, data.Telemetry.Speed);
                     var pwrNewGear = Main.Drivetrain.CalculatePower(engineRpmNewGear, data.Telemetry.Throttle);
                     //Debug.WriteLine("N"+pwrCurrentGear.ToString("000") + " I:" + pwrNewGear.ToString("000"));
                     // This makes sure the gearbox shifts down if on low revs and the user is requesting power from the engine
-                    if (pwrNewGear / pwrCurrentGear > 1 + KickdownPowerReset
-                        && pwrNewGear / maxPwr > KickdownPowerReset)
+                    if (pwrNewGear / pwrCurrentGear > 1 + KickdownPowerReset && pwrNewGear / maxPwr > KickdownPowerReset)
                     {
                         Debug.WriteLine("[Kickdown] Reset on power / " + pwrCurrentGear + " / " + pwrNewGear);
                         KickdownCooldown = false;
@@ -708,8 +689,7 @@ namespace SimShift.Services
                 var engagingToRange1 = ShifterOldGear >= 7 && ShifterNewGear < 7;
 
                 // Range 2 is engaged when the old gear was range 1 or 3, and the new one is range 2.
-                var engagingToRange2 = (ShifterOldGear < 7 || ShifterOldGear > 12) && ShifterNewGear >= 7
-                                       && ShifterNewGear <= 12;
+                var engagingToRange2 = (ShifterOldGear < 7 || ShifterOldGear > 12) && ShifterNewGear >= 7 && ShifterNewGear <= 12;
 
                 // Range 2 is engaged when the old gear was range 1 or 2, and the new one is range 3.
                 var engagingToRange3 = ShifterOldGear < 13 && ShifterNewGear >= 13;
@@ -756,9 +736,7 @@ namespace SimShift.Services
                     // Evaluate and set phase 1(on) / phase 2 (off) timings
                     default:
 
-                        Debug.WriteLine(
-                            "Shift " + ShifterOldGear + "(" + ShiftCtrlOldRange + ") to " + ShifterNewGear + "("
-                            + ShiftCtrlNewRange + ")");
+                        Debug.WriteLine("Shift " + ShifterOldGear + "(" + ShiftCtrlOldRange + ") to " + ShifterNewGear + "(" + ShiftCtrlNewRange + ")");
                         Debug.WriteLine("R1: " + engageR1Status + " / R2: " + engageR2Status);
                         if (r == 1 && !engageR1Status) return false;
                         if (r == 2 && !engageR2Status) return false;

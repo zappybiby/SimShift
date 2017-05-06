@@ -254,8 +254,7 @@ namespace SimShift.Services
                 switch (ShiftingPhase)
                 {
                     case ShiftPhase.WaitButton:
-                        if (Main.GetButtonIn(JoyControls.GearUp) == false
-                            && Main.GetButtonIn(JoyControls.GearDown) == false)
+                        if (Main.GetButtonIn(JoyControls.GearUp) == false && Main.GetButtonIn(JoyControls.GearDown) == false)
                         {
                             ShiftingPhase = ShiftPhase.None;
                         }
@@ -294,18 +293,12 @@ namespace SimShift.Services
                             }
                             else
                             {
-                                var curPower = Main.Drivetrain.CalculatePower(
-                                    data.Telemetry.EngineRpm,
-                                    data.Telemetry.Throttle);
+                                var curPower = Main.Drivetrain.CalculatePower(data.Telemetry.EngineRpm, data.Telemetry.Throttle);
                                 if (curPower < 1) curPower = 1;
-                                var curEfficiency =
-                                    Main.Drivetrain.CalculateFuelConsumption(
-                                        data.Telemetry.EngineRpm,
-                                        data.Telemetry.Throttle) / curPower;
+                                var curEfficiency = Main.Drivetrain.CalculateFuelConsumption(data.Telemetry.EngineRpm, data.Telemetry.Throttle) / curPower;
                                 var reqPower = curPower * (variableThrottle - 0.5) * 2;
                                 if (reqPower < 25) reqPower = 25;
-                                if (reqPower > 0.5 * Main.Drivetrain.CalculateMaxPower())
-                                    reqPower = 0.5 * Main.Drivetrain.CalculateMaxPower();
+                                if (reqPower > 0.5 * Main.Drivetrain.CalculateMaxPower()) reqPower = 0.5 * Main.Drivetrain.CalculateMaxPower();
                                 reqpower = reqPower;
                                 int maxgears = Main.Drivetrain.Gears;
                                 var calcEfficiency = Efficiency ? double.MaxValue : 0;

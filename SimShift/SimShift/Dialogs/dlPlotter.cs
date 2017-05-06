@@ -73,11 +73,7 @@ namespace SimShift.Dialogs
             if (dt > 0.0001)
             {
                 hz++;
-                var data = new double[]
-                               {
-                                   Main.GetAxisOut(JoyControls.Throttle), Main.GetAxisOut(JoyControls.Clutch),
-                                   tel.EngineRpm - 2500, tel.Speed * 3.6, prevAcc
-                               };
+                var data = new double[] { Main.GetAxisOut(JoyControls.Throttle), Main.GetAxisOut(JoyControls.Clutch), tel.EngineRpm - 2500, tel.Speed * 3.6, prevAcc };
 
                 plot.Add(data.ToList());
             }

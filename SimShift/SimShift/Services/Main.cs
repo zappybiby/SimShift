@@ -246,10 +246,8 @@ namespace SimShift.Services
                     else return RawJoysticksIn[1].GetButton(15);
 
                 case JoyControls.CruiseControlUp: return !ps4CtlActive && !dskCtlActive && RawJoysticksIn[1].GetPov(2);
-                case JoyControls.CruiseControlDown:
-                    return !ps4CtlActive && !dskCtlActive && RawJoysticksIn[1].GetPov(0);
-                case JoyControls.CruiseControlOnOff:
-                    return !ps4CtlActive && !dskCtlActive && RawJoysticksIn[1].GetPov(1);
+                case JoyControls.CruiseControlDown: return !ps4CtlActive && !dskCtlActive && RawJoysticksIn[1].GetPov(0);
+                case JoyControls.CruiseControlOnOff: return !ps4CtlActive && !dskCtlActive && RawJoysticksIn[1].GetPov(1);
 
                 case JoyControls.LaunchControl:
                     if (ps4CtlActive) return false;
@@ -466,10 +464,7 @@ namespace SimShift.Services
                     };
 
                 // TODO: Temporary..
-                Data.AppActive += (s, e) =>
-                    {
-                        CameraHorizon.CameraHackEnabled = Data.Active.Application == "TestDrive2";
-                    };
+                Data.AppActive += (s, e) => { CameraHorizon.CameraHackEnabled = Data.Active.Application == "TestDrive2"; };
 
                 if (deskCtrl == null && g25Wheel == null && ps4Ctrl == null)
                 {

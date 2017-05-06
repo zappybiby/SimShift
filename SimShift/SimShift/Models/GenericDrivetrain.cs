@@ -180,22 +180,14 @@ namespace SimShift.Models
             obj.Add(new IniValueObject(new string[] { "Engine" }, "Max", MaximumRpm.ToString()));
             foreach (var frame in Engine)
             {
-                obj.Add(
-                    new IniValueObject(
-                        new string[] { "Engine" },
-                        "Power",
-                        string.Format("({0},{1},{2})", frame.Key, frame.Value.N, frame.Value.P)));
+                obj.Add(new IniValueObject(new string[] { "Engine" }, "Power", string.Format("({0},{1},{2})", frame.Key, frame.Value.N, frame.Value.P)));
             }
 
             obj.Add(new IniValueObject(new string[] { "Gearbox" }, "Gears", Gears.ToString()));
             obj.Add(new IniValueObject(new string[] { "Gearbox" }, "GearR", GearReverse.ToString()));
             for (int g = 0; g < Gears; g++)
             {
-                obj.Add(
-                    new IniValueObject(
-                        new string[] { "Gearbox" },
-                        "Gear",
-                        string.Format("({0},{1})", g, GearRatios[g])));
+                obj.Add(new IniValueObject(new string[] { "Gearbox" }, "Gear", string.Format("({0},{1})", g, GearRatios[g])));
             }
 
             return obj;

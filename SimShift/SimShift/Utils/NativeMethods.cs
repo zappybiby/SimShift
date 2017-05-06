@@ -46,11 +46,7 @@ namespace SimShift.Utils
             // This gives us the width of the left, right and bottom chrome - we can then determine the top height
             int chromeWidth = (int) ((windowRect.Width - clientRect.Width) / 2);
 
-            return new Rectangle(
-                new Point(
-                    windowRect.X + chromeWidth,
-                    windowRect.Y + (windowRect.Height - clientRect.Height - chromeWidth)),
-                clientRect.Size);
+            return new Rectangle(new Point(windowRect.X + chromeWidth, windowRect.Y + (windowRect.Height - clientRect.Height - chromeWidth)), clientRect.Size);
         }
     }
 }

@@ -43,17 +43,7 @@ namespace SimShift.Data
                     MyTelemetry = data;
 
                     var veh = (data.TruckId.StartsWith("vehicle.") ? data.TruckId.Substring(8) : data.TruckId);
-                    var newData = new SimShift.Data.Common.GenericDataDefinition(
-                        veh,
-                        data.Time / 1000000.0f,
-                        data.Paused,
-                        data.Drivetrain.Gear,
-                        data.Drivetrain.GearsForward,
-                        data.Drivetrain.EngineRpm,
-                        data.Drivetrain.Fuel,
-                        data.Controls.GameThrottle,
-                        data.Controls.GameBrake,
-                        data.Drivetrain.Speed);
+                    var newData = new SimShift.Data.Common.GenericDataDefinition(veh, data.Time / 1000000.0f, data.Paused, data.Drivetrain.Gear, data.Drivetrain.GearsForward, data.Drivetrain.EngineRpm, data.Drivetrain.Fuel, data.Controls.GameThrottle, data.Controls.GameBrake, data.Drivetrain.Speed);
                     Telemetry = newData;
                     if (DataReceived != null) DataReceived(this, new EventArgs());
                 };
@@ -161,18 +151,11 @@ namespace SimShift.Data
             var ptr1Offset = 0;
             var spdOffset = scanner.Scan<byte>(MemoryRegionType.READWRITE, "DEC9D947??DECADEC1D955FC");
             var cxOffset = scanner.Scan<byte>(MemoryRegionType.READWRITE, "F30F5C4E??F30F59C0F30F59");
-            var cyOffset =
-                cxOffset + 4; // scanner.Scan<byte>(MemoryRegionType.READWRITE, "5F8B0A890E8B4A??894EXX8B4AXX894EXX");
-            var czOffset =
-                cxOffset + 8; // scanner.Scan<byte>(MemoryRegionType.READWRITE, "8B4A08??894EXXD9420CD95E0C");
+            var cyOffset = cxOffset + 4; // scanner.Scan<byte>(MemoryRegionType.READWRITE, "5F8B0A890E8B4A??894EXX8B4AXX894EXX");
+            var czOffset = cxOffset + 8; // scanner.Scan<byte>(MemoryRegionType.READWRITE, "8B4A08??894EXXD9420CD95E0C");
             scanner.Disable();
 
-            var carsPool = new MemoryPool(
-                "Cars",
-                MemoryAddress.StaticAbsolute,
-                staticAddr,
-                new int[] { 0, staticOffset },
-                64 * 4);
+            var carsPool = new MemoryPool("Cars", MemoryAddress.StaticAbsolute, staticAddr, new int[] { 0, staticOffset }, 64 * 4);
 
             miner.Add(carsPool);
 
@@ -216,8 +199,7 @@ namespace SimShift.Data
                 var ep = new IPEndPoint(IPAddress.Parse("192.168.1.158"), 12345);
                 var r = (data.Drivetrain.EngineRpm - 300) / (2500 - 300);
                 if (data.Drivetrain.EngineRpm < 300) r = -1;
-                var s = ((int) (r * 10000)).ToString() + "," + ((int) (data.Controls.GameThrottle * 1000)).ToString()
-                        + "," + ((data.Paused) ? 1 : 0);
+                var s = ((int) (r * 10000)).ToString() + "," + ((int) (data.Controls.GameThrottle * 1000)).ToString() + "," + ((data.Paused) ? 1 : 0);
                 var sb = ASCIIEncoding.ASCII.GetBytes(s);
                 var dgram = ASCIIEncoding.ASCII.GetBytes(s);
 
@@ -261,8 +243,7 @@ namespace SimShift.Data
         {
             get
             {
-                if (Box == null || Math.Abs(Speed) > 200 || Math.Abs(X) > 1E7 || Math.Abs(Z) > 1E7 || float.IsNaN(X)
-                    || float.IsNaN(Z) || float.IsInfinity(X) || float.IsInfinity(Z)) return false;
+                if (Box == null || Math.Abs(Speed) > 200 || Math.Abs(X) > 1E7 || Math.Abs(Z) > 1E7 || float.IsNaN(X) || float.IsNaN(Z) || float.IsInfinity(X) || float.IsInfinity(Z)) return false;
                 else return true;
             }
         }
@@ -279,21 +260,7 @@ namespace SimShift.Data
             var carL = 12.0f;
             var carW = 3.0f;
             var hg = -Heading; //
-            Box = new PointF[]
-                      {
-                          new PointF(
-                              X + carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg),
-                              Z + carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)),
-                          new PointF(
-                              X - carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg),
-                              Z - carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)),
-                          new PointF(
-                              X - carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg),
-                              Z - carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)),
-                          new PointF(
-                              X + carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg),
-                              Z + carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)),
-                      };
+            Box = new PointF[] { new PointF(X + carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), Z + carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)), new PointF(X - carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), Z - carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)), new PointF(X - carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), Z - carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)), new PointF(X + carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), Z + carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)), };
 
             lastX = X;
             lastY = Z;

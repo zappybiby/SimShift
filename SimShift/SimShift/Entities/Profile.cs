@@ -123,11 +123,7 @@ namespace SimShift.Entities
                 if (s.Region.IndexOf("_") < 0) continue;
                 var part = s.Region.Substring(0, s.Region.IndexOf("_"));
                 var thr = s.Region.Substring(s.Region.IndexOf("_") + 1);
-                obj.Add(
-                    new IniValueObject(
-                        AcceptsConfigs,
-                        "ShiftPattern",
-                        string.Format("({0},{1},{2})", part, thr, s.File)));
+                obj.Add(new IniValueObject(AcceptsConfigs, "ShiftPattern", string.Format("({0},{1},{2})", part, thr, s.File)));
             }
 
             return obj;

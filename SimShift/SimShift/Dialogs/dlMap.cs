@@ -86,9 +86,7 @@ namespace SimShift.Dialogs
 
         public static int RenderMap(Rectangle clip, Graphics g, bool dedicated, ref float scale)
         {
-            var ets2Tel = (Main.Data.Active == null)
-                              ? default(Ets2Telemetry)
-                              : ((Ets2DataMiner) Main.Data.Active).MyTelemetry;
+            var ets2Tel = (Main.Data.Active == null) ? default(Ets2Telemetry) : ((Ets2DataMiner) Main.Data.Active).MyTelemetry;
 
             // Search the map
             var map = FrmMain.Ets2Map;
@@ -146,8 +144,7 @@ namespace SimShift.Dialogs
             if (float.IsInfinity(scaleX) || float.IsNaN(scaleX)) scaleX = clip.Width;
             if (float.IsInfinity(scaleY) || float.IsNaN(scaleY)) scaleY = clip.Height;
 
-            var nodesNearby = map.Nodes.Values.Where(
-                x => x.X >= startX - 1500 && x.X <= endX + 1500 && x.Z >= startY - 1500 && x.Z <= endY + 1500);
+            var nodesNearby = map.Nodes.Values.Where(x => x.X >= startX - 1500 && x.X <= endX + 1500 && x.Z >= startY - 1500 && x.Z <= endY + 1500);
             var itemsNearby = nodesNearby.SelectMany(x => x.GetItems()).Where(x => x.HideUI == false).ToList();
 
             var roads = itemsNearby.Where(x => x.Type == Ets2ItemType.Road);
@@ -175,9 +172,7 @@ namespace SimShift.Dialogs
                 // Nodes from prefab are always like:
                 // Prefab = Forward
                 // Road=backward
-                var road = node.ForwardItem != null && node.ForwardItem.Type == Ets2ItemType.Prefab
-                               ? node.BackwardItem
-                               : node.ForwardItem;
+                var road = node.ForwardItem != null && node.ForwardItem.Type == Ets2ItemType.Prefab ? node.BackwardItem : node.ForwardItem;
                 var roadStart = road;
                 isHighway = road == null || road.RoadLook == null ? false : road.RoadLook.IsHighway;
                 isExpress = road == null || road.RoadLook == null ? false : road.RoadLook.IsExpress;
@@ -221,8 +216,7 @@ namespace SimShift.Dialogs
                 }
                 var pen = isHighway ? highwayPen : isExpress ? expressPen : localPen;
 
-                var roadPoly = roadChain.Where(x => x.HideUI == false).SelectMany(x => x.RoadPolygons)
-                    .Select(x => new PointF((x.X - startX) * scaleX, (x.Y - startY) * scaleY));
+                var roadPoly = roadChain.Where(x => x.HideUI == false).SelectMany(x => x.RoadPolygons).Select(x => new PointF((x.X - startX) * scaleX, (x.Y - startY) * scaleY));
 
                 if (roadPoly.Any())
                 {
@@ -239,8 +233,7 @@ namespace SimShift.Dialogs
                     {
                         foreach (var opt in seg.Solutions)
                         {
-                            var pt = opt.Points.Select(
-                                x => new PointF((x.X - startX) * scaleX, (x.Z - startY) * scaleY));
+                            var pt = opt.Points.Select(x => new PointF((x.X - startX) * scaleX, (x.Z - startY) * scaleY));
 
                             g.DrawLines(new Pen(Color.SpringGreen, 5.0f), pt.ToArray());
                         }
@@ -249,8 +242,7 @@ namespace SimShift.Dialogs
                     {
                         foreach (var opt in seg.Options)
                         {
-                            var pt = opt.Points.Select(
-                                x => new PointF((x.X - startX) * scaleX, (x.Z - startY) * scaleY));
+                            var pt = opt.Points.Select(x => new PointF((x.X - startX) * scaleX, (x.Z - startY) * scaleY));
 
                             g.DrawLines(new Pen(Color.LightSkyBlue, 5.0f), pt.ToArray());
                         }
@@ -260,20 +252,14 @@ namespace SimShift.Dialogs
 
             if (LaneAssistance.hook != null)
             {
-                var d = new PointF(
-                    (LaneAssistance.hook.X - startX) * scaleX,
-                    (LaneAssistance.hook.Z - startY) * scaleY);
+                var d = new PointF((LaneAssistance.hook.X - startX) * scaleX, (LaneAssistance.hook.Z - startY) * scaleY);
                 g.FillEllipse(Brushes.GreenYellow, d.X - 5, d.Y - 5, 10, 10);
-                var d2 = new PointF(
-                    d.X + (float) Math.Sin(LaneAssistance.yawRoad) * 25,
-                    d.Y + (float) Math.Cos(LaneAssistance.yawRoad) * 25);
+                var d2 = new PointF(d.X + (float) Math.Sin(LaneAssistance.yawRoad) * 25, d.Y + (float) Math.Cos(LaneAssistance.yawRoad) * 25);
                 g.DrawLine(new Pen(Color.GreenYellow, 3.0f), d, d2);
             }
             if (LaneAssistance.lookPoint != null)
             {
-                var d = new PointF(
-                    (LaneAssistance.lookPoint.X - startX) * scaleX,
-                    (LaneAssistance.lookPoint.Y - startY) * scaleY);
+                var d = new PointF((LaneAssistance.lookPoint.X - startX) * scaleX, (LaneAssistance.lookPoint.Y - startY) * scaleY);
                 g.FillEllipse(Brushes.Pink, d.X - 5, d.Y - 5, 10, 10);
             }
             // Cities?
@@ -297,24 +283,9 @@ namespace SimShift.Dialogs
                     var nx = prefabItem.NodesList.FirstOrDefault().Value.X;
                     var ny = prefabItem.NodesList.FirstOrDefault().Value.Z;
 
-                    var companyRect = new PointF[]
-                                          {
-                                              new PointF(
-                                                  nx - prefabItem.Prefab.Company.MinX,
-                                                  ny - prefabItem.Prefab.Company.MinY),
-                                              new PointF(
-                                                  nx - prefabItem.Prefab.Company.MinX,
-                                                  ny + prefabItem.Prefab.Company.MaxY),
-                                              new PointF(
-                                                  nx + prefabItem.Prefab.Company.MaxX,
-                                                  ny + prefabItem.Prefab.Company.MaxY),
-                                              new PointF(
-                                                  nx + prefabItem.Prefab.Company.MaxX,
-                                                  ny - prefabItem.Prefab.Company.MinY),
-                                          };
+                    var companyRect = new PointF[] { new PointF(nx - prefabItem.Prefab.Company.MinX, ny - prefabItem.Prefab.Company.MinY), new PointF(nx - prefabItem.Prefab.Company.MinX, ny + prefabItem.Prefab.Company.MaxY), new PointF(nx + prefabItem.Prefab.Company.MaxX, ny + prefabItem.Prefab.Company.MaxY), new PointF(nx + prefabItem.Prefab.Company.MaxX, ny - prefabItem.Prefab.Company.MinY), };
 
-                    var offsetPoly = companyRect
-                        .Select(x => new PointF((x.X - startX) * scaleX, (x.Y - startY) * scaleY)).ToArray();
+                    var offsetPoly = companyRect.Select(x => new PointF((x.X - startX) * scaleX, (x.Y - startY) * scaleY)).ToArray();
 
                     //g.FillPolygon(Brushes.Orange, offsetPoly);
                 }
@@ -328,8 +299,7 @@ namespace SimShift.Dialogs
                     {
                         foreach (var poly in prefabItem.Prefab.GeneratePolygonCurves(originNode, prefabItem.Origin))
                         {
-                            var offsetPoly = poly
-                                .Select(x => new PointF((x.X - startX) * scaleX, (x.Y - startY) * scaleY)).ToArray();
+                            var offsetPoly = poly.Select(x => new PointF((x.X - startX) * scaleX, (x.Y - startY) * scaleY)).ToArray();
 
                             var p = new Pen(prefabLane.Color, 1.0f);
                             g.DrawLines(p, offsetPoly);
@@ -341,12 +311,7 @@ namespace SimShift.Dialogs
             var rotation = ets2Tel == null ? 0 : ets2Tel.Physics.RotationX * 2 * Math.PI;
 
             //g.FillEllipse(Brushes.Turquoise, scaleX*totalX-5, scaleY*totalY-5,10,10);
-            g.DrawLine(
-                new Pen(Brushes.Cyan, 5.0f),
-                scaleX * totalX + (float) Math.Sin(rotation) * localPen.Width * 2,
-                scaleY * totalY + (float) Math.Cos(rotation) * localPen.Width * 2,
-                scaleX * totalX,
-                scaleY * totalY);
+            g.DrawLine(new Pen(Brushes.Cyan, 5.0f), scaleX * totalX + (float) Math.Sin(rotation) * localPen.Width * 2, scaleY * totalY + (float) Math.Cos(rotation) * localPen.Width * 2, scaleX * totalX, scaleY * totalY);
 
             if (dedicated && ProcessDoubleClick)
             {
@@ -364,8 +329,7 @@ namespace SimShift.Dialogs
             // At 50 speed: 20fps
             // At 100 speed: 2fps
             var fps = 15.0f;
-            if (ets2Tel != null && ets2Tel.Drivetrain.SpeedKmh > 50)
-                fps -= (ets2Tel.Drivetrain.SpeedKmh - 50) * 0.43f; // 2.777spd = -1fps
+            if (ets2Tel != null && ets2Tel.Drivetrain.SpeedKmh > 50) fps -= (ets2Tel.Drivetrain.SpeedKmh - 50) * 0.43f; // 2.777spd = -1fps
             if (fps < 2) fps = 2;
 
             var interval = 1000.0f / fps;
@@ -391,9 +355,7 @@ namespace SimShift.Dialogs
 
         private static Tuple<PointF, float> GetLivePoint()
         {
-            var ets2Tel = (Main.Data.Active == null)
-                              ? default(Ets2Telemetry)
-                              : ((Ets2DataMiner) Main.Data.Active).MyTelemetry;
+            var ets2Tel = (Main.Data.Active == null) ? default(Ets2Telemetry) : ((Ets2DataMiner) Main.Data.Active).MyTelemetry;
             if (ets2Tel == null)
             {
                 return new Tuple<PointF, float>(virtualPoint, 500);
@@ -442,9 +404,7 @@ namespace SimShift.Dialogs
             {
                 locationOverride = true;
                 var spd = mapScale / Math.Max(this.Width, this.Height);
-                location = new PointF(
-                    location.X - (e.X - mouseDownPoint.X) * spd,
-                    location.Y - (e.Y - mouseDownPoint.Y) * spd);
+                location = new PointF(location.X - (e.X - mouseDownPoint.X) * spd, location.Y - (e.Y - mouseDownPoint.Y) * spd);
                 mouseDownPoint = e.Location;
 
                 this.Invalidate();

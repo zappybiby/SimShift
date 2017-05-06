@@ -39,12 +39,7 @@ namespace SimTelemetry.Domain.Memory
             Value = new byte[size];
         }
 
-        public MemoryPool(
-            string name,
-            MemoryAddress type,
-            string signature,
-            IEnumerable<MemoryFieldSignaturePointer> pointers,
-            int size)
+        public MemoryPool(string name, MemoryAddress type, string signature, IEnumerable<MemoryFieldSignaturePointer> pointers, int size)
         {
             Name = name;
             Address = 0;
@@ -70,12 +65,7 @@ namespace SimTelemetry.Domain.Memory
             Value = new byte[Size];
         }
 
-        public MemoryPool(
-            string name,
-            MemoryAddress type,
-            int address,
-            IEnumerable<MemoryFieldSignaturePointer> pointers,
-            int size)
+        public MemoryPool(string name, MemoryAddress type, int address, IEnumerable<MemoryFieldSignaturePointer> pointers, int size)
         {
             Name = name;
             Address = address;

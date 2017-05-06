@@ -118,12 +118,7 @@ namespace SimTelemetry.Domain.Memory
             if (Diagnostic) _readCalls++;
             IntPtr ptrBytesReaded;
 
-            MemoryReaderApi.ReadProcessMemory(
-                m_hProcess,
-                memoryAddress,
-                buffer,
-                (uint) buffer.Length,
-                out ptrBytesReaded);
+            MemoryReaderApi.ReadProcessMemory(m_hProcess, memoryAddress, buffer, (uint) buffer.Length, out ptrBytesReaded);
             return ((int) ptrBytesReaded == buffer.Length);
         }
 
@@ -132,12 +127,7 @@ namespace SimTelemetry.Domain.Memory
             if (Diagnostic) _readCalls++;
             IntPtr ptrBytesReaded;
 
-            MemoryReaderApi.ReadProcessMemory(
-                m_hProcess,
-                (IntPtr) memoryAddress,
-                buffer,
-                (uint) buffer.Length,
-                out ptrBytesReaded);
+            MemoryReaderApi.ReadProcessMemory(m_hProcess, (IntPtr) memoryAddress, buffer, (uint) buffer.Length, out ptrBytesReaded);
             return ((int) ptrBytesReaded == buffer.Length);
         }
 
@@ -287,11 +277,7 @@ namespace SimTelemetry.Domain.Memory
             while (true)
             {
                 var regionInfo = new MemoryReaderApi.MEMORY_BASIC_INFORMATION();
-                if (MemoryReaderApi.VirtualQueryEx(
-                        _Process.Handle,
-                        memRegionAddr,
-                        out regionInfo,
-                        (uint) Marshal.SizeOf(regionInfo)) != 0)
+                if (MemoryReaderApi.VirtualQueryEx(_Process.Handle, memRegionAddr, out regionInfo, (uint) Marshal.SizeOf(regionInfo)) != 0)
                 {
                     if (regionInfo.BaseAddress.ToInt64() + regionInfo.RegionSize >= 0x80000000) break;
                     memRegionAddr = new IntPtr(regionInfo.BaseAddress.ToInt32() + regionInfo.RegionSize);
@@ -301,30 +287,16 @@ namespace SimTelemetry.Domain.Memory
                     if (onlyMe)
                     {
                         StringBuilder processName = new StringBuilder(255);
-                        MemoryReaderApi.GetMappedFileName(
-                            _Process.Handle,
-                            memRegionAddr,
-                            processName,
-                            processName.Capacity);
+                        MemoryReaderApi.GetMappedFileName(_Process.Handle, memRegionAddr, processName, processName.Capacity);
 
                         if (!processName.ToString().Contains(targetExeName)) continue;
                     }
 
-                    if (true || (regionInfo.State & (uint) MemoryReaderApi.PageFlags.MEM_COMMIT) != 0
-                        && (regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.WRITABLE) != 0
-                        && (regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.PAGE_GUARD) == 0)
+                    if (true || (regionInfo.State & (uint) MemoryReaderApi.PageFlags.MEM_COMMIT) != 0 && (regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.WRITABLE) != 0 && (regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.PAGE_GUARD) == 0)
                     {
                         // TODO: Parse commit, writability & guard.
-                        bool execute = ((regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.PAGE_EXECUTE) != 0)
-                                       || ((regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.PAGE_EXECUTE_READ)
-                                           != 0) || ((regionInfo.Protect
-                                                      & (uint) MemoryReaderApi.PageFlags.PAGE_EXECUTE_READWRITE) != 0)
-                                       || ((regionInfo.Protect
-                                            & (uint) MemoryReaderApi.PageFlags.PAGE_EXECUTE_WRITECOPY) != 0);
-                        var region = new MemoryRegion(
-                            regionInfo.BaseAddress.ToInt32(),
-                            (int) regionInfo.RegionSize,
-                            execute);
+                        bool execute = ((regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.PAGE_EXECUTE) != 0) || ((regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.PAGE_EXECUTE_READ) != 0) || ((regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.PAGE_EXECUTE_READWRITE) != 0) || ((regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.PAGE_EXECUTE_WRITECOPY) != 0);
+                        var region = new MemoryRegion(regionInfo.BaseAddress.ToInt32(), (int) regionInfo.RegionSize, execute);
                         _regions.Add(region);
                     }
                 }

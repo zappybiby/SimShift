@@ -14,8 +14,7 @@ namespace SimShift.Services
 
         private List<JoyControls> Axis = new List<JoyControls>();
 
-        private Dictionary<JoyControls, Dictionary<string, double>> axisProgression =
-            new Dictionary<JoyControls, Dictionary<string, double>>();
+        private Dictionary<JoyControls, Dictionary<string, double>> axisProgression = new Dictionary<JoyControls, Dictionary<string, double>>();
 
         private List<JoyControls> Buttons = new List<JoyControls>();
 
@@ -107,12 +106,8 @@ namespace SimShift.Services
             // Each time a block requires a control, it receives the current value of that control
             foreach (var obj in chain.Where(FilterSimulators))
             {
-                buttonValues = buttonValues.ToDictionary(
-                    c => c.Key,
-                    k => obj.Requires(k.Key) ? obj.GetButton(k.Key, k.Value) : k.Value);
-                axisValues = axisValues.ToDictionary(
-                    c => c.Key,
-                    k => obj.Requires(k.Key) ? obj.GetAxis(k.Key, k.Value) : k.Value);
+                buttonValues = buttonValues.ToDictionary(c => c.Key, k => obj.Requires(k.Key) ? obj.GetButton(k.Key, k.Value) : k.Value);
+                axisValues = axisValues.ToDictionary(c => c.Key, k => obj.Requires(k.Key) ? obj.GetAxis(k.Key, k.Value) : k.Value);
 
                 foreach (var kvp in axisValues)
                 {

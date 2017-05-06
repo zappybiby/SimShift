@@ -358,10 +358,7 @@ namespace SimShift.Services
                     {
                         if (data.Telemetry.Gear != 1)
                         {
-                            Main.Transmission.Shift(
-                                shiftToFirstRangeAttempt * Main.Transmission.RangeSize + 1,
-                                1,
-                                calibrateShiftStyle);
+                            Main.Transmission.Shift(shiftToFirstRangeAttempt * Main.Transmission.RangeSize + 1, 1, calibrateShiftStyle);
                             shiftToFirstRangeAttempt++;
 
                             MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 100));
@@ -443,8 +440,7 @@ namespace SimShift.Services
 
                         if (data.Telemetry.Gear > 0)
                         {
-                            if (Main.Drivetrain.GearRatios.Length >= data.Telemetry.Gear
-                                && data.Telemetry.EngineRpm > Main.Drivetrain.StallRpm * 2)
+                            if (Main.Drivetrain.GearRatios.Length >= data.Telemetry.Gear && data.Telemetry.EngineRpm > Main.Drivetrain.StallRpm * 2)
                             {
                                 var gr = Main.Drivetrain.GearRatios[data.Telemetry.Gear - 1];
 

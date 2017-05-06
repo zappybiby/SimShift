@@ -164,9 +164,7 @@ namespace SimShift.MapTool
                     var option = new Ets2NavigationSegmentOption();
                     option.EntryLane = -1;
                     option.ExitLane = -1;
-                    option.Points = Prefab.Prefab
-                        .GeneratePolygonForRoute(route, Prefab.NodesList.FirstOrDefault().Value, Prefab.Origin)
-                        .ToList();
+                    option.Points = Prefab.Prefab.GeneratePolygonForRoute(route, Prefab.NodesList.FirstOrDefault().Value, Prefab.Origin).ToList();
 
                     Options.Add(option);
                 }
@@ -346,11 +344,7 @@ namespace SimShift.MapTool
 
         public override string ToString()
         {
-            return (Solutions.Count()) + " NAVSEG " + Type.ToString() + " "
-                   + ((Type == Ets2NavigationSegmentType.Road)
-                          ? (Roads.Count() + " roads / " + Entry.NodeUID.ToString("X16") + " > "
-                             + Exit.NodeUID.ToString("X16"))
-                          : Prefab.ItemUID.ToString("X16"));
+            return (Solutions.Count()) + " NAVSEG " + Type.ToString() + " " + ((Type == Ets2NavigationSegmentType.Road) ? (Roads.Count() + " roads / " + Entry.NodeUID.ToString("X16") + " > " + Exit.NodeUID.ToString("X16")) : Prefab.ItemUID.ToString("X16"));
         }
 
         /*** SOLUTIONS ***/

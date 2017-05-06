@@ -6,10 +6,7 @@ namespace SimShift.Data.Common
     {
         public override bool Open()
         {
-            m_hProcess = ProcessMemoryReaderApi.OpenProcess(
-                PROCESS_VM_WRITE | PROCESS_VM_READ,
-                0,
-                (uint) m_ReadProcess.Id);
+            m_hProcess = ProcessMemoryReaderApi.OpenProcess(PROCESS_VM_WRITE | PROCESS_VM_READ, 0, (uint) m_ReadProcess.Id);
             return m_hProcess != IntPtr.Zero;
         }
 
@@ -116,12 +113,7 @@ namespace SimShift.Data.Common
         protected void Write(IntPtr address, byte[] data)
         {
             int bytesWritten;
-            ProcessMemoryReaderApi.WriteProcessMemory(
-                m_hProcess,
-                address,
-                data,
-                (UIntPtr) data.Length,
-                out bytesWritten);
+            ProcessMemoryReaderApi.WriteProcessMemory(m_hProcess, address, data, (UIntPtr) data.Length, out bytesWritten);
         }
     }
 }

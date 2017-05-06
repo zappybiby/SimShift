@@ -113,9 +113,7 @@ namespace SimShift.Dialogs.Tesla
             powerGLut.Add(60, 405);
 
             var shiftP = 0.0;
-            if (Main.Transmission != null && Main.Transmission.configuration != null
-                && Main.Transmission.configuration.Mode == ShifterTableConfigurationDefault.Economy)
-                shiftP = (RPM - 1200) / 300;
+            if (Main.Transmission != null && Main.Transmission.configuration != null && Main.Transmission.configuration.Mode == ShifterTableConfigurationDefault.Economy) shiftP = (RPM - 1200) / 300;
             else shiftP = (RPM - 1400) / 300;
             if (shiftP < 0) shiftP = 0;
             if (shiftP > 1) shiftP = 1;
@@ -162,18 +160,8 @@ namespace SimShift.Dialogs.Tesla
                 g.DrawString(speedStr, eurostile86, Brushes.Black, speedX + 5, 190 + 5);
                 g.DrawString(speedStr, eurostile86, Brushes.White, speedX, 190);
                 g.DrawString("km/h", eurostile16, Brushes.White, 680, 270);
-                g.DrawString(
-                    Math.Round(Math.Abs(Power)).ToString("000") + "hp",
-                    eurostile16,
-                    (Power > 0 ? Brushes.White : Brushes.GreenYellow),
-                    670,
-                    320);
-                g.DrawString(
-                    Math.Round(RPM / 1000.0f, 2).ToString("0.00") + "K rpm",
-                    eurostile16,
-                    Brushes.White,
-                    660,
-                    350);
+                g.DrawString(Math.Round(Math.Abs(Power)).ToString("000") + "hp", eurostile16, (Power > 0 ? Brushes.White : Brushes.GreenYellow), 670, 320);
+                g.DrawString(Math.Round(RPM / 1000.0f, 2).ToString("0.00") + "K rpm", eurostile16, Brushes.White, 660, 350);
 
                 e.Graphics.DrawImageUnscaledAndClipped(frame, e.ClipRectangle);
             }
@@ -182,18 +170,10 @@ namespace SimShift.Dialogs.Tesla
         PointF DistanceFromCenter(PointF center, double radius, double angle)
         {
             double angleInRadians = angle * Math.PI / 180;
-            return new PointF(
-                (float) (center.X + radius * (Math.Cos(angleInRadians))),
-                (float) (center.Y + radius * (Math.Sin(angleInRadians))));
+            return new PointF((float) (center.X + radius * (Math.Cos(angleInRadians))), (float) (center.Y + radius * (Math.Sin(angleInRadians))));
         }
 
-        private void DrawGlowingNeedle(
-            Dictionary<float, float> angleLut,
-            float value,
-            Color bOut,
-            Color bGlow,
-            Color bIn,
-            Graphics g)
+        private void DrawGlowingNeedle(Dictionary<float, float> angleLut, float value, Color bOut, Color bGlow, Color bIn, Graphics g)
         {
             var angleStart = angleLut.Values.FirstOrDefault();
 
@@ -240,28 +220,10 @@ namespace SimShift.Dialogs.Tesla
             GraphicsPath path = new GraphicsPath();
             Point centerPoint = new Point(dialX, dialY);
 
-            path.AddLine(
-                this.DistanceFromCenter(centerPoint, innerRadius, angleStart),
-                this.DistanceFromCenter(centerPoint, outerRadius, angleStart));
-            path.AddArc(
-                new RectangleF(
-                    centerPoint.X - (float) outerRadius,
-                    centerPoint.Y - (float) outerRadius,
-                    (float) outerRadius * 2,
-                    (float) outerRadius * 2),
-                angleStart,
-                angleSweep);
-            path.AddLine(
-                this.DistanceFromCenter(centerPoint, outerRadius, angleEnd),
-                this.DistanceFromCenter(centerPoint, innerRadius, angleEnd));
-            path.AddArc(
-                new RectangleF(
-                    centerPoint.X - (float) innerRadius,
-                    centerPoint.Y - (float) innerRadius,
-                    (float) innerRadius * 2,
-                    (float) innerRadius * 2),
-                angleEnd,
-                -angleSweep);
+            path.AddLine(this.DistanceFromCenter(centerPoint, innerRadius, angleStart), this.DistanceFromCenter(centerPoint, outerRadius, angleStart));
+            path.AddArc(new RectangleF(centerPoint.X - (float) outerRadius, centerPoint.Y - (float) outerRadius, (float) outerRadius * 2, (float) outerRadius * 2), angleStart, angleSweep);
+            path.AddLine(this.DistanceFromCenter(centerPoint, outerRadius, angleEnd), this.DistanceFromCenter(centerPoint, innerRadius, angleEnd));
+            path.AddArc(new RectangleF(centerPoint.X - (float) innerRadius, centerPoint.Y - (float) innerRadius, (float) innerRadius * 2, (float) innerRadius * 2), angleEnd, -angleSweep);
 
             Blend blend = new Blend();
             // Create point and positions arrays
@@ -283,18 +245,8 @@ namespace SimShift.Dialogs.Tesla
             g.FillPath(pthGrBrush, path);
 
             var p = new Pen(bOut, 22.0f);
-            g.DrawArc(
-                p,
-                centerPoint.X - finalRadius,
-                centerPoint.Y - finalRadius,
-                finalRadius * 2,
-                finalRadius * 2,
-                angleStart,
-                angleSweep);
-            g.DrawLine(
-                new Pen(bOut, 5.0f),
-                this.DistanceFromCenter(centerPoint, finalRadius + 11, angleEnd),
-                DistanceFromCenter(centerPoint, endRadius, angleEnd));
+            g.DrawArc(p, centerPoint.X - finalRadius, centerPoint.Y - finalRadius, finalRadius * 2, finalRadius * 2, angleStart, angleSweep);
+            g.DrawLine(new Pen(bOut, 5.0f), this.DistanceFromCenter(centerPoint, finalRadius + 11, angleEnd), DistanceFromCenter(centerPoint, endRadius, angleEnd));
         }
 
         private bool FillTelemetry()

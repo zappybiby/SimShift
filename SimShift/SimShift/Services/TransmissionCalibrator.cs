@@ -123,8 +123,7 @@ namespace SimShift.Services
 
                     // If we're stationary for a few seconds, we can apply brakes and calibrate the clutch
                     bool wasStationary = isStationary;
-                    isStationary = Math.Abs(data.Telemetry.Speed) < 1 && Main.GetAxisIn(JoyControls.Throttle) < 0.05
-                                   && data.Telemetry.EngineRpm > 200;
+                    isStationary = Math.Abs(data.Telemetry.Speed) < 1 && Main.GetAxisIn(JoyControls.Throttle) < 0.05 && data.Telemetry.EngineRpm > 200;
 
                     if (isStationary && !wasStationary) stationary = DateTime.Now;
 

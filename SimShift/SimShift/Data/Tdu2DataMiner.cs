@@ -148,30 +148,12 @@ namespace SimShift.Data
                 var speed = _tdu2Reader.ReadFloat(b + 0xC2DB24) / 3.6f;
                 var throttle = _tdu2Reader.ReadFloat(b + 0xC2DB00);
                 var brake = _tdu2Reader.ReadFloat(b + 0xC2DB04);
-                var time = (float) (DateTime.Now.Subtract(
-                                            new DateTime(
-                                                DateTime.Now.Year,
-                                                DateTime.Now.Month,
-                                                DateTime.Now.Day,
-                                                0,
-                                                0,
-                                                0))
-                                        .TotalMilliseconds / 1000.0);
+                var time = (float) (DateTime.Now.Subtract(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0)).TotalMilliseconds / 1000.0);
                 var paused = false;
                 var engineRpm = _tdu2Reader.ReadFloat(b + 0xC2DB18);
                 var fuel = 0;
 
-                Telemetry = new GenericDataDefinition(
-                    car,
-                    time,
-                    paused,
-                    gear,
-                    gears,
-                    engineRpm,
-                    fuel,
-                    throttle,
-                    brake,
-                    speed);
+                Telemetry = new GenericDataDefinition(car, time, paused, gear, gears, engineRpm, fuel, throttle, brake, speed);
 
                 if (DataReceived != null) DataReceived(this, new EventArgs());
             }
@@ -187,8 +169,7 @@ namespace SimShift.Data
             {
                 case TelemetryChannel.CameraHorizon: return GetWriteAddress(TelemetryChannel.CameraViewBase) + 0x550;
 
-                case TelemetryChannel.CameraViewBase:
-                    return (IntPtr) _tdu2Reader.ReadInt32(ActiveProcess.MainModule.BaseAddress + 0xD95BF0);
+                case TelemetryChannel.CameraViewBase: return (IntPtr) _tdu2Reader.ReadInt32(ActiveProcess.MainModule.BaseAddress + 0xD95BF0);
 
                 default: return ActiveProcess.MainModule.BaseAddress;
             }

@@ -82,12 +82,7 @@ namespace SimShift.Dialogs
 
             var meHeading = Math.PI - data.MyTelemetry.Physics.RotationX * -2 * Math.PI;
             var meHeadingRadius = 25;
-            g.DrawLine(
-                new Pen(meColor, 3.0f),
-                targetW / 2,
-                targetH / 2,
-                targetW / 2 + (float) Math.Sin(meHeading) * meHeadingRadius,
-                targetH / 2 + (float) Math.Cos(meHeading) * meHeadingRadius);
+            g.DrawLine(new Pen(meColor, 3.0f), targetW / 2, targetH / 2, targetW / 2 + (float) Math.Sin(meHeading) * meHeadingRadius, targetH / 2 + (float) Math.Cos(meHeading) * meHeadingRadius);
 
             var centerX = data.MyTelemetry.Physics.CoordinateX;
             var centerY = data.MyTelemetry.Physics.CoordinateY;
@@ -101,32 +96,17 @@ namespace SimShift.Dialogs
             var steerRadiusSc = steerRadius / scale * targetW;
             var offx = Math.Sin(meHeading);
 
-            if (false && float.IsNaN(steerRadiusSc) == false && float.IsInfinity(steerRadiusSc) == false
-                && Math.Abs(steerRadius) < 30000)
+            if (false && float.IsNaN(steerRadiusSc) == false && float.IsInfinity(steerRadiusSc) == false && Math.Abs(steerRadius) < 30000)
             {
                 if (steeringAngle < 0) // left
                 {
                     var corrAngle = meHeading + Math.PI / 2;
-                    g.DrawArc(
-                        new Pen(Brushes.Aqua, 2.0f),
-                        targetW / 2 - steerRadiusSc / 2 - (float) Math.Sin(corrAngle) * steerRadiusSc / 2,
-                        targetH / 2 - steerRadiusSc / 2 - (float) Math.Cos(corrAngle) * steerRadiusSc / 2,
-                        steerRadiusSc,
-                        steerRadiusSc,
-                        (float) (meHeading / Math.PI * 180 + 90),
-                        360);
+                    g.DrawArc(new Pen(Brushes.Aqua, 2.0f), targetW / 2 - steerRadiusSc / 2 - (float) Math.Sin(corrAngle) * steerRadiusSc / 2, targetH / 2 - steerRadiusSc / 2 - (float) Math.Cos(corrAngle) * steerRadiusSc / 2, steerRadiusSc, steerRadiusSc, (float) (meHeading / Math.PI * 180 + 90), 360);
                 }
                 else
                 {
                     var corrAngle = meHeading + Math.PI / 2;
-                    g.DrawArc(
-                        new Pen(Brushes.Aqua, 2.0f),
-                        targetW / 2 - steerRadiusSc / 2 + (float) Math.Sin(corrAngle) * steerRadiusSc / 2,
-                        targetH / 2 - steerRadiusSc / 2 + (float) Math.Cos(corrAngle) * steerRadiusSc / 2,
-                        steerRadiusSc,
-                        steerRadiusSc,
-                        (float) (meHeading / Math.PI * 180 + 90),
-                        360);
+                    g.DrawArc(new Pen(Brushes.Aqua, 2.0f), targetW / 2 - steerRadiusSc / 2 + (float) Math.Sin(corrAngle) * steerRadiusSc / 2, targetH / 2 - steerRadiusSc / 2 + (float) Math.Cos(corrAngle) * steerRadiusSc / 2, steerRadiusSc, steerRadiusSc, (float) (meHeading / Math.PI * 180 + 90), 360);
                 }
                 /*g.DrawEllipse(new Pen(Brushes.Turquoise, 2.0f), 
                     targetW / 2 - (float)Math.Sin(meHeading) * steerRadiusSc,
@@ -150,9 +130,7 @@ namespace SimShift.Dialogs
                 car.Tick();
             }
 
-            var pwr = Main.Drivetrain.CalculatePower(
-                data.MyTelemetry.Drivetrain.EngineRpm,
-                data.MyTelemetry.Controls.GameThrottle);
+            var pwr = Main.Drivetrain.CalculatePower(data.MyTelemetry.Drivetrain.EngineRpm, data.MyTelemetry.Controls.GameThrottle);
             var scanDistance = 2.0f + Math.Pow(1 - Math.Abs(data.MyTelemetry.Controls.GameSteer), 64) * 3.5f;
             for (float ts = 0.0f; ts < scanDistance && !data.Cars.Any(x => x.Tracked); ts += step)
             {
@@ -174,25 +152,7 @@ namespace SimShift.Dialogs
                 var carL = 12.0f;
                 var carW = 2.5f;
                 var hg = -heading; //
-                PointF[] poly = new PointF[]
-                                    {
-                                        new PointF(
-                                            mX + px + carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg),
-                                            mY + py + carL / 2 * (float) Math.Sin(hg)
-                                            + carW / 2 * (float) Math.Cos(hg)),
-                                        new PointF(
-                                            mX + px - carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg),
-                                            mY + py - carL / 2 * (float) Math.Sin(hg)
-                                            + carW / 2 * (float) Math.Cos(hg)),
-                                        new PointF(
-                                            mX + px - carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg),
-                                            mY + py - carL / 2 * (float) Math.Sin(hg)
-                                            - carW / 2 * (float) Math.Cos(hg)),
-                                        new PointF(
-                                            mX + px + carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg),
-                                            mY + py + carL / 2 * (float) Math.Sin(hg)
-                                            - carW / 2 * (float) Math.Cos(hg)),
-                                    };
+                PointF[] poly = new PointF[] { new PointF(mX + px + carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), mY + py + carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)), new PointF(mX + px - carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), mY + py - carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)), new PointF(mX + px - carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), mY + py - carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)), new PointF(mX + px + carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), mY + py + carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)), };
                 foreach (var car in data.Cars)
                 {
                     if (car.Valid && IsPolygonsIntersecting(car.Box, poly))
@@ -205,10 +165,7 @@ namespace SimShift.Dialogs
                 var drx = targetW / 2 + px / scale * targetW;
                 var dry = targetH / 2 + py / scale * targetH;
 
-                var polyToDraw = poly.Select(
-                    x => new PointF(
-                        targetW / 2 + (x.X - mX) / 2 / scale * targetW,
-                        targetH / 2 + (x.Y - mY) / 2 / scale * targetH)).ToArray();
+                var polyToDraw = poly.Select(x => new PointF(targetW / 2 + (x.X - mX) / 2 / scale * targetW, targetH / 2 + (x.Y - mY) / 2 / scale * targetH)).ToArray();
                 g.FillPolygon(Brushes.Tomato, polyToDraw);
                 //g.DrawLine(new Pen(Color.DarkSalmon, 5.0f), drx, dry, drx + 1, dry);
             }
@@ -235,14 +192,7 @@ namespace SimShift.Dialogs
                 var tc = trafficColor;
                 if (car.Tracked)
                 {
-                    g.DrawString(
-                        "Track #" + car.ID + " SPD " + Math.Round(car.Speed * 3.6) + "km/h (d="
-                        + Math.Round(car.Speed * 3.6 - data.MyTelemetry.Drivetrain.SpeedKmh, 1) + "); distance "
-                        + Math.Round(distance, 1) + "m TTI " + ((tti == -1.0f) ? "never" : Math.Round(tti, 2) + "s"),
-                        new Font("Arial", 11.0f, FontStyle.Bold),
-                        Brushes.White,
-                        5,
-                        5);
+                    g.DrawString("Track #" + car.ID + " SPD " + Math.Round(car.Speed * 3.6) + "km/h (d=" + Math.Round(car.Speed * 3.6 - data.MyTelemetry.Drivetrain.SpeedKmh, 1) + "); distance " + Math.Round(distance, 1) + "m TTI " + ((tti == -1.0f) ? "never" : Math.Round(tti, 2) + "s"), new Font("Arial", 11.0f, FontStyle.Bold), Brushes.White, 5, 5);
                     car.Distance = distance;
                     car.TTI = tti;
                     TrackedCar = car;
@@ -254,10 +204,7 @@ namespace SimShift.Dialogs
                 }
 
                 if (car.Box == null) continue;
-                var polyToDraw = car.Box.Select(
-                    d => new PointF(
-                        targetW / 2 + (d.X - centerX) / 2 / scale * targetW,
-                        targetH / 2 + (d.Y - centerZ) / 2 / scale * targetH)).ToArray();
+                var polyToDraw = car.Box.Select(d => new PointF(targetW / 2 + (d.X - centerX) / 2 / scale * targetW, targetH / 2 + (d.Y - centerZ) / 2 / scale * targetH)).ToArray();
                 g.FillPolygon(tc, polyToDraw);
                 //g.DrawEllipse(new Pen(tc, sz), x - of,  y - of, sz, sz);
 
@@ -267,23 +214,10 @@ namespace SimShift.Dialogs
                     g.DrawString(Math.Round(tti,1).ToString(), new Font("Arial", 7.0f), Brushes.White, x-8,y-4);*/
             }
             g.FillRectangle(new SolidBrush(Color.FromArgb(25, 25, 25)), 0, targetH - 32, targetW, targetH);
-            g.DrawString(
-                "Looking " + Math.Round(scanDistance, 2) + "s ahead SPD "
-                + Math.Round(data.MyTelemetry.Drivetrain.SpeedKmh) + "kmh PWR " + Math.Round(pwr) + "hp THR "
-                + Math.Round(data.MyTelemetry.Controls.GameThrottle * 100, 1) + "% BKR "
-                + Math.Round(data.MyTelemetry.Controls.GameBrake * 100, 2) + "%",
-                new Font("Arial", 11.0f, FontStyle.Bold),
-                Brushes.White,
-                2,
-                targetH - 25);
+            g.DrawString("Looking " + Math.Round(scanDistance, 2) + "s ahead SPD " + Math.Round(data.MyTelemetry.Drivetrain.SpeedKmh) + "kmh PWR " + Math.Round(pwr) + "hp THR " + Math.Round(data.MyTelemetry.Controls.GameThrottle * 100, 1) + "% BKR " + Math.Round(data.MyTelemetry.Controls.GameBrake * 100, 2) + "%", new Font("Arial", 11.0f, FontStyle.Bold), Brushes.White, 2, targetH - 25);
             if (data.Cars.Any(x => x.Tracked) == false)
             {
-                g.DrawString(
-                    "No car being tracked (followed)",
-                    new Font("Arial", 12.0f, FontStyle.Bold),
-                    Brushes.White,
-                    5,
-                    5);
+                g.DrawString("No car being tracked (followed)", new Font("Arial", 12.0f, FontStyle.Bold), Brushes.White, 5, 5);
                 TrackedCar = null;
             }
         }

@@ -60,15 +60,13 @@ namespace SimShift.Services
             Active = true;
 
             var f = 1.0;
-            if (Main.Drivetrain.GearRatios != null && data.Telemetry.Gear >= 1)
-                f = Main.Drivetrain.GearRatios[data.Telemetry.Gear - 1] / 5.5;
+            if (Main.Drivetrain.GearRatios != null && data.Telemetry.Gear >= 1) f = Main.Drivetrain.GearRatios[data.Telemetry.Gear - 1] / 5.5;
             var throttle = Math.Max(Main.GetAxisIn(JoyControls.Throttle), data.Telemetry.Throttle);
             TorqueLimit = 1;
             var NotGood = false;
             do
             {
-                var wheelTorque = Main.Drivetrain.CalculateTorqueP(data.Telemetry.EngineRpm, TorqueLimit * throttle)
-                                  * f;
+                var wheelTorque = Main.Drivetrain.CalculateTorqueP(data.Telemetry.EngineRpm, TorqueLimit * throttle) * f;
                 if (wheelTorque > 20000)
                 {
                     TorqueLimit *= 0.999f;

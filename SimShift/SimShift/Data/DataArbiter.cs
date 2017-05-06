@@ -34,14 +34,7 @@ namespace SimShift.Data
                             {
                                 if (app == Active)
                                 {
-                                    if (verbose > 0)
-                                        Debug.WriteLine(
-                                            string.Format(
-                                                "[Data] Spd: {0:000.0}kmh Gear: {1} RPM: {2:0000}rpm Throttle: {3:0.000}",
-                                                app.Telemetry.Speed,
-                                                app.Telemetry.Gear,
-                                                app.Telemetry.EngineRpm,
-                                                app.Telemetry.Throttle));
+                                    if (verbose > 0) Debug.WriteLine(string.Format("[Data] Spd: {0:000.0}kmh Gear: {1} RPM: {2:0000}rpm Throttle: {3:0.000}", app.Telemetry.Speed, app.Telemetry.Gear, app.Telemetry.EngineRpm, app.Telemetry.Throttle));
                                     Telemetry = app.Telemetry;
 
                                     if (lastCar != Telemetry.Car && CarChanged != null && app.SupportsCar)
@@ -168,8 +161,7 @@ namespace SimShift.Data
                     bool wasRuning = app.Running;
                     app.Running = prcsList.Any(x => x.ProcessName.ToLower() == app.Application.ToLower());
                     app.RunEvent = app.Running != wasRuning;
-                    app.ActiveProcess =
-                        prcsList.FirstOrDefault(x => x.ProcessName.ToLower() == app.Application.ToLower());
+                    app.ActiveProcess = prcsList.FirstOrDefault(x => x.ProcessName.ToLower() == app.Application.ToLower());
 
                     if (app.RunEvent && app.IsActive && app.Running == false)
                     {
@@ -182,9 +174,7 @@ namespace SimShift.Data
                 if (miners.Where(x => !x.SelectManually).Any(x => x.Running))
                 {
                     // Conflict?
-                    Active = miners.Count(x => x.Running) != 1
-                                 ? null
-                                 : miners.Where(x => !x.SelectManually).FirstOrDefault(x => x.Running);
+                    Active = miners.Count(x => x.Running) != 1 ? null : miners.Where(x => !x.SelectManually).FirstOrDefault(x => x.Running);
                     if (Active != null)
                     {
                         Active.IsActive = true;

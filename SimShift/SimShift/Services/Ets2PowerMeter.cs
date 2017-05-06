@@ -160,9 +160,7 @@ namespace SimShift.Services
                         State = PowerMeterState.Cooldown;
                         var fallTime = endRevdown.Subtract(startRevdown).TotalMilliseconds / 1000.0;
                         var fallRpm = revdownRpm - data.Telemetry.EngineRpm;
-                        Console.WriteLine(
-                            "Rev up: " + (endRevup.Subtract(startRevup).TotalMilliseconds) + "ms, rev down: "
-                            + (fallTime) + "ms (" + (fallRpm / fallTime) + "rpm/s");
+                        Console.WriteLine("Rev up: " + (endRevup.Subtract(startRevup).TotalMilliseconds) + "ms, rev down: " + (fallTime) + "ms (" + (fallRpm / fallTime) + "rpm/s");
                     }
                     break;
 

@@ -143,8 +143,7 @@ namespace SimShift.Services
                     var e = 150 + rpm;
                     if (s < 0) s = 0;
                     if (e > 2400) e = 2400;
-                    sp.Write(
-                        "led-animation " + led + "," + gear + " " + r + "," + g + "," + b + " " + s + "," + e + "\r\n");
+                    sp.Write("led-animation " + led + "," + gear + " " + r + "," + g + "," + b + " " + s + "," + e + "\r\n");
                     System.Threading.Thread.Sleep(10);
                 }
             }

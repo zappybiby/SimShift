@@ -62,9 +62,7 @@ namespace SimShift.Utils
         {
             if (Filedata == string.Empty) throw new Exception("No data assigned to this reader");
 
-            var filelines = Filedata.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x.Contains("//") ? x.Remove(x.IndexOf("//")).Trim() : x.Trim()).Where(x => x.Length != 0)
-                .ToList();
+            var filelines = Filedata.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => x.Contains("//") ? x.Remove(x.IndexOf("//")).Trim() : x.Trim()).Where(x => x.Length != 0).ToList();
 
             ApplyGroup("Main", false);
 

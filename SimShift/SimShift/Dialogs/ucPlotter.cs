@@ -21,12 +21,7 @@ namespace SimShift.Dialogs
 
         private int gridsVertical = 20;
 
-        private Pen[] pens = new Pen[]
-                                 {
-                                     new Pen(Color.Yellow, 1.0f), new Pen(Color.Red, 1.0f),
-                                     new Pen(Color.DeepSkyBlue, 1.0f), new Pen(Color.GreenYellow, 1.0f),
-                                     new Pen(Color.Magenta, 3.0f)
-                                 };
+        private Pen[] pens = new Pen[] { new Pen(Color.Yellow, 1.0f), new Pen(Color.Red, 1.0f), new Pen(Color.DeepSkyBlue, 1.0f), new Pen(Color.GreenYellow, 1.0f), new Pen(Color.Magenta, 3.0f) };
 
         private float samplesPerDiv = 10;
 

@@ -47,11 +47,7 @@ namespace SimShift.Models
             // The relative meaning is , however, correct, but comparisions between trucks is not possible!
             var amplitude = amplitudeForEngine * Math.Exp(rpm * 0.000918876); // consumption @ 100%
             throttle *= 100;
-            var linearity = -8.0753 * Math.Pow(throttle, 6) * Math.Pow(10, -12)
-                            + 2.691 * Math.Pow(throttle, 5) * Math.Pow(10, -9)
-                            - 0.349616 * Math.Pow(throttle, 4) * Math.Pow(10, -6)
-                            + 23.577 * Math.Pow(throttle, 3) * Math.Pow(10, -6)
-                            - 0.918283 * Math.Pow(10, -3) * Math.Pow(throttle, 2) + 0.027293 * throttle + 0.0019368;
+            var linearity = -8.0753 * Math.Pow(throttle, 6) * Math.Pow(10, -12) + 2.691 * Math.Pow(throttle, 5) * Math.Pow(10, -9) - 0.349616 * Math.Pow(throttle, 4) * Math.Pow(10, -6) + 23.577 * Math.Pow(throttle, 3) * Math.Pow(10, -6) - 0.918283 * Math.Pow(10, -3) * Math.Pow(throttle, 2) + 0.027293 * throttle + 0.0019368;
 
             var fuel = amplitude * linearity * 1.22;
             fuel -= 0.25;
@@ -94,8 +90,7 @@ namespace SimShift.Models
         {
             double negativeTorque = CalculateTorqueN(rpm);
 
-            var positiveTorqueNormalized = -0.3789 + rpm * 0.0022716 - rpm * rpm * 0.0011134 / 1000
-                                           + rpm * rpm * rpm * 0.1372 / 1000000000;
+            var positiveTorqueNormalized = -0.3789 + rpm * 0.0022716 - rpm * rpm * 0.0011134 / 1000 + rpm * rpm * rpm * 0.1372 / 1000000000;
 
             var positiveTorqueAbs = positiveTorqueNormalized * Ets2Torque;
 

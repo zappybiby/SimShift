@@ -10,38 +10,24 @@ namespace SimTelemetry.Domain.Memory
 
         static MemoryDataConverter()
         {
-            _providers.Add(
-                typeof(bool),
-                new MemoryDataConverterProvider<bool>(BitConverter.ToBoolean, Convert.ToBoolean));
+            _providers.Add(typeof(bool), new MemoryDataConverterProvider<bool>(BitConverter.ToBoolean, Convert.ToBoolean));
 
             _providers.Add(typeof(byte), new MemoryDataConverterProvider<byte>(ToByte, Convert.ToByte));
 
             _providers.Add(typeof(char), new MemoryDataConverterProvider<char>(ToChar, Convert.ToChar));
 
-            _providers.Add(
-                typeof(short),
-                new MemoryDataConverterProvider<short>(BitConverter.ToInt16, Convert.ToInt16));
-            _providers.Add(
-                typeof(ushort),
-                new MemoryDataConverterProvider<ushort>(BitConverter.ToUInt16, Convert.ToUInt16));
+            _providers.Add(typeof(short), new MemoryDataConverterProvider<short>(BitConverter.ToInt16, Convert.ToInt16));
+            _providers.Add(typeof(ushort), new MemoryDataConverterProvider<ushort>(BitConverter.ToUInt16, Convert.ToUInt16));
 
             _providers.Add(typeof(int), new MemoryDataConverterProvider<int>(BitConverter.ToInt32, Convert.ToInt32));
             _providers.Add(typeof(int[]), new MemoryDataConverterProvider<int[]>(ByteToIntArray, ObjToIntArray));
-            _providers.Add(
-                typeof(uint),
-                new MemoryDataConverterProvider<uint>(BitConverter.ToUInt32, Convert.ToUInt32));
+            _providers.Add(typeof(uint), new MemoryDataConverterProvider<uint>(BitConverter.ToUInt32, Convert.ToUInt32));
 
             _providers.Add(typeof(long), new MemoryDataConverterProvider<long>(BitConverter.ToInt64, Convert.ToInt64));
-            _providers.Add(
-                typeof(ulong),
-                new MemoryDataConverterProvider<ulong>(BitConverter.ToUInt64, Convert.ToUInt64));
+            _providers.Add(typeof(ulong), new MemoryDataConverterProvider<ulong>(BitConverter.ToUInt64, Convert.ToUInt64));
 
-            _providers.Add(
-                typeof(double),
-                new MemoryDataConverterProvider<double>(BitConverter.ToDouble, Convert.ToDouble));
-            _providers.Add(
-                typeof(float),
-                new MemoryDataConverterProvider<float>(BitConverter.ToSingle, Convert.ToSingle));
+            _providers.Add(typeof(double), new MemoryDataConverterProvider<double>(BitConverter.ToDouble, Convert.ToDouble));
+            _providers.Add(typeof(float), new MemoryDataConverterProvider<float>(BitConverter.ToSingle, Convert.ToSingle));
 
             _providers.Add(typeof(string), new MemoryDataConverterProvider<string>(BytesToString, Convert.ToString));
         }

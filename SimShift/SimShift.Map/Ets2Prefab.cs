@@ -166,8 +166,7 @@ namespace SimShift.MapTool
             // This entry node has several entry and exit routes (in/out)
             // IN is driving into
             // OUT is coming out of
-            var routes = entryNode.InputCurve.Select(x => IterateCurves(new[] { x }, x, true)).SelectMany(x => x)
-                .Select(x => new Ets2PrefabRoute(x, entryNode, FindExitNode(x.LastOrDefault()))).ToList();
+            var routes = entryNode.InputCurve.Select(x => IterateCurves(new[] { x }, x, true)).SelectMany(x => x).Select(x => new Ets2PrefabRoute(x, entryNode, FindExitNode(x.LastOrDefault()))).ToList();
 
             return routes;
         }
@@ -179,20 +178,15 @@ namespace SimShift.MapTool
 
         private Ets2PrefabNode FindExitNode(Ets2PrefabCurve c)
         {
-            return Nodes.OrderBy(x => Math.Sqrt(Math.Pow(c.EndX - x.X, 2) + Math.Pow(c.EndZ - x.Z, 2)))
-                .FirstOrDefault();
+            return Nodes.OrderBy(x => Math.Sqrt(Math.Pow(c.EndX - x.X, 2) + Math.Pow(c.EndZ - x.Z, 2))).FirstOrDefault();
         }
 
         private Ets2PrefabNode FindStartNode(Ets2PrefabCurve c)
         {
-            return Nodes.OrderBy(x => Math.Sqrt(Math.Pow(c.StartX - x.X, 2) + Math.Pow(c.StartZ - x.Z, 2)))
-                .FirstOrDefault();
+            return Nodes.OrderBy(x => Math.Sqrt(Math.Pow(c.StartX - x.X, 2) + Math.Pow(c.StartZ - x.Z, 2))).FirstOrDefault();
         }
 
-        private IEnumerable<List<Ets2PrefabCurve>> IterateCurves(
-            IEnumerable<Ets2PrefabCurve> list,
-            Ets2PrefabCurve curve,
-            bool forwardDirection)
+        private IEnumerable<List<Ets2PrefabCurve>> IterateCurves(IEnumerable<Ets2PrefabCurve> list, Ets2PrefabCurve curve, bool forwardDirection)
         {
             var curves = (forwardDirection ? curve.Next : curve.Prev).Select(x => Curves[x]);
 
@@ -225,8 +219,7 @@ namespace SimShift.MapTool
             var version = BitConverter.ToInt32(Stream, 0);
 
             var verbose = 0;
-            if (Path.GetFileNameWithoutExtension(FilePath) == "road1_x_road1_t"
-                || Path.GetFileNameWithoutExtension(FilePath) == "hw3-2_x_hw2-2_full  ")
+            if (Path.GetFileNameWithoutExtension(FilePath) == "road1_x_road1_t" || Path.GetFileNameWithoutExtension(FilePath) == "hw3-2_x_hw2-2_full  ")
             {
                 verbose++;
             }
@@ -264,32 +257,7 @@ namespace SimShift.MapTool
                     prevCurve.Add(BitConverter.ToInt32(Stream, 92 + k * 4 + curveOff));
                 }
 
-                var curve = new Ets2PrefabCurve
-                                {
-                                    Index = navCurve,
-                                    StartX = BitConverter.ToSingle(Stream, 16 + curveOff),
-                                    StartY = BitConverter.ToSingle(Stream, 20 + curveOff),
-                                    StartZ = BitConverter.ToSingle(Stream, 24 + curveOff),
-                                    EndX = BitConverter.ToSingle(Stream, 28 + curveOff),
-                                    EndY = BitConverter.ToSingle(Stream, 32 + curveOff),
-                                    EndZ = BitConverter.ToSingle(Stream, 36 + curveOff),
-                                    StartRotationX = BitConverter.ToSingle(Stream, 40 + curveOff),
-                                    StartRotationY = BitConverter.ToSingle(Stream, 44 + curveOff),
-                                    StartRotationZ = BitConverter.ToSingle(Stream, 48 + curveOff),
-                                    EndRotationX = BitConverter.ToSingle(Stream, 52 + curveOff),
-                                    EndRotationY = BitConverter.ToSingle(Stream, 56 + curveOff),
-                                    EndRotationZ = BitConverter.ToSingle(Stream, 60 + curveOff),
-                                    StartYaw =
-                                        Math.Atan2(
-                                            BitConverter.ToSingle(Stream, 48 + curveOff),
-                                            BitConverter.ToSingle(Stream, 40 + curveOff)),
-                                    EndYaw = Math.Atan2(
-                                        BitConverter.ToSingle(Stream, 60 + curveOff),
-                                        BitConverter.ToSingle(Stream, 52 + curveOff)),
-                                    Length = BitConverter.ToSingle(Stream, 72 + curveOff),
-                                    Next = nextCurve.Where(i => i != -1).ToArray(),
-                                    Prev = prevCurve.Where(i => i != -1).ToArray()
-                                };
+                var curve = new Ets2PrefabCurve { Index = navCurve, StartX = BitConverter.ToSingle(Stream, 16 + curveOff), StartY = BitConverter.ToSingle(Stream, 20 + curveOff), StartZ = BitConverter.ToSingle(Stream, 24 + curveOff), EndX = BitConverter.ToSingle(Stream, 28 + curveOff), EndY = BitConverter.ToSingle(Stream, 32 + curveOff), EndZ = BitConverter.ToSingle(Stream, 36 + curveOff), StartRotationX = BitConverter.ToSingle(Stream, 40 + curveOff), StartRotationY = BitConverter.ToSingle(Stream, 44 + curveOff), StartRotationZ = BitConverter.ToSingle(Stream, 48 + curveOff), EndRotationX = BitConverter.ToSingle(Stream, 52 + curveOff), EndRotationY = BitConverter.ToSingle(Stream, 56 + curveOff), EndRotationZ = BitConverter.ToSingle(Stream, 60 + curveOff), StartYaw = Math.Atan2(BitConverter.ToSingle(Stream, 48 + curveOff), BitConverter.ToSingle(Stream, 40 + curveOff)), EndYaw = Math.Atan2(BitConverter.ToSingle(Stream, 60 + curveOff), BitConverter.ToSingle(Stream, 52 + curveOff)), Length = BitConverter.ToSingle(Stream, 72 + curveOff), Next = nextCurve.Where(i => i != -1).ToArray(), Prev = prevCurve.Where(i => i != -1).ToArray() };
 
                 Curves.Add(curve);
 
@@ -350,23 +318,7 @@ namespace SimShift.MapTool
                                           BitConverter.ToSingle(Stream, 28 + nodeOff)), 3) + " IN: " + inLanes +
                                   " OUT: " + outLanes);
                 */
-                Ets2PrefabNode prefabNode =
-                    new Ets2PrefabNode
-                        {
-                            Node = node,
-                            X = BitConverter.ToSingle(Stream, 16 + nodeOff),
-                            Y = BitConverter.ToSingle(Stream, 20 + nodeOff),
-                            Z = BitConverter.ToSingle(Stream, 24 + nodeOff),
-                            RotationX = BitConverter.ToSingle(Stream, 28 + nodeOff),
-                            RotationY = BitConverter.ToSingle(Stream, 32 + nodeOff),
-                            RotationZ = BitConverter.ToSingle(Stream, 36 + nodeOff),
-                            InputCurve = inputLanes.Where(i => i != -1).Select(x => Curves[x]).ToList(),
-                            OutputCurve =
-                                outputLanes.Where(i => i != -1).Select(x => Curves[x]).ToList(),
-                            Yaw = Math.PI - Math.Atan2(
-                                      BitConverter.ToSingle(Stream, 36 + nodeOff),
-                                      BitConverter.ToSingle(Stream, 28 + nodeOff))
-                        };
+                Ets2PrefabNode prefabNode = new Ets2PrefabNode { Node = node, X = BitConverter.ToSingle(Stream, 16 + nodeOff), Y = BitConverter.ToSingle(Stream, 20 + nodeOff), Z = BitConverter.ToSingle(Stream, 24 + nodeOff), RotationX = BitConverter.ToSingle(Stream, 28 + nodeOff), RotationY = BitConverter.ToSingle(Stream, 32 + nodeOff), RotationZ = BitConverter.ToSingle(Stream, 36 + nodeOff), InputCurve = inputLanes.Where(i => i != -1).Select(x => Curves[x]).ToList(), OutputCurve = outputLanes.Where(i => i != -1).Select(x => Curves[x]).ToList(), Yaw = Math.PI - Math.Atan2(BitConverter.ToSingle(Stream, 36 + nodeOff), BitConverter.ToSingle(Stream, 28 + nodeOff)) };
                 Nodes.Add(prefabNode);
 
                 for (int k = 0; k < 16; k += 4)
