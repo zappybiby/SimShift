@@ -44,27 +44,33 @@ namespace SimShift.Controllers
 
             // Search register.
             RegistryKey rf = Registry.CurrentUser.OpenSubKey(RegReferencePlace);
-            string USBDevice = Convert.ToString(rf.GetValue("Joystick" + (1 + id).ToString() + "OEMName"));
+            if (rf == null) return;
+            string USBDevice = Convert.ToString(rf.GetValue("Joystick" + (1 + this.id).ToString() + "OEMName"));
             RegistryKey usb = Registry.CurrentUser.OpenSubKey(RegKeyPlace);
             usb = usb.OpenSubKey(USBDevice);
-            Name = (string) usb.GetValue("OEMName");
+            if (usb == null) return;
+            this.Name = (string) usb.GetValue("OEMName");
 
             // Get axis names
-            RegistryKey axisMaster = Registry.LocalMachine.OpenSubKey(RegKeyAxisData).OpenSubKey(USBDevice);
-
-            AxisNames = new Dictionary<int, string>();
-            if (axisMaster != null)
+            var openSubKey = Registry.LocalMachine.OpenSubKey(RegKeyAxisData);
+            if (openSubKey != null)
             {
-                axisMaster = axisMaster.OpenSubKey("Axes");
+                RegistryKey axisMaster = openSubKey.OpenSubKey(USBDevice);
+
+                this.AxisNames = new Dictionary<int, string>();
                 if (axisMaster != null)
                 {
-                    foreach (string name in axisMaster.GetSubKeyNames())
+                    axisMaster = axisMaster.OpenSubKey("Axes");
+                    if (axisMaster != null)
                     {
-                        RegistryKey axis = axisMaster.OpenSubKey(name);
-                        AxisNames.Add(Convert.ToInt32(name), (string) axis.GetValue(""));
-                        axis.Close();
+                        foreach (string name in axisMaster.GetSubKeyNames())
+                        {
+                            RegistryKey axis = axisMaster.OpenSubKey(name);
+                            this.AxisNames.Add(Convert.ToInt32(name), (string) axis.GetValue(""));
+                            axis.Close();
+                        }
+                        axisMaster.Close();
                     }
-                    axisMaster.Close();
                 }
             }
             rf.Close();
