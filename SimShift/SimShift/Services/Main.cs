@@ -468,7 +468,7 @@ namespace SimShift.Services
 
                 if (deskCtrl == null && g25Wheel == null && ps4Ctrl == null)
                 {
-                    //MessageBox.Show("No controllers found");
+                    MessageBox.Show("No controllers found");
                     return false;
                 }
 
