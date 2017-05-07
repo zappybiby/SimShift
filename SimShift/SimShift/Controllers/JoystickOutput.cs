@@ -38,7 +38,7 @@ namespace SimShift.Controllers
 
             // Get the state of the requested device
             VjdStat status = joystick.GetVJDStatus(id);
-            /*switch (status)
+            switch (status)
             {
                 case VjdStat.VJD_STAT_OWN:
                     MessageBox.Show(string.Format("vJoy Device {0} is already owned by this feeder\n", id));
@@ -55,7 +55,7 @@ namespace SimShift.Controllers
                 default:
                     MessageBox.Show(string.Format("vJoy Device {0} general error\nCannot continue\n", id));
                     return joystick;
-            }*/
+            }
             bool AxisX = joystick.GetVJDAxisExist(id, HID_USAGES.HID_USAGE_X);
             if (joystick.AcquireVJD(id) == false) MessageBox.Show("Could not acquire vJoy " + id);
             Console.WriteLine(AxisX);
