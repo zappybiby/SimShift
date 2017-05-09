@@ -9,6 +9,7 @@ namespace SimShift.Controllers
     public class JoystickInputDevice
     {
         private const string RegKeyAxisData = @"SYSTEM\ControlSet001\Control\MediaProperties\PrivateProperties\Joystick\OEM";
+        private const string RegKeyAxisData2 = @"System\CurrentControlSet\Control\MediaProperties\PrivateProperties\DirectInput\VID_045E&PID_02FF\Calibration\0\Type";
 
         private const string RegKeyPlace = @"System\CurrentControlSet\Control\MediaProperties\PrivateProperties\Joystick\OEM\";
 
@@ -52,10 +53,10 @@ namespace SimShift.Controllers
             this.Name = (string) usb.GetValue("OEMName");
 
             // Get axis names
-            var openSubKey = Registry.LocalMachine.OpenSubKey(RegKeyAxisData);
-            if (openSubKey != null)
-            {
-                RegistryKey axisMaster = openSubKey.OpenSubKey(USBDevice);
+            //var openSubKey = Registry.LocalMachine.OpenSubKey(RegKeyAxisData);
+            //if (openSubKey != null)
+            //{
+                RegistryKey axisMaster = Registry.CurrentUser.OpenSubKey(RegKeyAxisData2);
 
                 this.AxisNames = new Dictionary<int, string>();
                 if (axisMaster != null)
@@ -72,7 +73,7 @@ namespace SimShift.Controllers
                         axisMaster.Close();
                     }
                 }
-            }
+            //}
             rf.Close();
             usb.Close();
         }
