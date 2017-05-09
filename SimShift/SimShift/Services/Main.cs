@@ -224,10 +224,10 @@ namespace SimShift.Services
                 case JoyControls.GearRange2: return !xboxCtlActive && !ps4CtlActive && !dskCtlActive && RawJoysticksIn[1].GetButton(17);
 
                 /*** NOT FUNCTIONAL ***/
-                case JoyControls.LaneAssistance:
-                    if (ps4CtlActive) return false;
-                    else if (dskCtlActive) return RawJoysticksIn[0].GetButton(7);
-                    else return RawJoysticksIn[1].GetButton(7);
+                //case JoyControls.LaneAssistance:
+                //    if (ps4CtlActive) return false;
+                //    else if (dskCtlActive) return RawJoysticksIn[0].GetButton(7);
+                //    else return RawJoysticksIn[1].GetButton(7);
 
                 case JoyControls.VstChange: return !xboxCtlActive && !ps4CtlActive && !dskCtlActive && RawJoysticksIn[1].GetButton(10);
                 case JoyControls.MeasurePower: return !xboxCtlActive && !ps4CtlActive && !dskCtlActive && RawJoysticksIn[1].GetButton(11);
