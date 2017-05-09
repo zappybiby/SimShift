@@ -70,7 +70,7 @@ namespace SimShift.Services
 
         private static bool ps4CtlActive = false;
 
-        private static bool xboxCtlActive = false;
+        private static bool xboxCtlActive = true;
 
         private static bool requiresSetup = true;
 
@@ -128,9 +128,10 @@ namespace SimShift.Services
 
                     double t = 0;
 
+
                     if (ps4CtlActive || xboxCtlActive)
                     {
-                        t = RawJoysticksIn[0].GetAxis(4) / Math.Pow(2, 16);
+                        t = RawJoysticksIn[2].GetAxis(4) / Math.Pow(2, 16);
                         t = t * t;
                         return t;
                     }
@@ -160,7 +161,7 @@ namespace SimShift.Services
                 case JoyControls.Brake:
                     if (ps4CtlActive || xboxCtlActive)
                     {
-                        var b = RawJoysticksIn[0].GetAxis(5) / Math.Pow(2, 16);
+                        var b = RawJoysticksIn[2].GetAxis(5) / Math.Pow(2, 16);
                         b = b * b;
                         return b;
                     }
@@ -233,17 +234,17 @@ namespace SimShift.Services
 
                 // PS3 (via DS3 tool) L1/R1
                 case JoyControls.GearDown:
-                    if (ps4CtlActive || xboxCtlActive) return RawJoysticksIn[0].GetButton(4);
+                    if (ps4CtlActive || xboxCtlActive) return RawJoysticksIn[2].GetButton(4);
                     else if (dskCtlActive) return RawJoysticksIn[0].GetButton(8);
                     else if (Transmission.Enabled) return RawJoysticksIn[1].GetButton(8);
                     else return false;
                 case JoyControls.GearUp:
-                    if (ps4CtlActive || xboxCtlActive) return RawJoysticksIn[0].GetButton(5);
+                    if (ps4CtlActive || xboxCtlActive) return RawJoysticksIn[2].GetButton(5);
                     else if (dskCtlActive) return RawJoysticksIn[0].GetButton(4);
                     else if (Transmission.Enabled) return RawJoysticksIn[1].GetButton(9);
                     else return false;
                 case JoyControls.CruiseControlMaintain:
-                    if (ps4CtlActive || xboxCtlActive) return RawJoysticksIn[0].GetButton(3);
+                    if (ps4CtlActive || xboxCtlActive) return RawJoysticksIn[2].GetButton(3);
                     else if (dskCtlActive) return RawJoysticksIn[0].GetButton(9);
                     else return RawJoysticksIn[1].GetButton(15);
 
