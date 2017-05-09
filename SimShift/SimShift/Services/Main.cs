@@ -101,7 +101,7 @@ namespace SimShift.Services
                 case JoyControls.Steering:
                     if (ps4CtlActive || xboxCtlActive)
                     {
-                        var s = RawJoysticksIn[0].GetAxis(0) / Math.Pow(2, 16) - 0.5;
+                        var s = RawJoysticksIn[2].GetAxis(0) / Math.Pow(2, 16) - 0.5;
 
                         s *= 2;
                         var wasn = s < 0;
