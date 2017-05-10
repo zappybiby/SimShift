@@ -193,6 +193,15 @@ namespace SimShift.Data
                         car.X = carPool.ReadAs<float>("CoordinateX");
                         car.Y = carPool.ReadAs<float>("CoordinateY");
                         car.Z = carPool.ReadAs<float>("CoordinateZ");
+                        if (k == 1)
+                        {
+                            Console.WriteLine("Car #" + k);
+                            Console.WriteLine("Car Speed" + car.Speed);
+                            Console.WriteLine("Car X" + car.X);
+                            Console.WriteLine("Car Y" + car.Y);
+                            Console.WriteLine("Car Z" + car.Z);
+                        }
+
                     }
                 }
 
