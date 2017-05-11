@@ -34,3 +34,8 @@ Driver utilities for various open roaming simulators like Euro Truck Simulator 2
 4. Go to the `References Paths` tab and add these paths
     - `steam\steamapps\common\Euro Truck Simulator 2\Simshift\Binaries\`
     - `steam\steamapps\common\Euro Truck Simulator 2\Simshift\Resources\`
+
+### Add settigns path
+1. Run project
+2. Get an error
+3. Create folder `Settings\Drivetrain\` under the folder `steam\steamapps\common\Euro Truck Simulator 2\Simshift\Simshift\Simshift\bin\Debug`
