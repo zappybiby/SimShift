@@ -7,7 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
-
+using System.Windows.Forms;
 using Ets2SdkClient;
 
 using SimShift.Entities;
@@ -193,19 +193,11 @@ namespace SimShift.Data
                         car.X = carPool.ReadAs<float>("CoordinateX");
                         car.Y = carPool.ReadAs<float>("CoordinateY");
                         car.Z = carPool.ReadAs<float>("CoordinateZ");
-                        if (k == 1)
-                        {
-                            Console.WriteLine("Car #" + k);
-                            Console.WriteLine("Car Speed" + car.Speed);
-                            Console.WriteLine("Car X" + car.X);
-                            Console.WriteLine("Car Y" + car.Y);
-                            Console.WriteLine("Car Z" + car.Z);
-                        }
 
                     }
                 }
 
-                var ep = new IPEndPoint(IPAddress.Parse("192.168.1.158"), 12345);
+                var ep = new IPEndPoint(IPAddress.Parse("localhost"), 12345);
                 var r = (data.Drivetrain.EngineRpm - 300) / (2500 - 300);
                 if (data.Drivetrain.EngineRpm < 300) r = -1;
                 var s = ((int) (r * 10000)).ToString() + "," + ((int) (data.Controls.GameThrottle * 1000)).ToString() + "," + ((data.Paused) ? 1 : 0);
@@ -270,7 +262,7 @@ namespace SimShift.Data
             var carW = 3.0f;
             var hg = -Heading; //
             Box = new PointF[] { new PointF(X + carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), Z + carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)), new PointF(X - carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), Z - carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)), new PointF(X - carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), Z - carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)), new PointF(X + carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), Z + carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)), };
-
+            
             lastX = X;
             lastY = Z;
         }
