@@ -256,6 +256,7 @@ namespace SimShift.Data
             if (Math.Abs(dx) >= 0.02f || Math.Abs(dy) >= 0.02f)
             {
                 Heading = (float) (Math.PI - Math.Atan2(dy, dx));
+                Console.WriteLine("hg" + Heading);
             }
             // Rotated polygon
             var carL = 12.0f;

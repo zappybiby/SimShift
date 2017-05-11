@@ -224,6 +224,6 @@ namespace SimShift.Services
         //    uint vol_out = vol_hex | (vol_hex << 16);
         //    //vol_out = 0xFFFFFFFF;
         //    waveOutSetVolume(IntPtr.Zero, vol_out);
-        }
     }
+}
 //}

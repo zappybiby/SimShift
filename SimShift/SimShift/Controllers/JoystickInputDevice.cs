@@ -9,6 +9,7 @@ namespace SimShift.Controllers
     public class JoystickInputDevice
     {
         private const string RegKeyAxisData = @"SYSTEM\ControlSet001\Control\MediaProperties\PrivateProperties\Joystick\OEM";
+
         private const string RegKeyAxisData2 = @"System\CurrentControlSet\Control\MediaProperties\PrivateProperties\DirectInput\VID_045E&PID_02FF\Calibration\0\Type";
 
         private const string RegKeyPlace = @"System\CurrentControlSet\Control\MediaProperties\PrivateProperties\Joystick\OEM\";
@@ -56,23 +57,23 @@ namespace SimShift.Controllers
             //var openSubKey = Registry.LocalMachine.OpenSubKey(RegKeyAxisData);
             //if (openSubKey != null)
             //{
-                RegistryKey axisMaster = Registry.CurrentUser.OpenSubKey(RegKeyAxisData2);
+            RegistryKey axisMaster = Registry.CurrentUser.OpenSubKey(RegKeyAxisData2);
 
-                this.AxisNames = new Dictionary<int, string>();
+            this.AxisNames = new Dictionary<int, string>();
+            if (axisMaster != null)
+            {
+                axisMaster = axisMaster.OpenSubKey("Axes");
                 if (axisMaster != null)
                 {
-                    axisMaster = axisMaster.OpenSubKey("Axes");
-                    if (axisMaster != null)
+                    foreach (string name in axisMaster.GetSubKeyNames())
                     {
-                        foreach (string name in axisMaster.GetSubKeyNames())
-                        {
-                            RegistryKey axis = axisMaster.OpenSubKey(name);
-                            this.AxisNames.Add(Convert.ToInt32(name), (string) axis.GetValue(""));
-                            axis.Close();
-                        }
-                        axisMaster.Close();
+                        RegistryKey axis = axisMaster.OpenSubKey(name);
+                        this.AxisNames.Add(Convert.ToInt32(name), (string) axis.GetValue(""));
+                        axis.Close();
                     }
+                    axisMaster.Close();
                 }
+            }
             //}
             rf.Close();
             usb.Close();
