@@ -197,7 +197,7 @@ namespace SimShift.Data
                     }
                 }
 
-                var ep = new IPEndPoint(IPAddress.Parse("localhost"), 12345);
+                var ep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 12345);
                 var r = (data.Drivetrain.EngineRpm - 300) / (2500 - 300);
                 if (data.Drivetrain.EngineRpm < 300) r = -1;
                 var s = ((int) (r * 10000)).ToString() + "," + ((int) (data.Controls.GameThrottle * 1000)).ToString() + "," + ((data.Paused) ? 1 : 0);
