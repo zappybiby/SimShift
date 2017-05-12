@@ -7,7 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
-
+using System.Windows.Forms;
 using Ets2SdkClient;
 
 using SimShift.Entities;
@@ -193,10 +193,11 @@ namespace SimShift.Data
                         car.X = carPool.ReadAs<float>("CoordinateX");
                         car.Y = carPool.ReadAs<float>("CoordinateY");
                         car.Z = carPool.ReadAs<float>("CoordinateZ");
+
                     }
                 }
 
-                var ep = new IPEndPoint(IPAddress.Parse("192.168.1.158"), 12345);
+                var ep = new IPEndPoint(IPAddress.Parse("localhost"), 12345);
                 var r = (data.Drivetrain.EngineRpm - 300) / (2500 - 300);
                 if (data.Drivetrain.EngineRpm < 300) r = -1;
                 var s = ((int) (r * 10000)).ToString() + "," + ((int) (data.Controls.GameThrottle * 1000)).ToString() + "," + ((data.Paused) ? 1 : 0);
@@ -255,13 +256,14 @@ namespace SimShift.Data
             if (Math.Abs(dx) >= 0.02f || Math.Abs(dy) >= 0.02f)
             {
                 Heading = (float) (Math.PI - Math.Atan2(dy, dx));
+                Console.WriteLine("hg" + Heading);
             }
             // Rotated polygon
             var carL = 12.0f;
             var carW = 3.0f;
             var hg = -Heading; //
             Box = new PointF[] { new PointF(X + carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), Z + carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)), new PointF(X - carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), Z - carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)), new PointF(X - carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), Z - carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)), new PointF(X + carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), Z + carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)), };
-
+            
             lastX = X;
             lastY = Z;
         }

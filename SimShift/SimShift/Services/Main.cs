@@ -78,7 +78,7 @@ namespace SimShift.Services
         {
             get
             {
-                return xboxCtlActive || ps4CtlActive || dskCtlActive ? RawJoysticksIn[0] : RawJoysticksIn[1];
+                return xboxCtlActive || ps4CtlActive || dskCtlActive ? RawJoysticksIn[0] : RawJoysticksIn[2];
             }
         }
 
@@ -101,7 +101,7 @@ namespace SimShift.Services
                 case JoyControls.Steering:
                     if (ps4CtlActive || xboxCtlActive)
                     {
-                        var s = RawJoysticksIn[2].GetAxis(0) / Math.Pow(2, 16) - 0.5;
+                        var s = RawJoysticksIn[2].GetAxis(1) / Math.Pow(2, 16) - 0.5;
 
                         s *= 2;
                         var wasn = s < 0;
@@ -127,7 +127,6 @@ namespace SimShift.Services
                 case JoyControls.Throttle:
 
                     double t = 0;
-
 
                     if (ps4CtlActive || xboxCtlActive)
                     {
