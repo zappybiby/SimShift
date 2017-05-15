@@ -142,23 +142,23 @@ namespace SimShift.Controllers
 
         public JoystickFlags dwFlags;
 
-        public int dwXpos;
+        public int dwXpos; // Current X-coordinate.
 
-        public int dwYpos;
+        public int dwYpos; // Current Y-coordinate.
 
-        public int dwZpos;
+        public int dwZpos; // Current Z-coordinate.
 
-        public int dwRpos;
+        public int dwRpos; // Current position of the rudder or fourth joystick axis.
 
-        public int dwUpos;
+        public int dwUpos; // Current fifth axis position.
 
-        public int dwVpos;
+        public int dwVpos; // Current sixth axis position.
 
-        public int dwButtons;
+        public int dwButtons; // Current state of the 32 joystick buttons (bits)
 
-        public int dwButtonNumber;
+        public int dwButtonNumber; // Current button number that is pressed.
 
-        public int dwPOV;
+        public int dwPOV; // Current position of the point-of-view control (0..35,900, deg*100)
 
         public int dwReserved1;
 
@@ -167,12 +167,12 @@ namespace SimShift.Controllers
 
     public struct JOYINFO
     {
-        public int wXpos;
+        public int wXpos; // Current X-coordinate.
 
-        public int wYpos;
+        public int wYpos; // Current Y-coordinate.
 
-        public int wZpos;
+        public int wZpos; // Current Z-coordinate.
 
-        public int wButtons;
+        public int wButtons; // Current state of joystick buttons.
     }
 }

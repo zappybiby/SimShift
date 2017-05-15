@@ -8,7 +8,8 @@ namespace SimShift.Controllers
 {
     public class JoystickInputDevice
     {
-        private const string RegKeyAxisData = @"SYSTEM\ControlSet001\Control\MediaProperties\PrivateProperties\Joystick\OEM";
+        //private const string RegKeyAxisData = @"SYSTEM\ControlSet001\Control\MediaProperties\PrivateProperties\Joystick\OEM";
+        private const string RegKeyAxisData = @"System\CurrentControlSet\Control\MediaProperties\PrivateProperties\DirectInput\VID_045E&PID_02FF\Calibration\0\Type";
 
         private const string RegKeyPlace = @"System\CurrentControlSet\Control\MediaProperties\PrivateProperties\Joystick\OEM\";
 
@@ -44,15 +45,20 @@ namespace SimShift.Controllers
 
             // Search register.
             RegistryKey rf = Registry.CurrentUser.OpenSubKey(RegReferencePlace);
-            string USBDevice = Convert.ToString(rf.GetValue("Joystick" + (1 + id).ToString() + "OEMName"));
+            if (rf == null) return;
+            string USBDevice = Convert.ToString(rf.GetValue("Joystick" + (1 + this.id).ToString() + "OEMName"));
             RegistryKey usb = Registry.CurrentUser.OpenSubKey(RegKeyPlace);
             usb = usb.OpenSubKey(USBDevice);
-            Name = (string) usb.GetValue("OEMName");
+            if (usb == null) return;
+            this.Name = (string) usb.GetValue("OEMName");
 
             // Get axis names
-            RegistryKey axisMaster = Registry.LocalMachine.OpenSubKey(RegKeyAxisData).OpenSubKey(USBDevice);
+            //var openSubKey = Registry.LocalMachine.OpenSubKey(RegKeyAxisData);
+            //if (openSubKey != null)
+            //{
+                RegistryKey axisMaster = Registry.CurrentUser.OpenSubKey(RegKeyAxisData);
 
-            AxisNames = new Dictionary<int, string>();
+            this.AxisNames = new Dictionary<int, string>();
             if (axisMaster != null)
             {
                 axisMaster = axisMaster.OpenSubKey("Axes");
@@ -61,12 +67,13 @@ namespace SimShift.Controllers
                     foreach (string name in axisMaster.GetSubKeyNames())
                     {
                         RegistryKey axis = axisMaster.OpenSubKey(name);
-                        AxisNames.Add(Convert.ToInt32(name), (string) axis.GetValue(""));
+                        this.AxisNames.Add(Convert.ToInt32(name), (string) axis.GetValue(""));
                         axis.Close();
                     }
                     axisMaster.Close();
                 }
             }
+            //}
             rf.Close();
             usb.Close();
         }

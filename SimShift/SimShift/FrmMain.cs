@@ -32,11 +32,7 @@ namespace SimShift
         public FrmMain()
         {
             var map = "europe";
-            //var universalFolder = Directory.Exists(@"E:\map\" + map + "\\")
-            //    ? @"E:\map\" + map + "\\"
-            //    : Directory.Exists(@"E:\Games\Steam\steamapps\common\Euro Truck Simulator 2\base\map")
-            //       ? @"E:\Games\Steam\steamapps\common\Euro Truck Simulator 2\base\map\" + map + "\\"
-            //       : @"./europe/";
+           
             var universalFolder = @"..\..\..\..\..\base\map\" + map + "\\";
 
             // PREFAB FOLDER HERE

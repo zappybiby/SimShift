@@ -30,15 +30,15 @@ namespace SimShift.Services
         public TractionControl()
         {
             tcSound = new SoundPlayer(@"C:\Projects\Software\SimShift\Resources\tractioncontrol.wav");
-            setVolume(0);
+            //setVolume(0);
             SoundStopped = true;
             lastThrottle = 1;
-            setVolume(1);
+            //setVolume(1);
             var updateSound = new Timer { Enabled = true, Interval = 10 };
             updateSound.Elapsed += (sender, args) =>
                 {
-                    if (Main.Transmission.IsShifting || Antistall.Stalling || !Slipping) setVolume(0);
-                    else setVolume(1 - lastThrottle);
+                    //if (Main.Transmission.IsShifting || Antistall.Stalling || !Slipping) setVolume(0);
+                    //else setVolume(1 - lastThrottle);
                 };
             updateSound.Start();
         }
@@ -198,32 +198,32 @@ namespace SimShift.Services
             { }
         }
 
-        private void setVolume(double vol)
-        {
-            if (vol == 0)
-            {
-                if (SoundStopped) return;
-                if (CanPauseTrack)
-                {
-                    vol = 1;
-                    tcSound.Stop();
-                    SoundStopped = true;
-                }
-            }
-            else
-            {
-                lastPlay = DateTime.Now.Add(new TimeSpan(0, 0, 0, 1));
-                if (SoundStopped)
-                {
-                    tcSound.PlayLooping();
-                    SoundStopped = false;
-                }
-            }
+        //private void setVolume(double vol)
+        //{
+        //    if (vol == 0)
+        //    {
+        //        if (SoundStopped) return;
+        //        if (CanPauseTrack)
+        //        {
+        //            vol = 1;
+        //            tcSound.Stop();
+        //            SoundStopped = true;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        lastPlay = DateTime.Now.Add(new TimeSpan(0, 0, 0, 1));
+        //        if (SoundStopped)
+        //        {
+        //            tcSound.PlayLooping();
+        //            SoundStopped = false;
+        //        }
+        //    }
 
-            uint vol_hex = (uint) (vol * 0x7FFF);
-            uint vol_out = vol_hex | (vol_hex << 16);
-            //vol_out = 0xFFFFFFFF;
-            waveOutSetVolume(IntPtr.Zero, vol_out);
-        }
+        //    uint vol_hex = (uint) (vol * 0x7FFF);
+        //    uint vol_out = vol_hex | (vol_hex << 16);
+        //    //vol_out = 0xFFFFFFFF;
+        //    waveOutSetVolume(IntPtr.Zero, vol_out);
     }
 }
+//}
