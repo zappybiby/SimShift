@@ -244,7 +244,8 @@ namespace SimShift.Data
         {
             get
             {
-                if (Box == null || Math.Abs(Speed) > 200 || Math.Abs(X) > 1E7 || Math.Abs(Z) > 1E7 || float.IsNaN(X) || float.IsNaN(Z) || float.IsInfinity(X) || float.IsInfinity(Z)) return false;
+                //if (Box == null || Math.Abs(Speed) > 200 || Math.Abs(X) > 1E7 || Math.Abs(Z) > 1E7 || float.IsNaN(X) || float.IsNaN(Z) || float.IsInfinity(X) || float.IsInfinity(Z)) return false;
+                if (Math.Abs(Speed) > 200 || Math.Abs(X) > 1E7 || Math.Abs(Z) > 1E7 || float.IsNaN(X) || float.IsNaN(Z) || float.IsInfinity(X) || float.IsInfinity(Z)) return false;
                 else return true;
             }
         }
