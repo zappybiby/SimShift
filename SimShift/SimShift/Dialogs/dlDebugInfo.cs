@@ -8,6 +8,8 @@ using SimShift.Services;
 
 namespace SimShift.Dialogs
 {
+    using System.Diagnostics.CodeAnalysis;
+
     public partial class dlDebugInfo : Form
     {
         private Ets2DataMiner data;
@@ -50,6 +52,7 @@ namespace SimShift.Dialogs
 
         public static Ets2Car TrackedCar { get; set; }
 
+        [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1407:ArithmeticExpressionsMustDeclarePrecedence", Justification = "Reviewed. Suppression is OK here.")]
         protected override void OnPaint(PaintEventArgs e)
         {
             if (this.fitToSize)
@@ -160,7 +163,16 @@ namespace SimShift.Dialogs
                 // Rotated polygon
                 var carL = 12.0f;
                 var carW = 2.5f;
-                PointF[] poly = new[] { new PointF(mX + px + carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), mY + py + carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)), new PointF(mX + px - carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), mY + py - carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)), new PointF(mX + px - carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), mY + py - carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)), new PointF(mX + px + carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), mY + py + carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)), };
+                var hg = -heading;
+
+                PointF[] poly = new[]
+                                    {
+                                        new PointF(mX + px + carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), mY + py + carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)),
+                                        new PointF(mX + px - carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), mY + py - carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)),
+                                        new PointF(mX + px - carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), mY + py - carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)),
+                                        new PointF(mX + px + carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), mY + py + carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)),
+                                    };
+
                 foreach (var car in this.data.Cars)
                 {
                     if (car.Valid && this.IsPolygonsIntersecting(car.Box, poly))

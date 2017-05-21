@@ -178,33 +178,33 @@ namespace SimShift.Services
             { }
         }
 
-        // private void setVolume(double vol)
+        // waveOutSetVolume(IntPtr.Zero, vol_out);
+        // //vol_out = 0xFFFFFFFF;
+        // uint vol_out = vol_hex | (vol_hex << 16);
+
+        // uint vol_hex = (uint) (vol * 0x7FFF);
+        // }
+        // }
+        // SoundStopped = false;
+        // tcSound.PlayLooping();
+        // {
+        // if (SoundStopped)
+        // lastPlay = DateTime.Now.Add(new TimeSpan(0, 0, 0, 1));
+        // {
+        // else
+        // }
+        // }
+        // SoundStopped = true;
+        // tcSound.Stop();
+        // vol = 1;
+        // {
+        // if (CanPauseTrack)
+        // if (SoundStopped) return;
         // {
         // if (vol == 0)
         // {
-        // if (SoundStopped) return;
-        // if (CanPauseTrack)
-        // {
-        // vol = 1;
-        // tcSound.Stop();
-        // SoundStopped = true;
-        // }
-        // }
-        // else
-        // {
-        // lastPlay = DateTime.Now.Add(new TimeSpan(0, 0, 0, 1));
-        // if (SoundStopped)
-        // {
-        // tcSound.PlayLooping();
-        // SoundStopped = false;
-        // }
-        // }
 
-        // uint vol_hex = (uint) (vol * 0x7FFF);
-        // uint vol_out = vol_hex | (vol_hex << 16);
-        // //vol_out = 0xFFFFFFFF;
-
-        // waveOutSetVolume(IntPtr.Zero, vol_out);
+        // private void setVolume(double vol)
     }
 }
 //}

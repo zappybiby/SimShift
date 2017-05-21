@@ -256,7 +256,23 @@ namespace SimShift.Data
             // Rotated polygon
             var carL = 12.0f;
             var carW = 3.0f;
-            this.Box = new[] { new PointF(this.X + carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), this.Z + carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)), new PointF(this.X - carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), this.Z - carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)), new PointF(this.X - carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), this.Z - carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)), new PointF(this.X + carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), this.Z + carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)), };
+            var hg = -Heading;
+
+            this.Box = new[]
+                           {
+                               new PointF(
+                                   this.X + carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg),
+                                   this.Z + carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)),
+                               new PointF(
+                                   this.X - carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg),
+                                   this.Z - carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)),
+                               new PointF(
+                                   this.X - carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg),
+                                   this.Z - carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)),
+                               new PointF(
+                                   this.X + carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg),
+                                   this.Z + carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)),
+                           };
 
             this.lastX = this.X;
             this.lastY = this.Z;
