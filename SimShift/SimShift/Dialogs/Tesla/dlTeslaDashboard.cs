@@ -16,7 +16,7 @@ namespace SimShift.Dialogs.Tesla
 {
     public partial class dlTeslaDashboard : Form
     {
-        public const string ResourceFolder = "C:/Projects/Software/SimShift/Resources/TeslaDash/";
+        public const string ResourceFolder = @"..\..\\Resources\TeslaDash";
 
         private Image Back;
 

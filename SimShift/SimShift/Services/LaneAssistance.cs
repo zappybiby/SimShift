@@ -45,7 +45,7 @@ namespace SimShift.Services
     {
         public DateTime ButtonCooldownPeriod = DateTime.Now;
 
-        private SoundPlayer beep = new SoundPlayer(@"C:\Projects\Software\SimShift\Resources\alert.wav");
+        private SoundPlayer beep = new SoundPlayer(@"..\..\\Resources\Alert.wav");
 
         private int keepAlive = 0;
 

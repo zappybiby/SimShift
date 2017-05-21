@@ -46,18 +46,14 @@ namespace SimShift.Controllers
             // Search register.
             RegistryKey rf = Registry.CurrentUser.OpenSubKey(RegReferencePlace);
             if (rf == null) return;
+
             string USBDevice = Convert.ToString(rf.GetValue("Joystick" + (1 + this.id).ToString() + "OEMName"));
             RegistryKey usb = Registry.CurrentUser.OpenSubKey(RegKeyPlace);
             usb = usb.OpenSubKey(USBDevice);
             if (usb == null) return;
             this.Name = (string) usb.GetValue("OEMName");
 
-            // Get axis names
-            //var openSubKey = Registry.LocalMachine.OpenSubKey(RegKeyAxisData);
-            //if (openSubKey != null)
-            //{
-                RegistryKey axisMaster = Registry.CurrentUser.OpenSubKey(RegKeyAxisData);
-
+            RegistryKey axisMaster = Registry.CurrentUser.OpenSubKey(RegKeyAxisData);
             this.AxisNames = new Dictionary<int, string>();
             if (axisMaster != null)
             {
@@ -73,7 +69,6 @@ namespace SimShift.Controllers
                     axisMaster.Close();
                 }
             }
-            //}
             rf.Close();
             usb.Close();
         }
