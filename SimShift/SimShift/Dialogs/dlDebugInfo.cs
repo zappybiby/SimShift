@@ -166,12 +166,12 @@ namespace SimShift.Dialogs
                 var hg = -heading;
 
                 PointF[] poly = new[]
-                                    {
-                                        new PointF(mX + px + carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), mY + py + carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)),
-                                        new PointF(mX + px - carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), mY + py - carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)),
-                                        new PointF(mX + px - carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), mY + py - carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)),
-                                        new PointF(mX + px + carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), mY + py + carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)),
-                                    };
+                {
+                    new PointF(mX + px + carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), mY + py + carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)),
+                    new PointF(mX + px - carL / 2 * (float) Math.Cos(hg) - carW / 2 * (float) Math.Sin(hg), mY + py - carL / 2 * (float) Math.Sin(hg) + carW / 2 * (float) Math.Cos(hg)),
+                    new PointF(mX + px - carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), mY + py - carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)),
+                    new PointF(mX + px + carL / 2 * (float) Math.Cos(hg) + carW / 2 * (float) Math.Sin(hg), mY + py + carL / 2 * (float) Math.Sin(hg) - carW / 2 * (float) Math.Cos(hg)),
+                };
 
                 foreach (var car in this.data.Cars)
                 {
