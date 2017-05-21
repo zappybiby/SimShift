@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Data;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
@@ -37,15 +37,15 @@ namespace SimShift.Dialogs
 
         public ucDashboard(Color t)
         {
-            transparant = t;
+            this.transparant = t;
 
-            needle = (Bitmap) Image.FromFile(@"..\..\\Resources\Needle_150px.png");
+            this.needle = (Bitmap) Image.FromFile(@"..\..\\Resources\Needle_150px.png");
 
-            this.DoubleClick += new EventHandler(ucDashboard_DoubleClick);
-            InitializeComponent();
-            SetStyle(ControlStyles.UserPaint, true);
-            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-            SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            this.DoubleClick += new EventHandler(this.ucDashboard_DoubleClick);
+            this.InitializeComponent();
+            this.SetStyle(ControlStyles.UserPaint, true);
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -57,7 +57,7 @@ namespace SimShift.Dialogs
             var g = e.Graphics;
             var r = e.ClipRectangle;
 
-            g.FillRectangle(new SolidBrush(transparant), r);
+            g.FillRectangle(new SolidBrush(this.transparant), r);
             g.CompositingQuality = CompositingQuality.HighQuality;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
@@ -67,9 +67,16 @@ namespace SimShift.Dialogs
 
             g.FillEllipse(new SolidBrush(secondaryBackground), new Rectangle(new Point(this.Width - this.Height - 100, 0), new Size(this.Height + 50, this.Height + 50)));
             g.FillRectangle(new SolidBrush(secondaryBackground), this.Width - this.Height / 2 - 60, 0, this.Height / 2 + 60, this.Height);
-            if (Main.Data == null) return;
-            data = Main.Data.Telemetry;
-            if (data == null) return;
+            if (Main.Data == null)
+            {
+                return;
+            }
+
+            this.data = Main.Data.Telemetry;
+            if (this.data == null)
+            {
+                return;
+            }
 
             var speedoCircleStart = 30.0f;
             var speedoCircleEnd = -210.0f;
@@ -83,10 +90,10 @@ namespace SimShift.Dialogs
 
             var anglePerSpeedTick = speedoCircleRange / speedoTicks;
 
-            var angleSpeedo = speedoCircleStart + speedoCircleRange * (data.Speed * 3.6 - speedoMin) / (speedoRange);
+            var angleSpeedo = speedoCircleStart + speedoCircleRange * (this.data.Speed * 3.6 - speedoMin) / speedoRange;
             angleSpeedo -= 270;
             angleSpeedo += speedoRange;
-            var needleSpeedo = RotatePic(needle, (float) angleSpeedo, true);
+            var needleSpeedo = this.RotatePic(this.needle, (float) angleSpeedo, true);
 
             // Draw gauge
             Point ptCenterNeedle = new Point(ptSpeedo.X + szSpeedo.Width / 2 - needleSpeedo.Width / 2, ptSpeedo.Y + szSpeedo.Height / 2 - needleSpeedo.Height / 2);
@@ -132,18 +139,25 @@ namespace SimShift.Dialogs
                     fontSize = 10.0f;
                     lineSize = 5.0f;
                 }
-                if (speed.Length == 3) x3 -= 7;
+
+                if (speed.Length == 3)
+                {
+                    x3 -= 7;
+                }
 
                 g.DrawLine(new Pen(secondaryBackground, lineSize), (float) x1, (float) y1, (float) x2, (float) y2);
 
                 // Choose not to draw 10s speed
-                if (speedo % 20 != 0 && speedoTick == 5) continue;
+                if (speedo % 20 != 0 && speedoTick == 5)
+                {
+                    continue;
+                }
+
                 g.DrawString(speed, new Font("Verdana", fontSize, FontStyle.Bold), Brushes.WhiteSmoke, (float) x3, (float) y3);
             }
 
             // Draw Speedo needle
-
-            double spdNeedleAngle = speedoCircleEnd - speedoCircleRange * (data.Speed * 3.6 - speedoMin) / speedoRange;
+            double spdNeedleAngle = speedoCircleEnd - speedoCircleRange * (this.data.Speed * 3.6 - speedoMin) / speedoRange;
             spdNeedleAngle += 60;
             spdNeedleAngle = spdNeedleAngle / -180 * Math.PI;
             var spdRad1 = radiusSpeedo;
@@ -159,9 +173,7 @@ namespace SimShift.Dialogs
             g.DrawImage(needleSpeedo, ptCenterNeedle);
 
             // Draw RPM
-
             var engineRpmMax = Main.Data.Active.Application == "TestDrive2" ? (float) Main.Drivetrain.MaximumRpm + 1000 : 3000;
-            ;
             var engineRpmMin = 0;
             var engineRpmRange = engineRpmMax - engineRpmMin;
             int engineRpmTick = Main.Data.Active.Application == "TestDrive2" ? 1000 : 250;
@@ -189,10 +201,22 @@ namespace SimShift.Dialogs
                 i++;
                 if (Main.Data.Active.Application == "TestDrive2")
                 {
-                    if (rpm < Main.Drivetrain.StallRpm + 1000) arcColor = Color.Blue;
-                    else if (rpm + 1000 > Main.Drivetrain.MaximumRpm) arcColor = Color.Red;
-                    else if (rpm > Main.Drivetrain.MaximumRpm) arcColor = Color.DarkRed;
-                    else arcColor = Color.White;
+                    if (rpm < Main.Drivetrain.StallRpm + 1000)
+                    {
+                        arcColor = Color.Blue;
+                    }
+                    else if (rpm + 1000 > Main.Drivetrain.MaximumRpm)
+                    {
+                        arcColor = Color.Red;
+                    }
+                    else if (rpm > Main.Drivetrain.MaximumRpm)
+                    {
+                        arcColor = Color.DarkRed;
+                    }
+                    else
+                    {
+                        arcColor = Color.White;
+                    }
                 }
                 else
                 {
@@ -222,6 +246,7 @@ namespace SimShift.Dialogs
                             break;
                     }
                 }
+
                 g.DrawArc(new Pen(arcColor, 4.0f), rtRpm, lastAngle, -anglePerRpmTick);
 
                 lastAngle = s;
@@ -248,12 +273,15 @@ namespace SimShift.Dialogs
 
                 var x3 = radius3 * Math.Cos(a) + ptCenterSpeedo.X - 8;
                 var y3 = radius3 * Math.Sin(a) + ptCenterSpeedo.Y - 8;
-                if (rpm % 500 == 0) g.DrawString((rpm / 100).ToString(), new Font("Verdana", 10.0f, FontStyle.Bold), Brushes.White, (float) x3, (float) y3);
+                if (rpm % 500 == 0)
+                {
+                    g.DrawString((rpm / 100).ToString(), new Font("Verdana", 10.0f, FontStyle.Bold), Brushes.White, (float) x3, (float) y3);
+                }
 
                 g.DrawLine(new Pen(secondaryBackground, (rpm % 500 == 0) ? 3.0f : 2.0f), (float) x1, (float) y1, (float) x2, (float) y2);
             }
 
-            double rpmNeedleAngle = rpmCircleStart + rpmCircleRange * (data.EngineRpm - engineRpmMin) / engineRpmRange;
+            double rpmNeedleAngle = rpmCircleStart + rpmCircleRange * (this.data.EngineRpm - engineRpmMin) / engineRpmRange;
             rpmNeedleAngle += 60;
             rpmNeedleAngle = rpmNeedleAngle / -180 * Math.PI;
             var rpmRad1 = radiusRpmo;
@@ -267,11 +295,10 @@ namespace SimShift.Dialogs
             g.DrawLine(new Pen(Brushes.Orange, 3.0f), (float) rpmNeedlex1, (float) rpmNeedley1, (float) rpmNeedlex2, (float) rpmNeedley2);
 
             // Draw power gauge
-
             var enginePwrMax = (float) Main.Drivetrain.CalculateMaxPower();
             var enginePwrMin = 0;
             var enginePwrRange = enginePwrMax - enginePwrMin;
-            var enginePwrTick = (enginePwrMax / 5);
+            var enginePwrTick = enginePwrMax / 5;
             enginePwrTick = ((int) enginePwrTick / 50) * 50;
             var enginePwrTicks = enginePwrRange / enginePwrTick;
 
@@ -312,13 +339,14 @@ namespace SimShift.Dialogs
                 var x3 = radius3 * Math.Cos(a) + ptCenterSpeedo.X - 8;
                 var y3 = radius3 * Math.Sin(a) + ptCenterSpeedo.Y - 8;
 
-                g.DrawString((pwr).ToString() + "hp", new Font("Verdana", 10.0f, FontStyle.Bold), Brushes.White, (float) x3, (float) y3);
+                g.DrawString(pwr.ToString() + "hp", new Font("Verdana", 10.0f, FontStyle.Bold), Brushes.White, (float) x3, (float) y3);
 
                 g.DrawLine(new Pen(secondaryBackground, (pwr % 500 == 0) ? 3.0f : 2.0f), (float) x1, (float) y1, (float) x2, (float) y2);
             }
 
-            var myPwr = Main.Drivetrain.CalculatePower(data.EngineRpm, Main.GetAxisOut(JoyControls.Throttle));
-            //if (myPwr < 0) myPwr = 0;
+            var myPwr = Main.Drivetrain.CalculatePower(this.data.EngineRpm, Main.GetAxisOut(JoyControls.Throttle));
+
+            // if (myPwr < 0) myPwr = 0;
             double pwrNeedleAngle = pwrCircleStart - pwrCircleRange * (myPwr - enginePwrMin) / enginePwrRange;
             pwrNeedleAngle -= 60;
             pwrNeedleAngle = pwrNeedleAngle / -180 * Math.PI;
@@ -333,9 +361,16 @@ namespace SimShift.Dialogs
             g.DrawLine(new Pen(Brushes.Orange, 3.0f), (float) pwrNeedlex1, (float) pwrNeedley1, (float) pwrNeedlex2, (float) pwrNeedley2);
 
             // Gear
-            var sGear = data.Gear.ToString();
-            if (data.Gear == 0) sGear = "N";
-            if (data.Gear == -1) sGear = "R";
+            var sGear = this.data.Gear.ToString();
+            if (this.data.Gear == 0)
+            {
+                sGear = "N";
+            }
+
+            if (this.data.Gear == -1)
+            {
+                sGear = "R";
+            }
 
             g.DrawString(sGear, new Font("Verdana", 14.0f), Brushes.White, ptCenterSpeedo.X - 10, 10);
 
@@ -349,19 +384,41 @@ namespace SimShift.Dialogs
             g.FillRectangle(new SolidBrush(Color.DarkRed), ptCenterSpeedo.X - 50, this.Height - 30, (float) bWidth, 10);
             g.FillRectangle(new SolidBrush(Color.Aqua), ptCenterSpeedo.X - 50, this.Height - 20, (float) cWidth, 10);
 
-            var literPerHour = Main.Drivetrain.CalculateFuelConsumption(data.EngineRpm, Main.GetAxisOut(JoyControls.Throttle));
-            var kmPerHour = data.Speed * 3.6;
+            var literPerHour = Main.Drivetrain.CalculateFuelConsumption(this.data.EngineRpm, Main.GetAxisOut(JoyControls.Throttle));
+            var kmPerHour = this.data.Speed * 3.6;
             var kmPerLiter = kmPerHour / literPerHour;
 
             var literPer100KmInst = 100 / kmPerLiter;
-            if (literPer100Km < 0) literPer100Km = literPer100KmInst;
-            else literPer100Km = literPer100KmInst;
-            if (literPer100Km > 400) literPer100Km = 400;
-            if (literPer100Km < 0) literPer100Km = 0;
-            if (!double.IsNaN(literPer100Km) && !double.IsInfinity(literPer100Km)) literPer100KmAvg = literPer100KmAvg * 0.9995 + literPer100Km * 0.0005;
-            if (double.IsNaN(literPer100KmAvg) || double.IsInfinity(literPer100KmAvg)) literPer100KmAvg = 0;
+            if (this.literPer100Km < 0)
+            {
+                this.literPer100Km = literPer100KmInst;
+            }
+            else
+            {
+                this.literPer100Km = literPer100KmInst;
+            }
 
-            var ets2 = ((Ets2DataMiner) Main.Data.Active);
+            if (this.literPer100Km > 400)
+            {
+                this.literPer100Km = 400;
+            }
+
+            if (this.literPer100Km < 0)
+            {
+                this.literPer100Km = 0;
+            }
+
+            if (!double.IsNaN(this.literPer100Km) && !double.IsInfinity(this.literPer100Km))
+            {
+                this.literPer100KmAvg = this.literPer100KmAvg * 0.9995 + this.literPer100Km * 0.0005;
+            }
+
+            if (double.IsNaN(this.literPer100KmAvg) || double.IsInfinity(this.literPer100KmAvg))
+            {
+                this.literPer100KmAvg = 0;
+            }
+
+            var ets2 = (Ets2DataMiner) Main.Data.Active;
             var ets2Data = ets2.MyTelemetry;
 
             var citySrc = ets2Data.Job.CitySource;
@@ -376,29 +433,42 @@ namespace SimShift.Dialogs
 
             g.DrawString(literPerHour.ToString("000.00 L/h"), new Font("Verdana", 8.0f), Brushes.DarkOrange, 0, 0);
             g.DrawString(string.Format("1:{0:00.000}km", kmPerLiter), new Font("Verdana", 8.0f), Brushes.DarkOrange, 0, 20);
-            g.DrawString(string.Format("{0:00.000}l/100km", literPer100Km), new Font("Verdana", 8.0f), Brushes.DarkOrange, 0, 40);
-            g.DrawString(string.Format("{0:00.000}l/100km", literPer100KmAvg), new Font("Verdana", 8.0f), Brushes.DarkOrange, 0, 60);
+            g.DrawString(string.Format("{0:00.000}l/100km", this.literPer100Km), new Font("Verdana", 8.0f), Brushes.DarkOrange, 0, 40);
+            g.DrawString(string.Format("{0:00.000}l/100km", this.literPer100KmAvg), new Font("Verdana", 8.0f), Brushes.DarkOrange, 0, 60);
 
-            g.DrawString(string.Format("{0:000.000}Nm", Main.Drivetrain.CalculateTorqueP(data.EngineRpm, data.Throttle)), new Font("Verdana", 8.0f), Brushes.DarkOrange, 0, 80);
-            g.DrawString(string.Format("{0:000.000}Nm", Main.Drivetrain.CalculateTorqueN(data.EngineRpm)), new Font("Verdana", 8.0f), Brushes.DarkOrange, 0, 100);
-            g.DrawString(string.Format("{0:000.000}Nm", Main.Drivetrain.CalculateTorqueP(data.EngineRpm, data.Throttle) + Main.Drivetrain.CalculateTorqueN(data.EngineRpm)), new Font("Verdana", 8.0f), Brushes.DarkOrange, 0, 120);
+            g.DrawString(string.Format("{0:000.000}Nm", Main.Drivetrain.CalculateTorqueP(this.data.EngineRpm, this.data.Throttle)), new Font("Verdana", 8.0f), Brushes.DarkOrange, 0, 80);
+            g.DrawString(string.Format("{0:000.000}Nm", Main.Drivetrain.CalculateTorqueN(this.data.EngineRpm)), new Font("Verdana", 8.0f), Brushes.DarkOrange, 0, 100);
+            g.DrawString(string.Format("{0:000.000}Nm", Main.Drivetrain.CalculateTorqueP(this.data.EngineRpm, this.data.Throttle) + Main.Drivetrain.CalculateTorqueN(this.data.EngineRpm)), new Font("Verdana", 8.0f), Brushes.DarkOrange, 0, 120);
 
             if (!Main.Data.Telemetry.Paused)
             {
                 var scale = 3;
-                var dt = DateTime.Now.Subtract(lastCalc).TotalMilliseconds / 1000.0 * scale;
-                DrivenTime += dt;
-                DrivenFuel += literPerHour * dt / 3600.0;
-                DrivenDistance += Math.Abs(data.Speed * dt);
+                var dt = DateTime.Now.Subtract(this.lastCalc).TotalMilliseconds / 1000.0 * scale;
+                this.DrivenTime += dt;
+                this.DrivenFuel += literPerHour * dt / 3600.0;
+                this.DrivenDistance += Math.Abs(this.data.Speed * dt);
             }
-            if (double.IsNaN(DrivenTime) || double.IsInfinity(DrivenTime)) ucDashboard_DoubleClick(null, null);
-            if (double.IsNaN(DrivenFuel) || double.IsInfinity(DrivenFuel)) ucDashboard_DoubleClick(null, null);
-            if (double.IsNaN(DrivenDistance) || double.IsInfinity(DrivenDistance)) ucDashboard_DoubleClick(null, null);
-            var tripStr = "Trip meter: " + (DrivenTime / 60).ToString("000.0") + "m / " + (DrivenDistance / 1000).ToString("000.00km") + " / " + (DrivenFuel).ToString("000.00L") + "\r\n" + (DrivenFuel / (DrivenDistance / 100000)).ToString("000.00") + "l/100km / 1:" + (DrivenDistance / 1000 / DrivenFuel).ToString("0.00") + "km / " + (DrivenDistance / DrivenTime * 3.6).ToString("000.00kmh");
-            g.DrawString(tripStr, new Font("Verdana", 10.0f), Brushes.White, 80, 0);
-            lastCalc = DateTime.Now;
 
-            //g.DrawString(data.EngineRpm+"rpm", new Font("Arial", 10), Brushes.White, 10, 10 );
+            if (double.IsNaN(this.DrivenTime) || double.IsInfinity(this.DrivenTime))
+            {
+                this.ucDashboard_DoubleClick(null, null);
+            }
+
+            if (double.IsNaN(this.DrivenFuel) || double.IsInfinity(this.DrivenFuel))
+            {
+                this.ucDashboard_DoubleClick(null, null);
+            }
+
+            if (double.IsNaN(this.DrivenDistance) || double.IsInfinity(this.DrivenDistance))
+            {
+                this.ucDashboard_DoubleClick(null, null);
+            }
+
+            var tripStr = "Trip meter: " + (this.DrivenTime / 60).ToString("000.0") + "m / " + (this.DrivenDistance / 1000).ToString("000.00km") + " / " + this.DrivenFuel.ToString("000.00L") + "\r\n" + (this.DrivenFuel / (this.DrivenDistance / 100000)).ToString("000.00") + "l/100km / 1:" + (this.DrivenDistance / 1000 / this.DrivenFuel).ToString("0.00") + "km / " + (this.DrivenDistance / this.DrivenTime * 3.6).ToString("000.00kmh");
+            g.DrawString(tripStr, new Font("Verdana", 10.0f), Brushes.White, 80, 0);
+            this.lastCalc = DateTime.Now;
+
+            // g.DrawString(data.EngineRpm+"rpm", new Font("Arial", 10), Brushes.White, 10, 10 );
 
             // g.DrawString(myPwr + "HP", new Font("Arial", 10), Brushes.White, 10, 40);
         }
@@ -409,7 +479,7 @@ namespace SimShift.Dialogs
             Graphics g = null;
             try
             {
-                //Modus
+                // Modus
                 if (!keepWholeImg)
                 {
                     bmp = new Bitmap(bmpBU.Width, bmpBU.Height);
@@ -417,56 +487,58 @@ namespace SimShift.Dialogs
                     g = Graphics.FromImage(bmp);
                     float hw = bmp.Width / 2f;
                     float hh = bmp.Height / 2f;
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    g.SmoothingMode = SmoothingMode.AntiAlias;
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-                    //translate center
+                    // translate center
                     g.TranslateTransform(hw, hh);
-                    //rotate
+
+                    // rotate
                     g.RotateTransform(w);
-                    //re-translate
+
+                    // re-translate
                     g.TranslateTransform(-hw, -hh);
                     g.DrawImage(bmpBU, 0, 0);
                     g.Dispose();
                 }
                 else
                 {
-                    //get the new size and create the blank bitmap
+                    // get the new size and create the blank bitmap
                     float rad = (float) (w / 180.0 * Math.PI);
-                    double fW = Math.Abs((Math.Cos(rad) * bmpBU.Width)) + Math.Abs((Math.Sin(rad) * bmpBU.Height));
-                    double fH = Math.Abs((Math.Sin(rad) * bmpBU.Width)) + Math.Abs((Math.Cos(rad) * bmpBU.Height));
+                    double fW = Math.Abs(Math.Cos(rad) * bmpBU.Width) + Math.Abs(Math.Sin(rad) * bmpBU.Height);
+                    double fH = Math.Abs(Math.Sin(rad) * bmpBU.Width) + Math.Abs(Math.Cos(rad) * bmpBU.Height);
 
                     bmp = new Bitmap((int) Math.Ceiling(fW), (int) Math.Ceiling(fH));
 
                     g = Graphics.FromImage(bmp);
 
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    g.SmoothingMode = SmoothingMode.AntiAlias;
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
                     float hw = bmp.Width / 2f;
                     float hh = bmp.Height / 2f;
 
-                    System.Drawing.Drawing2D.Matrix m = g.Transform;
+                    Matrix m = g.Transform;
 
-                    //here we do not need to translate, we rotate at the specified point
-                    m.RotateAt(w, new PointF((float) (bmp.Width / 2), (float) (bmp.Height / 2)), System.Drawing.Drawing2D.MatrixOrder.Append);
+                    // here we do not need to translate, we rotate at the specified point
+                    m.RotateAt(w, new PointF((float) (bmp.Width / 2), (float) (bmp.Height / 2)), MatrixOrder.Append);
 
                     g.Transform = m;
 
-                    //draw the rotated image
+                    // draw the rotated image
                     g.DrawImage(bmpBU, new PointF((float) ((bmp.Width - bmpBU.Width) / 2), (float) ((bmp.Height - bmpBU.Height) / 2)));
                     g.Dispose();
                 }
             }
             catch
             {
-                if ((bmp != null))
+                if (bmp != null)
                 {
                     bmp.Dispose();
                     bmp = null;
                 }
 
-                if ((g != null))
+                if (g != null)
                 {
                     g.Dispose();
                 }
@@ -479,9 +551,9 @@ namespace SimShift.Dialogs
 
         private void ucDashboard_DoubleClick(object sender, EventArgs e)
         {
-            DrivenDistance = 0;
-            DrivenFuel = 0;
-            DrivenTime = 0;
+            this.DrivenDistance = 0;
+            this.DrivenFuel = 0;
+            this.DrivenTime = 0;
         }
     }
 }

@@ -9,8 +9,8 @@ namespace SimShift.Entities
         public ConfigurableShiftPattern(string region, string file)
             : this()
         {
-            Region = region;
-            File = file;
+            this.Region = region;
+            this.File = file;
         }
     }
 }

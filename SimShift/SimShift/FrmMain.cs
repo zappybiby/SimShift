@@ -35,48 +35,51 @@ namespace SimShift
             var universalFolder = @"..\..\..\..\..\base\map\" + map + "\\";
             var prefabs = @"..\..\..\..\..\base\prefab\";
             var lutFolder = @"..\..\\Resources\LUT1.19";
-            
+
             Ets2Map = new Ets2Mapper(universalFolder, prefabs, lutFolder);
 
             Ets2Map.Parse();
             Main.SetMap(Ets2Map);
 
             //SimulationEnvironment sim = new SimulationEnvironment();
-            InitializeComponent();
+            this.InitializeComponent();
 
             this.StartPosition = FormStartPosition.Manual;
             this.Location = new Point(0, 0);
 
-            btServiceStartStop_Click(null, null);
+            this.btServiceStartStop_Click(null, null);
 
-            gbCarSelect.Enabled = false;
+            this.gbCarSelect.Enabled = false;
 
-            updateModules = new Timer();
-            updateModules.Interval = 25;
-            updateModules.Tick += updateModules_Tick;
-            updateModules.Start();
+            this.updateModules = new Timer();
+            this.updateModules.Interval = 25;
+            this.updateModules.Tick += this.updateModules_Tick;
+            this.updateModules.Start();
         }
 
         private delegate void voidDelegate();
 
         private void btCarApply_Click(object sender, EventArgs e)
         {
-            Main.Data.ChangeCar((string) cbCars.SelectedItem);
+            Main.Data.ChangeCar((string) this.cbCars.SelectedItem);
         }
 
         private void btClutch_Click(object sender, EventArgs e)
         {
-            if (Main.Antistall == null) return;
+            if (Main.Antistall == null)
+            {
+                return;
+            }
             //Main.Antistall.Enabled = !Main.Antistall.Enabled;
             if (Main.Antistall.Enabled)
             {
                 Main.Antistall.Enabled = false;
-                btClutch.Text = "Manual Clutch";
+                this.btClutch.Text = "Manual Clutch";
             }
             else
             {
                 Main.Antistall.Enabled = true;
-                btClutch.Text = "Auto Clutch";
+                this.btClutch.Text = "Auto Clutch";
             }
         }
 
@@ -84,7 +87,7 @@ namespace SimShift
         {
             if (Main.Running)
             {
-                Main.Data.AppActive -= new EventHandler(Data_AppActive);
+                Main.Data.AppActive -= new EventHandler(this.Data_AppActive);
                 Main.Stop();
             }
             else
@@ -99,9 +102,9 @@ namespace SimShift
                 this.cbSimList.ValueMember = "Name";
                 this.cbSimList.DataSource = Main.Data.Miners;
 
-                UpdateSimulatorStatusLabel();
-                Main.Data.AppActive += new EventHandler(Data_AppActive);
-                Main.Data.CarChanged += new EventHandler(Data_CarChanged);
+                this.UpdateSimulatorStatusLabel();
+                Main.Data.AppActive += new EventHandler(this.Data_AppActive);
+                Main.Data.CarChanged += new EventHandler(this.Data_CarChanged);
 
                 /*Dictionary<double, double> coastDat = new Dictionary<double, double>();
                 Dictionary<double, double> powerDat = new Dictionary<double, double>();
@@ -164,14 +167,14 @@ namespace SimShift
                 if (Main.Data.AutoMode)
                 {
                     Main.Data.ManualSelectApp(Main.Data.Active);
-                    btSimMode.Text = "Manual";
+                    this.btSimMode.Text = "Manual";
                 }
                 else
                 {
                     Main.Data.AutoSelectApp();
-                    btSimMode.Text = "Auto";
+                    this.btSimMode.Text = "Auto";
                 }
-                UpdateSimulatorStatusLabel();
+                this.UpdateSimulatorStatusLabel();
             }
         }
 
@@ -180,12 +183,15 @@ namespace SimShift
             if (Main.Running)
             {
                 // Get the simulator from the miners list
-                var miner = (IDataMiner) cbSimList.SelectedItem;
-                if (miner == null) return;
+                var miner = (IDataMiner) this.cbSimList.SelectedItem;
+                if (miner == null)
+                {
+                    return;
+                }
 
-                btSimMode.Text = "Manual";
+                this.btSimMode.Text = "Manual";
                 Main.Data.ManualSelectApp(miner);
-                UpdateSimulatorStatusLabel();
+                this.UpdateSimulatorStatusLabel();
             }
         }
 
@@ -196,12 +202,12 @@ namespace SimShift
                 if (Main.VariableSpeedControl.Enabled)
                 {
                     Main.VariableSpeedControl.Enabled = false;
-                    btTransmission.Text = "Manual Mode";
+                    this.btTransmission.Text = "Manual Mode";
                 }
                 else
                 {
                     Main.VariableSpeedControl.Enabled = true;
-                    btTransmission.Text = "Auto Mode";
+                    this.btTransmission.Text = "Auto Mode";
                 }
             }
             else
@@ -209,12 +215,12 @@ namespace SimShift
                 if (Main.Transmission.Enabled)
                 {
                     Main.Transmission.Enabled = false;
-                    btTransmission.Text = "Manual Mode";
+                    this.btTransmission.Text = "Manual Mode";
                 }
                 else
                 {
                     Main.Transmission.Enabled = true;
-                    btTransmission.Text = "Auto Mode";
+                    this.btTransmission.Text = "Auto Mode";
                 }
             }
         }
@@ -223,21 +229,24 @@ namespace SimShift
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new EventHandler(CarProfile_LoadedProfile), new object[2] { sender, e });
+                this.Invoke(new EventHandler(this.CarProfile_LoadedProfile), new object[2] { sender, e });
                 return;
             }
-            if (!string.IsNullOrEmpty(Main.CarProfile.Active)) lbProfiles.SelectedItem = Main.CarProfile.Active;
+            if (!string.IsNullOrEmpty(Main.CarProfile.Active))
+            {
+                this.lbProfiles.SelectedItem = Main.CarProfile.Active;
+            }
         }
 
         void Data_AppActive(object sender, EventArgs e)
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new EventHandler(Data_AppActive), new object[2] { sender, e });
+                this.Invoke(new EventHandler(this.Data_AppActive), new object[2] { sender, e });
                 return;
             }
             this.cbSimList.SelectedItem = Main.Data.Active.Name;
-            UpdateSimulatorStatusLabel();
+            this.UpdateSimulatorStatusLabel();
             this.gbCarSelect.Enabled = !Main.Data.Active.SupportsCar;
 
             // Select all drivetrains from this simulator
@@ -255,10 +264,10 @@ namespace SimShift
                 }
             }
 
-            cbCars.Items.Clear();
+            this.cbCars.Items.Clear();
             foreach (var c in myCars)
             {
-                cbCars.Items.Add(c);
+                this.cbCars.Items.Add(c);
             }
         }
 
@@ -266,20 +275,23 @@ namespace SimShift
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new EventHandler(Data_CarChanged), new object[2] { sender, e });
+                this.Invoke(new EventHandler(this.Data_CarChanged), new object[2] { sender, e });
                 return;
             }
             var car = Main.Drivetrain.File;
-            lblCars.Text = car;
+            this.lblCars.Text = car;
 
-            lbProfiles.Items.Clear();
+            this.lbProfiles.Items.Clear();
             foreach (var profile in Main.CarProfile.Loaded)
             {
-                lbProfiles.Items.Add(profile.Name);
+                this.lbProfiles.Items.Add(profile.Name);
             }
-            if (!string.IsNullOrEmpty(Main.CarProfile.Active)) lbProfiles.SelectedItem = Main.CarProfile.Active;
+            if (!string.IsNullOrEmpty(Main.CarProfile.Active))
+            {
+                this.lbProfiles.SelectedItem = Main.CarProfile.Active;
+            }
 
-            Main.CarProfile.LoadedProfile += new EventHandler(CarProfile_LoadedProfile);
+            Main.CarProfile.LoadedProfile += new EventHandler(this.CarProfile_LoadedProfile);
         }
 
         private void euroTruckSimulator2ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -335,8 +347,11 @@ namespace SimShift
 
         void updateModules_Tick(object sender, EventArgs e)
         {
-            if (!Main.Running) return;
-            var pane = gbModulesPane;
+            if (!Main.Running)
+            {
+                return;
+            }
+            var pane = this.gbModulesPane;
 
             var controlsChanged = false;
             var mods = Main.Controls.Chain;
@@ -349,7 +364,10 @@ namespace SimShift
 
             foreach (var mod in mods)
             {
-                if (mod == null) continue;
+                if (mod == null)
+                {
+                    continue;
+                }
                 var name = mod.GetType().Name;
                 if (mod.Enabled == false)
                 {
@@ -361,7 +379,7 @@ namespace SimShift
                         pane.Controls.RemoveByKey("thrRel0" + name);
                         pane.Controls.RemoveByKey("thrRel1" + name);
                         pane.Controls.RemoveByKey("cltAbs" + name);
-                        loadedIcon.Remove(name);
+                        this.loadedIcon.Remove(name);
                         controlsChanged = true;
                     }
                     continue;
@@ -409,16 +427,16 @@ namespace SimShift
 
                     pane.Controls.Add(cltAbs);
 
-                    loadedIcon.Add(name, "");
+                    this.loadedIcon.Add(name, "");
                 }
                 else
                 {
                     var pb = pane.Controls["pb" + name];
 
                     var iconFile = "Icons/" + name + ((mod.Active) ? "_active" : "") + ".png";
-                    if (File.Exists(iconFile) && loadedIcon[name] != iconFile)
+                    if (File.Exists(iconFile) && this.loadedIcon[name] != iconFile)
                     {
-                        loadedIcon[name] = iconFile;
+                        this.loadedIcon[name] = iconFile;
                         pb.BackgroundImage = Image.FromFile(iconFile);
                     }
 
@@ -434,9 +452,18 @@ namespace SimShift
 
                     var thrRelDbl = throttleOut - throttleIn;
 
-                    if (double.IsNaN(thrRelDbl) || double.IsInfinity(thrRelDbl)) thrRelDbl = 0;
-                    if (thrRelDbl < -1) thrRelDbl = -1;
-                    if (thrRelDbl > 1) thrRelDbl = 1;
+                    if (double.IsNaN(thrRelDbl) || double.IsInfinity(thrRelDbl))
+                    {
+                        thrRelDbl = 0;
+                    }
+                    if (thrRelDbl < -1)
+                    {
+                        thrRelDbl = -1;
+                    }
+                    if (thrRelDbl > 1)
+                    {
+                        thrRelDbl = 1;
+                    }
 
                     var thrRel0W = thrRelDbl > 0 ? 1 : (int) ((0 - thrRelDbl) * 50);
                     var thrRel1W = thrRelDbl < 0 ? 1 : (int) (thrRelDbl * 50);
@@ -456,13 +483,34 @@ namespace SimShift
                 }
 
                 var l = pane.Controls["name" + name];
-                if (mod.Active) l.ForeColor = Color.Aqua;
-                else l.ForeColor = Color.White;
-                if (typeof(TransmissionCalibrator) == mod.GetType()) l.Text = "TC " + Math.Round(Main.TransmissionCalibrator.err, 1) + "|" + (Main.TransmissionCalibrator.State.ToString());
-                if (typeof(Speedlimiter) == mod.GetType()) l.Text = "SpeedLimit " + (Main.Speedlimiter.SpeedLimit);
-                if (typeof(ACC) == mod.GetType()) l.Text = "ACC " + Math.Round(3.6 * Main.ACC.SpeedCruise);
-                if (typeof(CruiseControl) == mod.GetType()) l.Text = "CruiseControl " + Math.Round(3.6 * Main.CruiseControl.SpeedCruise);
-                if (typeof(VariableSpeedTransmission) == mod.GetType()) l.Text = "VST " + Math.Round(Main.VariableSpeedControl.SetSpeed);
+                if (mod.Active)
+                {
+                    l.ForeColor = Color.Aqua;
+                }
+                else
+                {
+                    l.ForeColor = Color.White;
+                }
+                if (typeof(TransmissionCalibrator) == mod.GetType())
+                {
+                    l.Text = "TC " + Math.Round(Main.TransmissionCalibrator.err, 1) + "|" + (Main.TransmissionCalibrator.State.ToString());
+                }
+                if (typeof(Speedlimiter) == mod.GetType())
+                {
+                    l.Text = "SpeedLimit " + (Main.Speedlimiter.SpeedLimit);
+                }
+                if (typeof(ACC) == mod.GetType())
+                {
+                    l.Text = "ACC " + Math.Round(3.6 * Main.ACC.SpeedCruise);
+                }
+                if (typeof(CruiseControl) == mod.GetType())
+                {
+                    l.Text = "CruiseControl " + Math.Round(3.6 * Main.CruiseControl.SpeedCruise);
+                }
+                if (typeof(VariableSpeedTransmission) == mod.GetType())
+                {
+                    l.Text = "VST " + Math.Round(Main.VariableSpeedControl.SetSpeed);
+                }
             }
 
             if (controlsChanged)
@@ -499,10 +547,10 @@ namespace SimShift
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new voidDelegate(UpdateSimulatorStatusLabel), new object[0]);
+                this.Invoke(new voidDelegate(this.UpdateSimulatorStatusLabel), new object[0]);
                 return;
             }
-            lbSimStatus.Text = (Main.Data.AutoMode ? "Automatic Select" : "Manual Select") + "\nSimulator: " + (Main.Data.Active != null ? Main.Data.Active.Name : "None");
+            this.lbSimStatus.Text = (Main.Data.AutoMode ? "Automatic Select" : "Manual Select") + "\nSimulator: " + (Main.Data.Active != null ? Main.Data.Active.Name : "None");
         }
     }
 }

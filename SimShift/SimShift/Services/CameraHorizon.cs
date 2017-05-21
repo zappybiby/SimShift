@@ -8,40 +8,22 @@ using SimShift.Entities;
 namespace SimShift.Services
 {
     /// <summary>
-    /// This is an budget TrackIR feature for TDU2, designed to look side-ways when a look-around stick is moved.
-    /// The look side-ways auto centers. Control of camera angle is done with ProcessMemoryWrite access.
+    ///     This is an budget TrackIR feature for TDU2, designed to look side-ways when a look-around stick is moved.
+    ///     The look side-ways auto centers. Control of camera angle is done with ProcessMemoryWrite access.
     /// </summary>
     public class CameraHorizon : IControlChainObj
     {
         public double CameraAngle = 0;
 
-        public bool Active
-        {
-            get
-            {
-                return Math.Abs(CameraAngle) > 0.05;
-            }
-        }
+        public bool Active => Math.Abs(this.CameraAngle) > 0.05;
 
         public bool CameraHackEnabled { get; set; }
 
         public bool Enabled { get; private set; }
 
-        public IEnumerable<string> SimulatorsBan
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsBan => new string[0];
 
-        public IEnumerable<string> SimulatorsOnly
-        {
-            get
-            {
-                return new String[] { "TestDrive2" };
-            }
-        }
+        public IEnumerable<string> SimulatorsOnly => new[] { "TestDrive2" };
 
         public double GetAxis(JoyControls c, double val)
         {
@@ -65,7 +47,7 @@ namespace SimShift.Services
 
         public void TickControls()
         {
-            CameraAngle = Main.GetAxisIn(JoyControls.CameraHorizon) * 0.1 + CameraAngle * 0.9;
+            this.CameraAngle = Main.GetAxisIn(JoyControls.CameraHorizon) * 0.1 + this.CameraAngle * 0.9;
         }
 
         public void TickTelemetry(IDataMiner data)
@@ -73,20 +55,21 @@ namespace SimShift.Services
             // TODO: Only supports TDU2.
             if (Main.Data.Active.Application != "TestDrive2")
             {
-                Enabled = false;
+                this.Enabled = false;
                 return;
             }
             else
             {
-                Enabled = true;
+                this.Enabled = true;
             }
-            if (CameraHackEnabled)
+
+            if (this.CameraHackEnabled)
             {
-                data.Write(TelemetryChannel.CameraHorizon, (float) (CameraAngle * CameraAngle * CameraAngle * -25));
+                data.Write(TelemetryChannel.CameraHorizon, (float) (this.CameraAngle * this.CameraAngle * this.CameraAngle * -25));
             }
-            else if (CameraAngle != 0)
+            else if (this.CameraAngle != 0)
             {
-                CameraAngle = 0;
+                this.CameraAngle = 0;
                 data.Write(TelemetryChannel.CameraHorizon, 0.0f);
             }
         }

@@ -27,27 +27,29 @@ namespace SimShift.Dialogs
         {
             var myEngine = new Ets2Drivetrain();
             Main.Load(myEngine, "Settings/Drivetrain/eurotrucks2.iveco.hiway.ini");
-            activeConfiguration = Main.Running ? Main.Transmission.configuration : new ShifterTableConfiguration(ShifterTableConfigurationDefault.Efficiency, myEngine, 19, 25000);
+            this.activeConfiguration = Main.Running ? Main.Transmission.configuration : new ShifterTableConfiguration(ShifterTableConfigurationDefault.Efficiency, myEngine, 19, 25000);
 
             string headline = "RPM";
             for (int k = 0; k <= 10; k++)
             {
                 headline = headline + ",Ratio " + k;
             }
-            //",Fuel " + k + ",Power " + k +
+
+            // ",Fuel " + k + ",Power " + k +
             headline = headline + "\r\n";
 
             List<string> fuelStats = new List<string>();
             for (float rpm = 0; rpm < 2500; rpm += 100)
             {
-                string l = rpm + "";
+                string l = rpm + string.Empty;
                 for (int load = 0; load <= 10; load++)
                 {
                     float throttle = load / 20.0f;
-                    var fuelConsumption = activeConfiguration.Drivetrain.CalculateFuelConsumption(rpm, throttle);
-                    var power = activeConfiguration.Drivetrain.CalculatePower(rpm, throttle);
+                    var fuelConsumption = this.activeConfiguration.Drivetrain.CalculateFuelConsumption(rpm, throttle);
+                    var power = this.activeConfiguration.Drivetrain.CalculatePower(rpm, throttle);
                     var fuel2 = (power / fuelConsumption) / rpm;
-                    //"," + fuelConsumption + "," + power + 
+
+                    // "," + fuelConsumption + "," + power + 
                     l = l + "," + fuel2;
                 }
 
@@ -56,25 +58,23 @@ namespace SimShift.Dialogs
 
             File.WriteAllText("./fuelstats.csv", headline + string.Join("\r\n", fuelStats));
 
-            // 
             // sim
-            // 
             this.sim = new ucGearboxShifterGraph(this.activeConfiguration);
-            this.sim.Location = new System.Drawing.Point(12, 283);
+            this.sim.Location = new Point(12, 283);
             this.sim.Name = "sim";
-            this.sim.Size = new System.Drawing.Size(854, 224);
+            this.sim.Size = new Size(854, 224);
             this.sim.TabIndex = 2;
             this.Controls.Add(this.sim);
 
-            SizeChanged += new EventHandler(dlGearboxShifterTable_SizeChanged);
+            this.SizeChanged += new EventHandler(this.dlGearboxShifterTable_SizeChanged);
 
-            InitializeComponent();
-            LoadTable();
+            this.InitializeComponent();
+            this.LoadTable();
 
-            shifterTable.SelectionChanged += new EventHandler(shifterTable_SelectionChanged);
-            dataGridOverheadR = this.Width - this.shifterTable.Width;
-            dataGridOverheadB = this.sim.Location.Y - shifterTable.Location.Y - shifterTable.Height;
-            simGraphOverheadB = this.Height - this.sim.Height;
+            this.shifterTable.SelectionChanged += new EventHandler(this.shifterTable_SelectionChanged);
+            this.dataGridOverheadR = this.Width - this.shifterTable.Width;
+            this.dataGridOverheadB = this.sim.Location.Y - this.shifterTable.Location.Y - this.shifterTable.Height;
+            this.simGraphOverheadB = this.Height - this.sim.Height;
         }
 
         // Given H,S,L in range of 0-1
@@ -138,62 +138,70 @@ namespace SimShift.Dialogs
                         break;
                 }
             }
+
             Color rgb = Color.FromArgb(Convert.ToByte(r * 255.0f), Convert.ToByte(g * 255.0f), Convert.ToByte(b * 255.0f));
             return rgb;
         }
 
         void dlGearboxShifterTable_SizeChanged(object sender, EventArgs e)
         {
-            this.sim.Location = new Point(sim.Location.X, this.Height - simGraphOverheadB);
-            this.sim.Size = new Size(this.Width - dataGridOverheadR, sim.Height);
-            this.shifterTable.Size = new Size(this.Width - dataGridOverheadR, sim.Location.Y - shifterTable.Location.Y - dataGridOverheadB);
+            this.sim.Location = new Point(this.sim.Location.X, this.Height - this.simGraphOverheadB);
+            this.sim.Size = new Size(this.Width - this.dataGridOverheadR, this.sim.Height);
+            this.shifterTable.Size = new Size(this.Width - this.dataGridOverheadR, this.sim.Location.Y - this.shifterTable.Location.Y - this.dataGridOverheadB);
         }
 
         private void LoadTable()
         {
-            shifterTable.Rows.Clear();
-            shifterTable.Columns.Clear();
+            this.shifterTable.Rows.Clear();
+            this.shifterTable.Columns.Clear();
 
-            shifterTable.Columns.Add("Load", "Load");
+            this.shifterTable.Columns.Add("Load", "Load");
 
             List<Color> gearColors = new List<Color>();
             gearColors.Add(Color.White);
-            for (int gear = 0; gear < activeConfiguration.Drivetrain.Gears; gear++)
+            for (int gear = 0; gear < this.activeConfiguration.Drivetrain.Gears; gear++)
             {
-                gearColors.Add(HSL2RGB(gear / 1.0 / activeConfiguration.Drivetrain.Gears, 0.5, 0.5));
+                gearColors.Add(HSL2RGB(gear / 1.0 / this.activeConfiguration.Drivetrain.Gears, 0.5, 0.5));
             }
 
             var spdBins = 0;
             var spdBinsData = new List<double>();
-            foreach (var spd in activeConfiguration.tableThrottle.Keys)
+            foreach (var spd in this.activeConfiguration.tableThrottle.Keys)
             {
                 if (spd % 3 == 0)
                 {
-                    shifterTable.Columns.Add(spd.ToString(), spd.ToString());
+                    this.shifterTable.Columns.Add(spd.ToString(), spd.ToString());
 
                     spdBinsData.Add(spd);
                     spdBins++;
                 }
             }
-            foreach (var load in activeConfiguration.tableThrottle[0].Keys)
+
+            foreach (var load in this.activeConfiguration.tableThrottle[0].Keys)
             {
                 var data = new object[spdBins + 1];
                 data[0] = Math.Round(load * 100).ToString();
                 for (int i = 0; i < spdBins; i++)
                 {
-                    data[i + 1] = activeConfiguration.Lookup(spdBinsData[i], load).Gear;
+                    data[i + 1] = this.activeConfiguration.Lookup(spdBinsData[i], load).Gear;
                 }
-                shifterTable.Rows.Add(data);
+
+                this.shifterTable.Rows.Add(data);
             }
-            for (int col = 0; col < shifterTable.Columns.Count; col++)
+
+            for (int col = 0; col < this.shifterTable.Columns.Count; col++)
             {
-                shifterTable.Columns[col].Width = 33;
+                this.shifterTable.Columns[col].Width = 33;
             }
-            for (int row = 0; row < shifterTable.Rows.Count; row++)
+
+            for (int row = 0; row < this.shifterTable.Rows.Count; row++)
             {
                 for (int spd = 1; spd <= spdBins; spd++)
                 {
-                    if (shifterTable.Rows[row].Cells[spd].Value != null) shifterTable.Rows[row].Cells[spd].Style.BackColor = gearColors[int.Parse(shifterTable.Rows[row].Cells[spd].Value.ToString())];
+                    if (this.shifterTable.Rows[row].Cells[spd].Value != null)
+                    {
+                        this.shifterTable.Rows[row].Cells[spd].Style.BackColor = gearColors[int.Parse(this.shifterTable.Rows[row].Cells[spd].Value.ToString())];
+                    }
                 }
             }
         }
@@ -203,13 +211,14 @@ namespace SimShift.Dialogs
             try
             {
                 // Get which rows are selected.
-                int sel = shifterTable.SelectedCells.Count;
+                int sel = this.shifterTable.SelectedCells.Count;
                 List<double> loads = new List<double>();
                 for (int i = 0; i < sel; i++)
                 {
-                    loads.Add(double.Parse(shifterTable.SelectedCells[i].Value.ToString()));
+                    loads.Add(double.Parse(this.shifterTable.SelectedCells[i].Value.ToString()));
                 }
-                sim.Update(loads);
+
+                this.sim.Update(loads);
             }
             catch (Exception aad)
             { }

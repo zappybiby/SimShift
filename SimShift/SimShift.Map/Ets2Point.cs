@@ -15,30 +15,34 @@ namespace SimShift.MapTool
 
         public Ets2Point(float x, float y, float z, float heading)
         {
-            X = x;
-            Y = y;
-            Z = z;
-            Heading = heading;
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+            this.Heading = heading;
         }
 
         public Ets2Point(PointF fr)
         {
-            X = fr.X;
-            Y = 0;
-            Z = fr.Y;
-            Heading = 0;
+            this.X = fr.X;
+            this.Y = 0;
+            this.Z = fr.Y;
+            this.Heading = 0;
         }
 
         public bool CloseTo(Ets2Point pt)
         {
-            return DistanceTo(pt) <= 2f;
+            return this.DistanceTo(pt) <= 2f;
         }
 
         public float DistanceTo(Ets2Point pt)
         {
-            if (pt == null) return float.MaxValue;
-            var dx = pt.X - X;
-            var dy = pt.Z - Z;
+            if (pt == null)
+            {
+                return float.MaxValue;
+            }
+
+            var dx = pt.X - this.X;
+            var dy = pt.Z - this.Z;
 
             var dst = (float) Math.Sqrt(dx * dx + dy * dy);
 
@@ -47,12 +51,12 @@ namespace SimShift.MapTool
 
         public PointF ToPoint()
         {
-            return new PointF(X, Z);
+            return new PointF(this.X, this.Z);
         }
 
         public override string ToString()
         {
-            return "P " + Math.Round(X, 2) + "," + Math.Round(Z, 2) + " / " + Math.Round(Heading / Math.PI * 180, 1) + "deg (" + Math.Round(Heading, 3) + ")";
+            return "P " + Math.Round(this.X, 2) + "," + Math.Round(this.Z, 2) + " / " + Math.Round(this.Heading / Math.PI * 180, 1) + "deg (" + Math.Round(this.Heading, 3) + ")";
         }
     }
 }

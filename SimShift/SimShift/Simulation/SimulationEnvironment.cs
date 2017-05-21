@@ -21,16 +21,16 @@ namespace SimShift.Simulation
 
         public SimulationEnvironment()
         {
-            drivetrain = new Ets2Drivetrain();
-            Main.Load(drivetrain, "Settings/Drivetrain/eurotrucks2.scania.g7ld6x2.ini");
-            shifter = new ShifterTableConfiguration(ShifterTableConfigurationDefault.Performance, drivetrain, 1, 0);
+            this.drivetrain = new Ets2Drivetrain();
+            Main.Load(this.drivetrain, "Settings/Drivetrain/eurotrucks2.scania.g7ld6x2.ini");
+            this.shifter = new ShifterTableConfiguration(ShifterTableConfigurationDefault.Performance, this.drivetrain, 1, 0);
 
-            Speed = 30 / 3.6;
+            this.Speed = 30 / 3.6;
             StringBuilder sim = new StringBuilder();
             for (int k = 0; k < 10000; k++)
             {
-                Tick();
-                sim.AppendLine(k + "," + Speed);
+                this.Tick();
+                sim.AppendLine(k + "," + this.Speed);
             }
 
             File.WriteAllText("./sim.csv", sim.ToString());
@@ -39,16 +39,16 @@ namespace SimShift.Simulation
         public void Tick()
         {
             // Model : engine
-            var topGear = drivetrain.Gears - 1;
-            var engineRpm = drivetrain.CalculateRpmForSpeed(topGear, (float) Speed);
-            var enginePower = drivetrain.CalculatePower(engineRpm, 1.0f);
+            var topGear = this.drivetrain.Gears - 1;
+            var engineRpm = this.drivetrain.CalculateRpmForSpeed(topGear, (float) this.Speed);
+            var enginePower = this.drivetrain.CalculatePower(engineRpm, 1.0f);
 
             // Model: aero
-            var aero = Speed * Speed * 0.5;
+            var aero = this.Speed * this.Speed * 0.5;
 
             var acceleration = enginePower - aero;
             acceleration /= 100;
-            Speed += acceleration * 1.0 / 100;
+            this.Speed += acceleration * 1.0 / 100;
         }
     }
 }

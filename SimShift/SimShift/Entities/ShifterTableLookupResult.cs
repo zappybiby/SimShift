@@ -4,10 +4,10 @@ namespace SimShift.Entities
     {
         public ShifterTableLookupResult(int gear, double thrScale, double usedSpeed, double usedLoad)
         {
-            Gear = gear;
-            ThrottleScale = thrScale;
-            UsedSpeed = usedSpeed;
-            UsedLoad = usedLoad;
+            this.Gear = gear;
+            this.ThrottleScale = thrScale;
+            this.UsedSpeed = usedSpeed;
+            this.UsedLoad = usedLoad;
         }
 
         public int Gear { get; private set; }

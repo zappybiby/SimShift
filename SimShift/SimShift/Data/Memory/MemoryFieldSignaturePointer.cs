@@ -4,16 +4,16 @@
     {
         public MemoryFieldSignaturePointer(string signature, bool additive)
         {
-            Signature = signature;
-            Additive = additive;
-            MarkDirty();
+            this.Signature = signature;
+            this.Additive = additive;
+            this.MarkDirty();
         }
 
         public MemoryFieldSignaturePointer(int offset, bool additive)
         {
-            Offset = offset;
-            Additive = additive;
-            IsDirty = false;
+            this.Offset = offset;
+            this.Additive = additive;
+            this.IsDirty = false;
         }
 
         public bool Additive { get; private set; }
@@ -26,15 +26,15 @@
 
         public void MarkDirty()
         {
-            IsDirty = true;
+            this.IsDirty = true;
         }
 
         public void Refresh(MemoryProvider master)
         {
-            if (IsDirty && master.Scanner.Enabled && Signature != string.Empty)
+            if (this.IsDirty && master.Scanner.Enabled && this.Signature != string.Empty)
             {
-                Offset = master.Scanner.Scan<int>(MemoryRegionType.EXECUTE, Signature);
-                IsDirty = false;
+                this.Offset = master.Scanner.Scan<int>(MemoryRegionType.EXECUTE, this.Signature);
+                this.IsDirty = false;
             }
         }
     }

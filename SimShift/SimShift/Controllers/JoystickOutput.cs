@@ -17,18 +17,18 @@ namespace SimShift.Controllers
         public JoystickOutput()
         {
             int id = 1;
-            ID = (uint) id;
-            joy = initVjoy(ID);
+            this.ID = (uint) id;
+            this.joy = this.initVjoy(this.ID);
         }
 
         public void SetAxis(HID_USAGES axisId, double v)
         {
-            joy.SetAxis((int) (v * Math.Pow(2, 16)), ID, axisId);
+            this.joy.SetAxis((int) (v * Math.Pow(2, 16)), this.ID, axisId);
         }
 
         public void SetButton(int btnId, bool v)
         {
-            joy.SetBtn(v, ID, (uint) btnId);
+            this.joy.SetBtn(v, this.ID, (uint) btnId);
         }
 
         private vJoy initVjoy(uint id)
@@ -57,7 +57,11 @@ namespace SimShift.Controllers
                     return joystick;
             }
             bool AxisX = joystick.GetVJDAxisExist(id, HID_USAGES.HID_USAGE_X);
-            if (joystick.AcquireVJD(id) == false) MessageBox.Show("Could not acquire vJoy " + id);
+            if (joystick.AcquireVJD(id) == false)
+            {
+                MessageBox.Show("Could not acquire vJoy " + id);
+            }
+
             Console.WriteLine(AxisX);
             return joystick;
         }

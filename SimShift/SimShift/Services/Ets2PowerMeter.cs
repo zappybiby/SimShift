@@ -23,7 +23,7 @@ namespace SimShift.Services
     }
 
     /// <summary>
-    ///  Estimates power level of engine by revving up
+    ///     Estimates power level of engine by revving up
     /// </summary>
     class Ets2PowerMeter : IControlChainObj
     {
@@ -49,34 +49,38 @@ namespace SimShift.Services
 
         public bool Enabled { get; private set; }
 
-        public IEnumerable<string> SimulatorsBan
-        {
-            get
-            {
-                return new string[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsBan => new string[0];
 
-        public IEnumerable<string> SimulatorsOnly
-        {
-            get
-            {
-                return new string[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsOnly => new string[0];
 
         public double GetAxis(JoyControls c, double val)
         {
             switch (c)
             {
                 case JoyControls.Throttle:
-                    if (!Active) return val;
-                    else if (State == PowerMeterState.Prearm) return preArmThr;
-                    else if (State == PowerMeterState.Revup) return 1;
-                    else if (State == PowerMeterState.Revdown) return 0;
-                    else return val;
+                    if (!this.Active)
+                    {
+                        return val;
+                    }
+                    else if (this.State == PowerMeterState.Prearm)
+                    {
+                        return this.preArmThr;
+                    }
+                    else if (this.State == PowerMeterState.Revup)
+                    {
+                        return 1;
+                    }
+                    else if (this.State == PowerMeterState.Revdown)
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        return val;
+                    }
+
                     break;
-                case JoyControls.Clutch: return Active ? 1 : val;
+                case JoyControls.Clutch: return this.Active ? 1 : val;
 
                 default: return val;
             }
@@ -89,7 +93,7 @@ namespace SimShift.Services
 
         public bool Requires(JoyControls c)
         {
-            return (c == JoyControls.Clutch || c == JoyControls.Throttle);
+            return c == JoyControls.Clutch || c == JoyControls.Throttle;
         }
 
         public void TickControls()
@@ -97,79 +101,92 @@ namespace SimShift.Services
 
         public void TickTelemetry(IDataMiner data)
         {
-            Enabled = true;
-            switch (State)
+            this.Enabled = true;
+            switch (this.State)
             {
                 case PowerMeterState.Idle:
                     if (Main.GetButtonIn(JoyControls.MeasurePower) && false)
                     {
-                        integralRevver = 0;
-                        State = PowerMeterState.Prearm;
+                        this.integralRevver = 0;
+                        this.State = PowerMeterState.Prearm;
                         this.Active = true;
                     }
                     else
                     {
                         this.Active = false;
                     }
+
                     break;
 
                 case PowerMeterState.Prearm:
-                    preArmThr = (1000 - data.Telemetry.EngineRpm) / 1500;
+                    this.preArmThr = (1000 - data.Telemetry.EngineRpm) / 1500;
                     if (Math.Abs(data.Telemetry.EngineRpm - 1000) < 100)
                     {
-                        integralRevver += (1000 - data.Telemetry.EngineRpm) / 750000.0f;
+                        this.integralRevver += (1000 - data.Telemetry.EngineRpm) / 750000.0f;
                     }
                     else
                     {
-                        integralRevver = 0;
+                        this.integralRevver = 0;
                     }
-                    preArmThr += integralRevver;
 
-                    if (preArmThr > 0.7f) preArmThr = 0.7f;
-                    if (preArmThr < 0) preArmThr = 0;
+                    this.preArmThr += this.integralRevver;
+
+                    if (this.preArmThr > 0.7f)
+                    {
+                        this.preArmThr = 0.7f;
+                    }
+
+                    if (this.preArmThr < 0)
+                    {
+                        this.preArmThr = 0;
+                    }
 
                     if (Math.Abs(data.Telemetry.EngineRpm - 1000) < 5)
                     {
-                        prearmSettler++;
-                        if (prearmSettler > 200)
+                        this.prearmSettler++;
+                        if (this.prearmSettler > 200)
                         {
-                            startRevup = DateTime.Now;
-                            State = PowerMeterState.Revup;
+                            this.startRevup = DateTime.Now;
+                            this.State = PowerMeterState.Revup;
                         }
                     }
                     else
                     {
-                        prearmSettler = 0;
+                        this.prearmSettler = 0;
                     }
+
                     break;
 
                 case PowerMeterState.Revup:
                     if (data.Telemetry.EngineRpm >= 2000)
                     {
-                        endRevup = DateTime.Now;
-                        startRevdown = DateTime.Now;
-                        State = PowerMeterState.Revdown;
-                        revdownRpm = data.Telemetry.EngineRpm;
+                        this.endRevup = DateTime.Now;
+                        this.startRevdown = DateTime.Now;
+                        this.State = PowerMeterState.Revdown;
+                        this.revdownRpm = data.Telemetry.EngineRpm;
                     }
+
                     break;
 
                 case PowerMeterState.Revdown:
                     if (data.Telemetry.EngineRpm <= 1000)
                     {
-                        endRevdown = DateTime.Now;
-                        State = PowerMeterState.Cooldown;
-                        var fallTime = endRevdown.Subtract(startRevdown).TotalMilliseconds / 1000.0;
-                        var fallRpm = revdownRpm - data.Telemetry.EngineRpm;
-                        Console.WriteLine("Rev up: " + (endRevup.Subtract(startRevup).TotalMilliseconds) + "ms, rev down: " + (fallTime) + "ms (" + (fallRpm / fallTime) + "rpm/s");
+                        this.endRevdown = DateTime.Now;
+                        this.State = PowerMeterState.Cooldown;
+                        var fallTime = this.endRevdown.Subtract(this.startRevdown).TotalMilliseconds / 1000.0;
+                        var fallRpm = this.revdownRpm - data.Telemetry.EngineRpm;
+                        Console.WriteLine("Rev up: " + this.endRevup.Subtract(this.startRevup).TotalMilliseconds + "ms, rev down: " + fallTime + "ms (" + (fallRpm / fallTime) + "rpm/s");
                     }
+
                     break;
 
                 case PowerMeterState.Cooldown:
-                    Active = false;
+                    this.Active = false;
                     if (data.Telemetry.EngineRpm < 700)
                     {
-                        State = PowerMeterState.Idle;
+                        this.State = PowerMeterState.Idle;
                     }
+
                     break;
             }
         }

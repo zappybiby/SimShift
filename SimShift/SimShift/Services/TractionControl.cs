@@ -14,9 +14,10 @@ using SimShift.Utils;
 namespace SimShift.Services
 {
     /// <summary>
-    /// Traction Control limits the wheel slip via open-loop control by reducing throttle when a slip % exceeds predetermined offset.
-    /// The aggressiveness is adjusted by slope.
-    /// Optionally a rattling sound can be played to alert the driver TC is overriding control.
+    ///     Traction Control limits the wheel slip via open-loop control by reducing throttle when a slip % exceeds
+    ///     predetermined offset.
+    ///     The aggressiveness is adjusted by slope.
+    ///     Optionally a rattling sound can be played to alert the driver TC is overriding control.
     /// </summary>
     public class TractionControl : IControlChainObj, IConfigurable
     {
@@ -24,78 +25,43 @@ namespace SimShift.Services
 
         private double lastThrottle = 0;
 
-        //
         private SoundPlayer tcSound;
 
         public TractionControl()
         {
-            tcSound = new SoundPlayer(@"..\..\\Resources\tractioncontrol.wav");
-            //setVolume(0);
-            SoundStopped = true;
-            lastThrottle = 1;
-            //setVolume(1);
+            this.tcSound = new SoundPlayer(@"..\..\\Resources\tractioncontrol.wav");
+
+            // setVolume(0);
+            this.SoundStopped = true;
+            this.lastThrottle = 1;
+
+            // setVolume(1);
             var updateSound = new Timer { Enabled = true, Interval = 10 };
             updateSound.Elapsed += (sender, args) =>
                 {
-                    //if (Main.Transmission.IsShifting || Antistall.Stalling || !Slipping) setVolume(0);
-                    //else setVolume(1 - lastThrottle);
+                    // if (Main.Transmission.IsShifting || Antistall.Stalling || !Slipping) setVolume(0);
+                    // else setVolume(1 - lastThrottle);
                 };
             updateSound.Start();
         }
 
-        public IEnumerable<string> AcceptsConfigs
-        {
-            get
-            {
-                return new string[] { "TractionControl" };
-            }
-        }
+        public IEnumerable<string> AcceptsConfigs => new[] { "TractionControl" };
 
-        public bool Active
-        {
-            get
-            {
-                return Slipping;
-            }
-        }
+        public bool Active => this.Slipping;
 
         public double AllowedSlip { get; private set; }
 
-        public bool CanPauseTrack
-        {
-            get
-            {
-                return DateTime.Now > lastPlay;
-            }
-        }
+        public bool CanPauseTrack => DateTime.Now > this.lastPlay;
 
-        public bool Enabled
-        {
-            get
-            {
-                return AllowedSlip < 30;
-            }
-        }
+        public bool Enabled => this.AllowedSlip < 30;
 
         public double EngineSpeed { get; private set; }
 
         public string File { get; set; }
 
-        public IEnumerable<string> SimulatorsBan
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsBan => new string[0];
 
-        public IEnumerable<string> SimulatorsOnly
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsOnly => new string[0];
 
         public double SlipAngle { get; private set; }
 
@@ -118,11 +84,11 @@ namespace SimShift.Services
             switch (obj.Key)
             {
                 case "Slope":
-                    Slope = obj.ReadAsFloat();
+                    this.Slope = obj.ReadAsFloat();
                     break;
 
                 case "Slip":
-                    AllowedSlip = obj.ReadAsFloat();
+                    this.AllowedSlip = obj.ReadAsFloat();
                     break;
             }
         }
@@ -131,8 +97,8 @@ namespace SimShift.Services
         {
             List<IniValueObject> obj = new List<IniValueObject>();
 
-            obj.Add(new IniValueObject(AcceptsConfigs, "Slope", Slope.ToString()));
-            obj.Add(new IniValueObject(AcceptsConfigs, "Slip", AllowedSlip.ToString()));
+            obj.Add(new IniValueObject(this.AcceptsConfigs, "Slope", this.Slope.ToString()));
+            obj.Add(new IniValueObject(this.AcceptsConfigs, "Slip", this.AllowedSlip.ToString()));
 
             return obj;
         }
@@ -144,11 +110,19 @@ namespace SimShift.Services
                 default: return val;
 
                 case JoyControls.Throttle:
-                    var t = (1 - (SlipAngle - 1 - AllowedSlip) / Slope);
-                    if (t > 1) t = 1;
-                    if (t < 0) t = 0;
-                    lastThrottle = t * 0.05 + lastThrottle * 0.95;
-                    return val * lastThrottle;
+                    var t = 1 - (this.SlipAngle - 1 - this.AllowedSlip) / this.Slope;
+                    if (t > 1)
+                    {
+                        t = 1;
+                    }
+
+                    if (t < 0)
+                    {
+                        t = 0;
+                    }
+
+                    this.lastThrottle = t * 0.05 + this.lastThrottle * 0.95;
+                    return val * this.lastThrottle;
                     break;
             }
         }
@@ -164,66 +138,73 @@ namespace SimShift.Services
             {
                 default: return false;
 
-                case JoyControls.Throttle: return Slipping;
+                case JoyControls.Throttle: return this.Slipping;
             }
         }
 
         public void ResetParameters()
         {
-            AllowedSlip = 5;
-            Slope = 5;
+            this.AllowedSlip = 5;
+            this.Slope = 5;
         }
 
         public void TickControls()
-        {
-            //
-        }
+        { }
 
         public void TickTelemetry(IDataMiner data)
         {
             try
             {
-                WheelSpeed = Main.Drivetrain.CalculateSpeedForRpm(data.Telemetry.Gear - 1, data.Telemetry.EngineRpm);
-                EngineSpeed = data.Telemetry.Speed; //the actual speed we are going
-                if (double.IsInfinity(WheelSpeed)) WheelSpeed = 0;
-                if (Antistall.Stalling) WheelSpeed = 0;
-                SlipAngle = WheelSpeed / EngineSpeed;
-                Slipping = (SlipAngle - AllowedSlip > 1.0);
+                this.WheelSpeed = Main.Drivetrain.CalculateSpeedForRpm(data.Telemetry.Gear - 1, data.Telemetry.EngineRpm);
+                this.EngineSpeed = data.Telemetry.Speed; // the actual speed we are going
+                if (double.IsInfinity(this.WheelSpeed))
+                {
+                    this.WheelSpeed = 0;
+                }
+
+                if (Antistall.Stalling)
+                {
+                    this.WheelSpeed = 0;
+                }
+
+                this.SlipAngle = this.WheelSpeed / this.EngineSpeed;
+                this.Slipping = this.SlipAngle - this.AllowedSlip > 1.0;
                 if (Main.Drivetrain.CalculateSpeedForRpm(data.Telemetry.Gear - 1, (float) Main.Drivetrain.StallRpm * 1.2f) >= data.Telemetry.Speed)
                 {
-                    Slipping = false;
+                    this.Slipping = false;
                 }
             }
             catch
             { }
         }
 
-        //private void setVolume(double vol)
-        //{
-        //    if (vol == 0)
-        //    {
-        //        if (SoundStopped) return;
-        //        if (CanPauseTrack)
-        //        {
-        //            vol = 1;
-        //            tcSound.Stop();
-        //            SoundStopped = true;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        lastPlay = DateTime.Now.Add(new TimeSpan(0, 0, 0, 1));
-        //        if (SoundStopped)
-        //        {
-        //            tcSound.PlayLooping();
-        //            SoundStopped = false;
-        //        }
-        //    }
+        // private void setVolume(double vol)
+        // {
+        // if (vol == 0)
+        // {
+        // if (SoundStopped) return;
+        // if (CanPauseTrack)
+        // {
+        // vol = 1;
+        // tcSound.Stop();
+        // SoundStopped = true;
+        // }
+        // }
+        // else
+        // {
+        // lastPlay = DateTime.Now.Add(new TimeSpan(0, 0, 0, 1));
+        // if (SoundStopped)
+        // {
+        // tcSound.PlayLooping();
+        // SoundStopped = false;
+        // }
+        // }
 
-        //    uint vol_hex = (uint) (vol * 0x7FFF);
-        //    uint vol_out = vol_hex | (vol_hex << 16);
-        //    //vol_out = 0xFFFFFFFF;
-        //    waveOutSetVolume(IntPtr.Zero, vol_out);
+        // uint vol_hex = (uint) (vol * 0x7FFF);
+        // uint vol_out = vol_hex | (vol_hex << 16);
+        // //vol_out = 0xFFFFFFFF;
+
+        // waveOutSetVolume(IntPtr.Zero, vol_out);
     }
 }
 //}

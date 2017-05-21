@@ -22,17 +22,16 @@ namespace SimShift.Data.Common
 
         public byte[] RawData { get; private set; }
 
-        //private UdpClient udpServer;
-
+        // private UdpClient udpServer;
         public void Connect(string map)
         {
             try
             {
-                RawData = new byte[mapSize]; //Marshal.SizeOf(typeof(T))];
+                this.RawData = new byte[mapSize]; // Marshal.SizeOf(typeof(T))];
 
-                //_mMMF = MemoryMappedFile.OpenExisting(map, MemoryMappedFileRights.TakeOwnership);
-                _memoryMappedFile = MemoryMappedFile.CreateOrOpen(map, mapSize, MemoryMappedFileAccess.ReadWrite);
-                _memoryMappedBuffer = _memoryMappedFile.CreateViewAccessor(0, mapSize);
+                // _mMMF = MemoryMappedFile.OpenExisting(map, MemoryMappedFileRights.TakeOwnership);
+                this._memoryMappedFile = MemoryMappedFile.CreateOrOpen(map, mapSize, MemoryMappedFileAccess.ReadWrite);
+                this._memoryMappedBuffer = this._memoryMappedFile.CreateViewAccessor(0, mapSize);
 
                 /*udpServer = new UdpClient();
 
@@ -57,32 +56,33 @@ namespace SimShift.Data.Common
                 var ip = IPAddress.Parse("224.5.6.8");
                 udpServer.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, new MulticastOption(ip,ifaceIndex));
                 udpServer.Connect(new IPEndPoint(ip, 1235));*/
-
-                Hooked = true;
+                this.Hooked = true;
             }
             catch (Exception e)
             {
-                Hooked = false;
-                //
+                this.Hooked = false;
             }
         }
 
         public void Disconnect()
         {
-            Hooked = false;
-            _memoryMappedBuffer.Dispose();
-            _memoryMappedFile.Dispose();
+            this.Hooked = false;
+            this._memoryMappedBuffer.Dispose();
+            this._memoryMappedFile.Dispose();
         }
 
         public void Update()
         {
-            if (_memoryMappedBuffer == null) return;
+            if (this._memoryMappedBuffer == null)
+            {
+                return;
+            }
 
-            _memoryMappedBuffer.ReadArray(0, RawData, 0, RawData.Length);
+            this._memoryMappedBuffer.ReadArray(0, this.RawData, 0, this.RawData.Length);
 
-            Data = ToObject(RawData);
+            this.Data = this.ToObject(this.RawData);
 
-            //udpServer.Send(RawData, RawData.Length);
+            // udpServer.Send(RawData, RawData.Length);
         }
 
         // Casts raw byte stream to object.
@@ -93,7 +93,10 @@ namespace SimShift.Data.Common
             var memoryObjectSize = Marshal.SizeOf(typeof(T));
 
             // Cannot create object from array that is too small.
-            if (memoryObjectSize > structureDataBytes.Length) return createdObject;
+            if (memoryObjectSize > structureDataBytes.Length)
+            {
+                return createdObject;
+            }
 
             // Reserve unmanaged memory, copy structureDataBytes bytes to there, and convert this unmanaged memory to a managed type.
             // Then free memory.

@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace SimShift.Data.Common
 {
     /// <summary>
-    /// ProcessMemoryReader is a class that enables direct reading a process memory
+    ///     ProcessMemoryReader is a class that enables direct reading a process memory
     /// </summary>
     class ProcessMemoryReaderApi
     {
@@ -12,16 +12,17 @@ namespace SimShift.Data.Common
         // HANDLE hObject // handle to object
         // );
         [DllImport("kernel32.dll")]
-        public static extern Int32 CloseHandle(IntPtr hObject);
+        public static extern int CloseHandle(IntPtr hObject);
 
         [DllImport("kernel32.dll")]
-        public static extern Int32 GetLastError();
+        public static extern int GetLastError();
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr MapViewOfFile(IntPtr hFileMappingObject, uint dwDesiredAccess, uint dwFileOffsetHigh, uint dwFileOffsetLow, uint dwNumberOfBytesToMap);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr OpenFileMapping(uint dwDesiredAccess, bool bInheritHandle, string lpName);
+
         // constants information can be found in <winnt.h>
 
         // function declarations are found in the MSDN and in <winbase.h>
@@ -32,7 +33,7 @@ namespace SimShift.Data.Common
         // DWORD dwProcessId // process identifier
         // );
         [DllImport("kernel32.dll")]
-        public static extern IntPtr OpenProcess(UInt32 dwDesiredAccess, Int32 bInheritHandle, UInt32 dwProcessId);
+        public static extern IntPtr OpenProcess(uint dwDesiredAccess, int bInheritHandle, uint dwProcessId);
 
         // BOOL ReadProcessMemory(
         // HANDLE hProcess, // handle to the process
@@ -42,7 +43,7 @@ namespace SimShift.Data.Common
         // SIZE_T * lpNumberOfBytesRead // number of bytes read
         // );
         [DllImport("kernel32.dll")]
-        public static extern Int32 ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [In, Out] byte[] buffer, UInt32 size, out IntPtr lpNumberOfBytesRead);
+        public static extern int ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [In, Out] byte[] buffer, uint size, out IntPtr lpNumberOfBytesRead);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool UnmapViewOfFile(IntPtr lpBaseAddress);

@@ -16,20 +16,23 @@ namespace SimShift.MapTool
 
         public Ets2Company(string line, Ets2Mapper mapper)
         {
-            Mapper = mapper;
+            this.Mapper = mapper;
 
             var d = line.Split(",".ToCharArray());
 
-            PrefabID = d[0];
-            int.TryParse(d[1], out MinX);
-            int.TryParse(d[2], out MinY);
-            int.TryParse(d[3], out MaxX);
-            int.TryParse(d[4], out MaxY);
+            this.PrefabID = d[0];
+            int.TryParse(d[1], out this.MinX);
+            int.TryParse(d[2], out this.MinY);
+            int.TryParse(d[3], out this.MaxX);
+            int.TryParse(d[4], out this.MaxY);
 
             // find prefab obj
-            Prefab = mapper.PrefabsLookup.FirstOrDefault(x => x.IDSII == PrefabID);
+            this.Prefab = mapper.PrefabsLookup.FirstOrDefault(x => x.IDSII == this.PrefabID);
 
-            if (Prefab != null) Prefab.Company = this;
+            if (this.Prefab != null)
+            {
+                this.Prefab.Company = this;
+            }
         }
 
         public Ets2Mapper Mapper { get; private set; }

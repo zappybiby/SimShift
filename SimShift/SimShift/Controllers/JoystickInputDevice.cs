@@ -8,7 +8,7 @@ namespace SimShift.Controllers
 {
     public class JoystickInputDevice
     {
-        //private const string RegKeyAxisData = @"SYSTEM\ControlSet001\Control\MediaProperties\PrivateProperties\Joystick\OEM";
+        // private const string RegKeyAxisData = @"SYSTEM\ControlSet001\Control\MediaProperties\PrivateProperties\Joystick\OEM";
         private const string RegKeyAxisData = @"System\CurrentControlSet\Control\MediaProperties\PrivateProperties\DirectInput\VID_045E&PID_02FF\Calibration\0\Type";
 
         private const string RegKeyPlace = @"System\CurrentControlSet\Control\MediaProperties\PrivateProperties\Joystick\OEM\";
@@ -26,31 +26,38 @@ namespace SimShift.Controllers
 
         public JoystickInputDevice(JOYCAPS captured, int device)
         {
-            id = device;
+            this.id = device;
 
             // Copy all members.
-            data = new JOYCAPS();
-            data.szPname = captured.szPname;
-            data.wMid = captured.wMid;
-            data.wPid = captured.wPid;
-            data.wXmin = captured.wXmin;
-            data.wXmax = captured.wXmax;
-            data.wYmin = captured.wYmin;
-            data.wYmax = captured.wYmax;
-            data.wZmin = captured.wZmin;
-            data.wZmax = captured.wZmax;
-            data.wNumButtons = captured.wNumButtons;
-            data.wPeriodMin = captured.wPeriodMin;
-            data.wPeriodMax = captured.wPeriodMax;
+            this.data = new JOYCAPS();
+            this.data.szPname = captured.szPname;
+            this.data.wMid = captured.wMid;
+            this.data.wPid = captured.wPid;
+            this.data.wXmin = captured.wXmin;
+            this.data.wXmax = captured.wXmax;
+            this.data.wYmin = captured.wYmin;
+            this.data.wYmax = captured.wYmax;
+            this.data.wZmin = captured.wZmin;
+            this.data.wZmax = captured.wZmax;
+            this.data.wNumButtons = captured.wNumButtons;
+            this.data.wPeriodMin = captured.wPeriodMin;
+            this.data.wPeriodMax = captured.wPeriodMax;
 
             // Search register.
             RegistryKey rf = Registry.CurrentUser.OpenSubKey(RegReferencePlace);
-            if (rf == null) return;
+            if (rf == null)
+            {
+                return;
+            }
 
             string USBDevice = Convert.ToString(rf.GetValue("Joystick" + (1 + this.id).ToString() + "OEMName"));
             RegistryKey usb = Registry.CurrentUser.OpenSubKey(RegKeyPlace);
             usb = usb.OpenSubKey(USBDevice);
-            if (usb == null) return;
+            if (usb == null)
+            {
+                return;
+            }
+
             this.Name = (string) usb.GetValue("OEMName");
 
             RegistryKey axisMaster = Registry.CurrentUser.OpenSubKey(RegKeyAxisData);
@@ -63,12 +70,14 @@ namespace SimShift.Controllers
                     foreach (string name in axisMaster.GetSubKeyNames())
                     {
                         RegistryKey axis = axisMaster.OpenSubKey(name);
-                        this.AxisNames.Add(Convert.ToInt32(name), (string) axis.GetValue(""));
+                        this.AxisNames.Add(Convert.ToInt32(name), (string) axis.GetValue(string.Empty));
                         axis.Close();
                     }
+
                     axisMaster.Close();
                 }
             }
+
             rf.Close();
             usb.Close();
         }
@@ -91,7 +100,7 @@ namespace SimShift.Controllers
             uint devs = JoystickMethods.joyGetNumDevs();
             for (deviceNumber = 0; deviceNumber < devs; deviceNumber++)
             {
-                UInt32 res = JoystickMethods.joyGetDevCaps(deviceNumber, out CapturedJoysticks, JOYCAPS.Size);
+                uint res = JoystickMethods.joyGetDevCaps(deviceNumber, out CapturedJoysticks, JOYCAPS.Size);
                 if (res != 165)
                 {
                     Joysticks.Add(new JoystickInputDevice(CapturedJoysticks, deviceNumber));

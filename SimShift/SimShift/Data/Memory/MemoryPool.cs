@@ -15,106 +15,106 @@ namespace SimTelemetry.Domain.Memory
 
         public MemoryPool(string name, MemoryAddress type, string signature, int size)
         {
-            Name = name;
-            Address = 0;
-            Offset = 0;
-            Size = size;
-            AddressType = type;
-            Signature = signature;
-            Pointers = new List<MemoryFieldSignaturePointer>();
+            this.Name = name;
+            this.Address = 0;
+            this.Offset = 0;
+            this.Size = size;
+            this.AddressType = type;
+            this.Signature = signature;
+            this.Pointers = new List<MemoryFieldSignaturePointer>();
 
-            Value = new byte[size];
+            this.Value = new byte[size];
         }
 
         public MemoryPool(string name, MemoryAddress type, string signature, IEnumerable<int> pointers, int size)
         {
-            Name = name;
-            Address = 0;
-            Offset = 0;
-            Size = size;
-            AddressType = type;
-            Signature = signature;
-            Pointers = pointers.Select(pointer => new MemoryFieldSignaturePointer(pointer, false)).ToList();
+            this.Name = name;
+            this.Address = 0;
+            this.Offset = 0;
+            this.Size = size;
+            this.AddressType = type;
+            this.Signature = signature;
+            this.Pointers = pointers.Select(pointer => new MemoryFieldSignaturePointer(pointer, false)).ToList();
 
-            Value = new byte[size];
+            this.Value = new byte[size];
         }
 
         public MemoryPool(string name, MemoryAddress type, string signature, IEnumerable<MemoryFieldSignaturePointer> pointers, int size)
         {
-            Name = name;
-            Address = 0;
-            Offset = 0;
-            Size = size;
-            AddressType = type;
-            Signature = signature;
-            Pointers = pointers;
+            this.Name = name;
+            this.Address = 0;
+            this.Offset = 0;
+            this.Size = size;
+            this.AddressType = type;
+            this.Signature = signature;
+            this.Pointers = pointers;
 
-            Value = new byte[size];
+            this.Value = new byte[size];
         }
 
         public MemoryPool(string name, MemoryAddress type, int address, IEnumerable<int> pointers, int size)
         {
-            Name = name;
-            Address = address;
-            Offset = 0;
-            Size = size;
-            AddressType = type;
-            Signature = string.Empty;
-            Pointers = pointers.Select(pointer => new MemoryFieldSignaturePointer(pointer, false)).ToList();
+            this.Name = name;
+            this.Address = address;
+            this.Offset = 0;
+            this.Size = size;
+            this.AddressType = type;
+            this.Signature = string.Empty;
+            this.Pointers = pointers.Select(pointer => new MemoryFieldSignaturePointer(pointer, false)).ToList();
 
-            Value = new byte[Size];
+            this.Value = new byte[this.Size];
         }
 
         public MemoryPool(string name, MemoryAddress type, int address, IEnumerable<MemoryFieldSignaturePointer> pointers, int size)
         {
-            Name = name;
-            Address = address;
-            Offset = 0;
-            Size = size;
-            AddressType = type;
-            Signature = string.Empty;
-            Pointers = pointers;
+            this.Name = name;
+            this.Address = address;
+            this.Offset = 0;
+            this.Size = size;
+            this.AddressType = type;
+            this.Signature = string.Empty;
+            this.Pointers = pointers;
 
-            Value = new byte[Size];
+            this.Value = new byte[this.Size];
         }
 
         public MemoryPool(string name, MemoryAddress type, int address, int size)
         {
-            Name = name;
-            Address = address;
-            Offset = 0;
-            Size = size;
-            AddressType = type;
-            Signature = string.Empty;
-            Pointers = new List<MemoryFieldSignaturePointer>();
+            this.Name = name;
+            this.Address = address;
+            this.Offset = 0;
+            this.Size = size;
+            this.AddressType = type;
+            this.Signature = string.Empty;
+            this.Pointers = new List<MemoryFieldSignaturePointer>();
 
-            Value = new byte[Size];
+            this.Value = new byte[this.Size];
         }
 
         public MemoryPool(string name, MemoryAddress type, int address, int offset, int size)
         {
-            Name = name;
-            Address = address;
-            Offset = offset;
-            Size = size;
-            AddressType = type;
-            Signature = string.Empty;
-            Pointers = new List<MemoryFieldSignaturePointer>();
+            this.Name = name;
+            this.Address = address;
+            this.Offset = offset;
+            this.Size = size;
+            this.AddressType = type;
+            this.Signature = string.Empty;
+            this.Pointers = new List<MemoryFieldSignaturePointer>();
 
-            Value = new byte[Size];
+            this.Value = new byte[this.Size];
         }
 
         public MemoryPool(string name, MemoryAddress type, MemoryPool pool, int offset, int size)
         {
-            Name = name;
-            Pool = pool;
-            Offset = offset;
-            Size = size;
-            AddressType = type;
-            Signature = string.Empty;
-            Pointers = new List<MemoryFieldSignaturePointer>();
+            this.Name = name;
+            this.Pool = pool;
+            this.Offset = offset;
+            this.Size = size;
+            this.AddressType = type;
+            this.Signature = string.Empty;
+            this.Pointers = new List<MemoryFieldSignaturePointer>();
 
-            Value = new byte[Size];
+            this.Value = new byte[this.Size];
         }
 
         public int Address { get; protected set; }
@@ -123,45 +123,15 @@ namespace SimTelemetry.Domain.Memory
 
         public MemoryAddress AddressType { get; protected set; }
 
-        public Dictionary<string, IMemoryObject> Fields
-        {
-            get
-            {
-                return _fields;
-            }
-        }
+        public Dictionary<string, IMemoryObject> Fields => this._fields;
 
-        public bool IsConstant
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool IsConstant => false;
 
-        public bool IsDynamic
-        {
-            get
-            {
-                return (AddressType == MemoryAddress.Dynamic);
-            }
-        }
+        public bool IsDynamic => this.AddressType == MemoryAddress.Dynamic;
 
-        public bool IsSignature
-        {
-            get
-            {
-                return Signature != string.Empty;
-            }
-        }
+        public bool IsSignature => this.Signature != string.Empty;
 
-        public bool IsStatic
-        {
-            get
-            {
-                return (AddressType == MemoryAddress.Static || AddressType == MemoryAddress.StaticAbsolute);
-            }
-        }
+        public bool IsStatic => this.AddressType == MemoryAddress.Static || this.AddressType == MemoryAddress.StaticAbsolute;
 
         public bool IsTemplate { get; protected set; }
 
@@ -175,13 +145,7 @@ namespace SimTelemetry.Domain.Memory
 
         public MemoryPool Pool { get; protected set; }
 
-        public Dictionary<string, MemoryPool> Pools
-        {
-            get
-            {
-                return _pools;
-            }
-        }
+        public Dictionary<string, MemoryPool> Pools => this._pools;
 
         public string Signature { get; protected set; }
 
@@ -189,49 +153,53 @@ namespace SimTelemetry.Domain.Memory
 
         public byte[] Value { get; protected set; }
 
-        public Type ValueType
-        {
-            get
-            {
-                return typeof(MemoryPool);
-            }
-        }
+        public Type ValueType => typeof(MemoryPool);
 
         Dictionary<string, IDataField> IDataNode.Fields
         {
             get
             {
-                return _fields.Values.Cast<IDataField>().ToDictionary(x => x.Name, x => x);
+                return this._fields.Values.Cast<IDataField>().ToDictionary(x => x.Name, x => x);
             }
         }
 
         public void Add<T>(T obj)
             where T : IMemoryObject
         {
-            if (typeof(T).Name.Contains("MemoryPool")) throw new Exception();
-            if (!_fields.ContainsKey(obj.Name))
+            if (typeof(T).Name.Contains("MemoryPool"))
             {
-                _fields.Add(obj.Name, obj);
+                throw new Exception();
+            }
+
+            if (!this._fields.ContainsKey(obj.Name))
+            {
+                this._fields.Add(obj.Name, obj);
 
                 obj.SetPool(this);
-                if (Memory != null) obj.SetProvider(Memory);
+                if (this.Memory != null)
+                {
+                    obj.SetProvider(this.Memory);
+                }
             }
         }
 
         public void Add(MemoryPool obj)
         {
-            if (!_pools.ContainsKey(obj.Name))
+            if (!this._pools.ContainsKey(obj.Name))
             {
-                _pools.Add(obj.Name, obj);
+                this._pools.Add(obj.Name, obj);
 
                 obj.SetPool(this);
-                if (Memory != null) obj.SetProvider(Memory);
+                if (this.Memory != null)
+                {
+                    obj.SetProvider(this.Memory);
+                }
             }
         }
 
         public void ClearPools()
         {
-            _pools.Clear();
+            this._pools.Clear();
         }
 
         public object Clone()
@@ -242,36 +210,43 @@ namespace SimTelemetry.Domain.Memory
 
         public MemoryPool Clone(string newName, MemoryPool newPool, int offset, int size)
         {
-            var target = new MemoryPool(newName, AddressType, newPool, offset, size);
-            CloneContents(target);
+            var target = new MemoryPool(newName, this.AddressType, newPool, offset, size);
+            this.CloneContents(target);
             return target;
         }
 
         public IDataNode Clone(string newName, int address)
         {
-            var target = new MemoryPool(newName, AddressType, address, Size);
-            CloneContents(target);
+            var target = new MemoryPool(newName, this.AddressType, address, this.Size);
+            this.CloneContents(target);
             return (IDataNode) target;
         }
 
         public IEnumerable<IDataField> GetDataFields()
         {
-            return Fields.Select(x => (IDataField) x.Value);
+            return this.Fields.Select(x => (IDataField) x.Value);
         }
 
         public void GetDebugInfo(XmlWriter file)
         {
             file.WriteStartElement("debug");
             file.WriteAttributeString("name", this.Name);
-            file.WriteAttributeString("fields", Fields.Count().ToString());
+            file.WriteAttributeString("fields", this.Fields.Count().ToString());
 
-            file.WriteAttributeString("template", IsTemplate.ToString());
-            if (AddressTree == null) file.WriteAttributeString("address", Address.ToString("X"));
-            else file.WriteAttributeString("address", string.Concat(AddressTree.Select(x => x.ToString("X") + ", ")));
-            file.WriteAttributeString("size", Size.ToString("X"));
-            file.WriteAttributeString("offset", Offset.ToString("X"));
+            file.WriteAttributeString("template", this.IsTemplate.ToString());
+            if (this.AddressTree == null)
+            {
+                file.WriteAttributeString("address", this.Address.ToString("X"));
+            }
+            else
+            {
+                file.WriteAttributeString("address", string.Concat(this.AddressTree.Select(x => x.ToString("X") + ", ")));
+            }
 
-            foreach (var field in Fields)
+            file.WriteAttributeString("size", this.Size.ToString("X"));
+            file.WriteAttributeString("offset", this.Offset.ToString("X"));
+
+            foreach (var field in this.Fields)
             {
                 file.WriteStartElement("debug-field");
                 file.WriteAttributeString("name", field.Value.Name);
@@ -281,14 +256,15 @@ namespace SimTelemetry.Domain.Memory
                 file.WriteAttributeString("type", field.Value.ValueType.ToString());
                 file.WriteEndElement();
             }
-            foreach (var pool in Pools)
+
+            foreach (var pool in this.Pools)
             {
                 pool.Value.GetDebugInfo(file);
             }
 
             file.WriteEndElement();
 
-            //return string.Format("Type:{0}, Fields: {1}, IsTemplate: {2}, Address: 0x{3:X}, Offset: 0x{4:X}, Size: 0x{5:X}", AddressType, Fields.Count(), IsTemplate, Address, Offset, Size);
+            // return string.Format("Type:{0}, Fields: {1}, IsTemplate: {2}, Address: 0x{3:X}, Offset: 0x{4:X}, Size: 0x{5:X}", AddressType, Fields.Count(), IsTemplate, Address, Offset, Size);
         }
 
         public bool HasChanged()
@@ -311,18 +287,24 @@ namespace SimTelemetry.Domain.Memory
 
         public TOut ReadAs<TOut>(int offset)
         {
-            return MemoryDataConverter.Read<TOut>(Value, offset);
+            return MemoryDataConverter.Read<TOut>(this.Value, offset);
         }
 
         public TOut ReadAs<TSource, TOut>(int offset)
         {
-            return MemoryDataConverter.Read<TSource, TOut>(Value, offset);
+            return MemoryDataConverter.Read<TSource, TOut>(this.Value, offset);
         }
 
         public TOut ReadAs<TOut>(string field)
         {
-            if (Fields.ContainsKey(field)) return Fields[field].ReadAs<TOut>();
-            else return MemoryDataConverter.Read<TOut>(new byte[32], 0);
+            if (this.Fields.ContainsKey(field))
+            {
+                return this.Fields[field].ReadAs<TOut>();
+            }
+            else
+            {
+                return MemoryDataConverter.Read<TOut>(new byte[32], 0);
+            }
         }
 
         public byte[] ReadBytes(string field)
@@ -340,95 +322,110 @@ namespace SimTelemetry.Domain.Memory
 
         public void Refresh()
         {
-            if (IsTemplate) return;
+            if (this.IsTemplate)
+            {
+                return;
+            }
 
             var computedAddress = 0;
 
-            if (IsSignature && Offset == 0 && Address == 0 && Memory.Scanner.Enabled)
+            if (this.IsSignature && this.Offset == 0 && this.Address == 0 && this.Memory.Scanner.Enabled)
             {
-                var result = Memory.Scanner.Scan<uint>(MemoryRegionType.EXECUTE, Signature);
+                var result = this.Memory.Scanner.Scan<uint>(MemoryRegionType.EXECUTE, this.Signature);
 
                 // Search the address and offset.
-                switch (AddressType)
+                switch (this.AddressType)
                 {
                     case MemoryAddress.StaticAbsolute:
                     case MemoryAddress.Static:
-                        if (result == 0) return;
+                        if (result == 0)
+                        {
+                            return;
+                        }
 
-                        if (Pointers.Count() == 0)
+                        if (this.Pointers.Count() == 0)
                         {
                             // The result is directly our address
-                            Address = (int) result;
+                            this.Address = (int) result;
                         }
                         else
                         {
                             // We must follow one pointer.
-                            if (AddressType == MemoryAddress.Static)
+                            if (this.AddressType == MemoryAddress.Static)
                             {
-                                computedAddress = Memory.BaseAddress + (int) result;
+                                computedAddress = this.Memory.BaseAddress + (int) result;
                             }
                             else
                             {
                                 computedAddress = (int) result;
                             }
 
-                            Address = computedAddress;
+                            this.Address = computedAddress;
                         }
+
                         break;
                     case MemoryAddress.Dynamic:
-                        Offset = (int) result;
+                        this.Offset = (int) result;
                         break;
                     default:
-                        throw new Exception("AddressType for '" + Name + "' is not valid");
+                        throw new Exception("AddressType for '" + this.Name + "' is not valid");
                         break;
                 }
             }
 
             // Refresh pointers too
-            foreach (var ptr in Pointers)
+            foreach (var ptr in this.Pointers)
             {
-                ptr.Refresh(Memory);
+                ptr.Refresh(this.Memory);
             }
 
             // Refresh this memory block.
-            if (Size > 0)
+            if (this.Size > 0)
             {
-                AddressTree = new int[1 + Pointers.Count()];
-                if (IsStatic)
+                this.AddressTree = new int[1 + this.Pointers.Count()];
+                if (this.IsStatic)
                 {
-                    if (Address != 0 && Offset != 0)
+                    if (this.Address != 0 && this.Offset != 0)
                     {
-                        computedAddress = Memory.Reader.ReadInt32(Memory.BaseAddress + Address) + Offset;
+                        computedAddress = this.Memory.Reader.ReadInt32(this.Memory.BaseAddress + this.Address) + this.Offset;
                     }
                     else
                     {
-                        computedAddress = AddressType == MemoryAddress.Static ? Memory.BaseAddress + Address : Address;
+                        computedAddress = this.AddressType == MemoryAddress.Static ? this.Memory.BaseAddress + this.Address : this.Address;
                     }
                 }
                 else
                 {
-                    computedAddress = Pool == null ? 0 : MemoryDataConverter.Read<int>(Pool.Value, Offset);
+                    computedAddress = this.Pool == null ? 0 : MemoryDataConverter.Read<int>(this.Pool.Value, this.Offset);
                 }
+
                 int treeInd = 0;
-                foreach (var ptr in Pointers)
+                foreach (var ptr in this.Pointers)
                 {
-                    AddressTree[treeInd++] = computedAddress;
-                    if (ptr.Additive) computedAddress += ptr.Offset;
-                    else computedAddress = Memory.Reader.ReadInt32(computedAddress + ptr.Offset);
+                    this.AddressTree[treeInd++] = computedAddress;
+                    if (ptr.Additive)
+                    {
+                        computedAddress += ptr.Offset;
+                    }
+                    else
+                    {
+                        computedAddress = this.Memory.Reader.ReadInt32(computedAddress + ptr.Offset);
+                    }
                 }
-                AddressTree[treeInd] = computedAddress;
+
+                this.AddressTree[treeInd] = computedAddress;
 
                 // Read into this buffer.
-                Memory.Reader.Read(computedAddress, Value);
+                this.Memory.Reader.Read(computedAddress, this.Value);
             }
 
             // Refresh underlying fields.
-            foreach (var field in Fields)
+            foreach (var field in this.Fields)
             {
                 field.Value.Refresh();
             }
 
-            foreach (var pool in Pools.Values)
+            foreach (var pool in this.Pools.Values)
             {
                 pool.Refresh();
             }
@@ -436,18 +433,23 @@ namespace SimTelemetry.Domain.Memory
 
         public void SetPool(MemoryPool pool)
         {
-            if (Pool == pool) return;
-            Pool = pool;
+            if (this.Pool == pool)
+            {
+                return;
+            }
+
+            this.Pool = pool;
         }
 
         public void SetProvider(MemoryProvider provider)
         {
-            Memory = provider;
-            foreach (var field in _fields)
+            this.Memory = provider;
+            foreach (var field in this._fields)
             {
                 field.Value.SetProvider(provider);
             }
-            foreach (var pool in _pools)
+
+            foreach (var pool in this._pools)
             {
                 pool.Value.SetProvider(provider);
             }
@@ -455,17 +457,17 @@ namespace SimTelemetry.Domain.Memory
 
         public void SetTemplate(bool yes)
         {
-            IsTemplate = yes;
+            this.IsTemplate = yes;
         }
 
         protected void CloneContents(MemoryPool target)
         {
-            foreach (var pool in Pools)
+            foreach (var pool in this.Pools)
             {
                 target.Add(pool.Value.Clone(pool.Key, target, pool.Value.Offset, pool.Value.Size));
             }
 
-            foreach (var field in Fields)
+            foreach (var field in this.Fields)
             {
                 target.Add((IMemoryObject) field.Value.Clone());
             }

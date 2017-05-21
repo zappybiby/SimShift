@@ -16,27 +16,27 @@ namespace SimShift.MapTool
 
         public Ets2Node(byte[] stream, int position)
         {
-            NodeUID = BitConverter.ToUInt64(stream, position);
-            ForwardItemUID = BitConverter.ToUInt64(stream, position + 44);
-            BackwardItemUID = BitConverter.ToUInt64(stream, position + 44 - 8);
+            this.NodeUID = BitConverter.ToUInt64(stream, position);
+            this.ForwardItemUID = BitConverter.ToUInt64(stream, position + 44);
+            this.BackwardItemUID = BitConverter.ToUInt64(stream, position + 44 - 8);
 
-            X = BitConverter.ToInt32(stream, position + 8) / 256.0f;
-            Y = BitConverter.ToInt32(stream, position + 12) / 256.0f;
-            Z = BitConverter.ToInt32(stream, position + 16) / 256.0f;
+            this.X = BitConverter.ToInt32(stream, position + 8) / 256.0f;
+            this.Y = BitConverter.ToInt32(stream, position + 12) / 256.0f;
+            this.Z = BitConverter.ToInt32(stream, position + 16) / 256.0f;
 
             var rX = BitConverter.ToSingle(stream, position + 20);
             var rY = BitConverter.ToSingle(stream, position + 24);
             var rZ = BitConverter.ToSingle(stream, position + 28);
 
-            Yaw = (float) Math.PI - (float) Math.Atan2(rZ, rX);
-            Yaw = Yaw % (float) Math.PI * 2;
+            this.Yaw = (float) Math.PI - (float) Math.Atan2(rZ, rX);
+            this.Yaw = this.Yaw % (float) Math.PI * 2;
+
             // X,Y,Z is position of NodeUID
             // ForwardItemUID = Forward item
             // BackwardItemUID = Backward item
 
-            //Console.WriteLine(position.ToString("X4") + " | " + NodeUID.ToString("X16") + " " + ForwardItemUID.ToString("X16") + " " + BackwardItemUID.ToString("X16") + " @ " + string.Format("{0} {1} {2} {3} {4} {5} {6} {7}de", X, Y, Z, rX,rY,rZ,Yaw,Yaw/Math.PI*180));
-
-            Yaw = (float) Math.PI * 0.5f - Yaw;
+            // Console.WriteLine(position.ToString("X4") + " | " + NodeUID.ToString("X16") + " " + ForwardItemUID.ToString("X16") + " " + BackwardItemUID.ToString("X16") + " @ " + string.Format("{0} {1} {2} {3} {4} {5} {6} {7}de", X, Y, Z, rX,rY,rZ,Yaw,Yaw/Math.PI*180));
+            this.Yaw = (float) Math.PI * 0.5f - this.Yaw;
         }
 
         public Ets2Item BackwardItem { get; set; }
@@ -51,13 +51,7 @@ namespace SimShift.MapTool
 
         public float Pitch { get; private set; }
 
-        public Ets2Point Point
-        {
-            get
-            {
-                return new Ets2Point(X, Y, Z, Yaw);
-            }
-        }
+        public Ets2Point Point => new Ets2Point(this.X, this.Y, this.Z, this.Yaw);
 
         public float Roll { get; private set; }
 
@@ -65,13 +59,20 @@ namespace SimShift.MapTool
 
         public IEnumerable<Ets2Item> GetItems()
         {
-            if (ForwardItem != null) yield return ForwardItem;
-            if (BackwardItem != null) yield return BackwardItem;
+            if (this.ForwardItem != null)
+            {
+                yield return this.ForwardItem;
+            }
+
+            if (this.BackwardItem != null)
+            {
+                yield return this.BackwardItem;
+            }
         }
 
         public override string ToString()
         {
-            return "Node #" + NodeUID.ToString("X16") + " (" + X + "," + Y + "," + Z + ")";
+            return "Node #" + this.NodeUID.ToString("X16") + " (" + this.X + "," + this.Y + "," + this.Z + ")";
         }
     }
 }

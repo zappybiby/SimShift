@@ -6,13 +6,13 @@ namespace SimShift.Controllers
     public static class JoystickMethods
     {
         [DllImport("Winmm.dll")]
-        public static extern UInt32 joyGetDevCaps(Int32 uJoyID, out JOYCAPS pjc, Int32 cbjc);
+        public static extern uint joyGetDevCaps(int uJoyID, out JOYCAPS pjc, int cbjc);
 
         [DllImport("Winmm.dll")]
-        public static extern UInt32 joyGetNumDevs();
+        public static extern uint joyGetNumDevs();
 
         [DllImport("Winmm.dll")]
-        public static extern UInt32 joyGetPosEx(Int32 uJoyID, out JOYINFOEX pji);
+        public static extern uint joyGetPosEx(int uJoyID, out JOYINFOEX pji);
     }
 
     public enum JoystickError
@@ -45,7 +45,7 @@ namespace SimShift.Controllers
 
         JOY_RETURNBUTTONS = 0x80,
 
-        JOY_RETURNALL = (JOY_RETURNX | JOY_RETURNY | JOY_RETURNZ | JOY_RETURNR | JOY_RETURNU | JOY_RETURNV | JOY_RETURNPOV | JOY_RETURNBUTTONS)
+        JOY_RETURNALL = JOY_RETURNX | JOY_RETURNY | JOY_RETURNZ | JOY_RETURNR | JOY_RETURNU | JOY_RETURNV | JOY_RETURNPOV | JOY_RETURNBUTTONS
     }
 
     public class WinMM
@@ -127,13 +127,7 @@ namespace SimShift.Controllers
 
         public static readonly int SizeInBytes;
 
-        public static int Size
-        {
-            get
-            {
-                return Marshal.SizeOf(default(JOYCAPS));
-            }
-        }
+        public static int Size => Marshal.SizeOf(default(JOYCAPS));
     }
 
     public struct JOYINFOEX

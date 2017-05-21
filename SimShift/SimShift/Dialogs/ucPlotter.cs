@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -21,7 +21,7 @@ namespace SimShift.Dialogs
 
         private int gridsVertical = 20;
 
-        private Pen[] pens = new Pen[] { new Pen(Color.Yellow, 1.0f), new Pen(Color.Red, 1.0f), new Pen(Color.DeepSkyBlue, 1.0f), new Pen(Color.GreenYellow, 1.0f), new Pen(Color.Magenta, 3.0f) };
+        private Pen[] pens = new[] { new Pen(Color.Yellow, 1.0f), new Pen(Color.Red, 1.0f), new Pen(Color.DeepSkyBlue, 1.0f), new Pen(Color.GreenYellow, 1.0f), new Pen(Color.Magenta, 3.0f) };
 
         private float samplesPerDiv = 10;
 
@@ -29,78 +29,86 @@ namespace SimShift.Dialogs
 
         public ucPlotter(int ch, float[] scale)
         {
-            channels = ch;
+            this.channels = ch;
             for (int k = 0; k < ch; k++)
             {
-                values.Add(new List<double>());
-                valueScale.Add(scale[k] / gridsVertical * 2);
+                this.values.Add(new List<double>());
+                this.valueScale.Add(scale[k] / this.gridsVertical * 2);
             }
+
             var emptyList = new List<double>();
             for (int k = 0; k < ch; k++)
             {
                 emptyList.Add(0);
             }
+
             for (int i = 0; i < 1000; i++)
             {
-                Add(emptyList);
+                this.Add(emptyList);
             }
-            InitializeComponent();
-            SetStyle(ControlStyles.UserPaint, true);
-            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-            SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+
+            this.InitializeComponent();
+            this.SetStyle(ControlStyles.UserPaint, true);
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
         }
 
         public int Frequency { get; set; }
 
         public void Add(List<double> v)
         {
-            for (int k = 0; k < channels; k++)
+            for (int k = 0; k < this.channels; k++)
             {
-                values[k].Add(v[k]);
-                while (values[k].Count > samplesPerDiv * gridsHorizontal)
+                this.values[k].Add(v[k]);
+                while (this.values[k].Count > this.samplesPerDiv * this.gridsHorizontal)
                 {
-                    values[k].RemoveAt(0);
+                    this.values[k].RemoveAt(0);
                 }
             }
+
             this.Invalidate();
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            samplesPerDiv = 100;
+            this.samplesPerDiv = 100;
             base.OnPaint(e);
 
             var g = e.Graphics;
 
             g.FillRectangle(Brushes.Black, e.ClipRectangle);
-            g.DrawString(Frequency.ToString("000"), new Font("Arial", 8), Brushes.White, 0, 0);
+            g.DrawString(this.Frequency.ToString("000"), new Font("Arial", 8), Brushes.White, 0, 0);
             var w = e.ClipRectangle.Width;
             var h = e.ClipRectangle.Height;
 
-            var pxHor = w / gridsHorizontal;
-            var pxVer = h / gridsVertical;
+            var pxHor = w / this.gridsHorizontal;
+            var pxVer = h / this.gridsVertical;
 
-            for (int i = 0; i <= gridsHorizontal; i++)
+            for (int i = 0; i <= this.gridsHorizontal; i++)
             {
-                g.DrawLine(gridPen, pxHor * i, 0, pxHor * i, h);
+                g.DrawLine(this.gridPen, pxHor * i, 0, pxHor * i, h);
             }
-            for (int i = 0; i <= gridsVertical; i++)
+
+            for (int i = 0; i <= this.gridsVertical; i++)
             {
-                g.DrawLine(gridPen, 0, pxVer * i, w, pxVer * i);
+                g.DrawLine(this.gridPen, 0, pxVer * i, w, pxVer * i);
             }
 
             // Display all values
-            for (int chIndex = 0; chIndex < values.Count; chIndex++)
+            for (int chIndex = 0; chIndex < this.values.Count; chIndex++)
             {
                 try
                 {
-                    if (pens.Length >= chIndex && values.Count >= chIndex && valueScale.Count >= chIndex)
+                    if (this.pens.Length >= chIndex && this.values.Count >= chIndex && this.valueScale.Count >= chIndex)
                     { }
-                    else break;
+                    else
+                    {
+                        break;
+                    }
 
-                    var chPen = pens[chIndex];
-                    var ch = values[chIndex];
-                    var scale = valueScale[chIndex];
+                    var chPen = this.pens[chIndex];
+                    var ch = this.values[chIndex];
+                    var scale = this.valueScale[chIndex];
 
                     var lastX = 0.0f;
                     var lastY = (float) h / 2.0f;
@@ -109,7 +117,7 @@ namespace SimShift.Dialogs
                     {
                         var v = ch[sampleIndex];
                         var curX = (float) (sampleIndex * w / ch.Count);
-                        var curY = (float) (gridsVertical / 2 - v / scale) * pxVer;
+                        var curY = (float) (this.gridsVertical / 2 - v / scale) * pxVer;
 
                         g.DrawLine(chPen, lastX, lastY, curX, curY);
 

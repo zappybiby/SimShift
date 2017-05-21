@@ -23,21 +23,9 @@ namespace SimShift.Services
 
         public bool Enabled { get; private set; }
 
-        public IEnumerable<string> SimulatorsBan
-        {
-            get
-            {
-                return new string[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsBan => new string[0];
 
-        public IEnumerable<string> SimulatorsOnly
-        {
-            get
-            {
-                return new string[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsOnly => new string[0];
 
         public static Color GetRgb(double r, double g, double b)
         {
@@ -58,22 +46,22 @@ namespace SimShift.Services
             switch (hi)
             {
                 case 0:
-                    ret = Dashboard.GetRgb(v, t, p);
+                    ret = GetRgb(v, t, p);
                     break;
                 case 1:
-                    ret = Dashboard.GetRgb(q, v, p);
+                    ret = GetRgb(q, v, p);
                     break;
                 case 2:
-                    ret = Dashboard.GetRgb(p, v, t);
+                    ret = GetRgb(p, v, t);
                     break;
                 case 3:
-                    ret = Dashboard.GetRgb(p, q, v);
+                    ret = GetRgb(p, q, v);
                     break;
                 case 4:
-                    ret = Dashboard.GetRgb(t, p, v);
+                    ret = GetRgb(t, p, v);
                     break;
                 case 5:
-                    ret = Dashboard.GetRgb(v, p, q);
+                    ret = GetRgb(v, p, q);
                     break;
                 default:
                     ret = Color.FromArgb(0xFF, 0x00, 0x00, 0x00);
@@ -105,17 +93,22 @@ namespace SimShift.Services
             return;
             try
             {
-                if (busy) return;
-                busy = true;
-                if (sp == null)
+                if (this.busy)
                 {
-                    sp = new SerialPort("COM4", 115200);
-                    sp.Open();
-                    WriteInitLedTable();
+                    return;
                 }
-                sp.Write("rpm " + Math.Round(data.Telemetry.EngineRpm) + "\r\n");
-                sp.Write("gear " + Math.Round(data.Telemetry.Gear % 7 * 1.0f) + "\r\n");
-                busy = false;
+
+                this.busy = true;
+                if (this.sp == null)
+                {
+                    this.sp = new SerialPort("COM4", 115200);
+                    this.sp.Open();
+                    this.WriteInitLedTable();
+                }
+
+                this.sp.Write("rpm " + Math.Round(data.Telemetry.EngineRpm) + "\r\n");
+                this.sp.Write("gear " + Math.Round(data.Telemetry.Gear % 7 * 1.0f) + "\r\n");
+                this.busy = false;
             }
             catch (Exception ex)
             { }
@@ -125,14 +118,15 @@ namespace SimShift.Services
         {
             for (int led = 1; led <= 16; led++)
             {
-                sp.Write("led-animation " + led + ",-1 2000,0,2000 200,1000\r\n");
-                System.Threading.Thread.Sleep(10);
+                this.sp.Write("led-animation " + led + ",-1 2000,0,2000 200,1000\r\n");
+                Thread.Sleep(10);
             }
+
             for (int gear = 0; gear < 10; gear++)
             {
                 for (int led = 1; led <= 16; led++)
                 {
-                    Color c = Dashboard.HsvToRgb(led / 16.0f * 360, 1.0f, 1.0f);
+                    Color c = HsvToRgb(led / 16.0f * 360, 1.0f, 1.0f);
                     var r = c.R * 10;
                     var g = c.G * 10;
                     var b = c.B * 10;
@@ -141,10 +135,18 @@ namespace SimShift.Services
 
                     var s = -150 + rpm;
                     var e = 150 + rpm;
-                    if (s < 0) s = 0;
-                    if (e > 2400) e = 2400;
-                    sp.Write("led-animation " + led + "," + gear + " " + r + "," + g + "," + b + " " + s + "," + e + "\r\n");
-                    System.Threading.Thread.Sleep(10);
+                    if (s < 0)
+                    {
+                        s = 0;
+                    }
+
+                    if (e > 2400)
+                    {
+                        e = 2400;
+                    }
+
+                    this.sp.Write("led-animation " + led + "," + gear + " " + r + "," + g + "," + b + " " + s + "," + e + "\r\n");
+                    Thread.Sleep(10);
                 }
             }
         }

@@ -12,8 +12,8 @@ using SimShift.Utils;
 namespace SimShift.Services
 {
     /// <summary>
-    /// Automatic shifter for vehicles. Support 1 reverse and up to 24 reverse gears using 6-speed 4-range gearbox.
-    /// Uses pre-calculated 2-dimensional shifter table that maps speed and throttle position to gear.
+    ///     Automatic shifter for vehicles. Support 1 reverse and up to 24 reverse gears using 6-speed 4-range gearbox.
+    ///     Uses pre-calculated 2-dimensional shifter table that maps speed and throttle position to gear.
     /// </summary>
     public class Transmission : IControlChainObj, IConfigurable
     {
@@ -42,12 +42,12 @@ namespace SimShift.Services
 
         public Transmission()
         {
-            configuration = new ShifterTableConfiguration(ShifterTableConfigurationDefault.PeakRpm, Main.Drivetrain, 20, 0);
+            this.configuration = new ShifterTableConfiguration(ShifterTableConfigurationDefault.PeakRpm, Main.Drivetrain, 20, 0);
 
-            LoadShiftPattern("up_1thr", "normal");
-            LoadShiftPattern("up_0thr", "normal");
-            LoadShiftPattern("down_1thr", "normal");
-            LoadShiftPattern("down_0thr", "normal");
+            this.LoadShiftPattern("up_1thr", "normal");
+            this.LoadShiftPattern("up_0thr", "normal");
+            this.LoadShiftPattern("down_1thr", "normal");
+            this.LoadShiftPattern("down_0thr", "normal");
 
             // Add power shift pattern
             var powerShiftPattern = new ShiftPattern();
@@ -56,40 +56,21 @@ namespace SimShift.Services
             powerShiftPattern.Frames.Add(new ShiftPatternFrame(0, 1, false, false, true));
             powerShiftPattern.Frames.Add(new ShiftPatternFrame(1, 0.5, true, false, true));
             powerShiftPattern.Frames.Add(new ShiftPatternFrame(1, 0.5, true, false, true));
-            ShiftPatterns.Add("PowerShift", powerShiftPattern);
+            this.ShiftPatterns.Add("PowerShift", powerShiftPattern);
 
             // Initialize all shfiting stuff.
-            Shift(0, 1, "up_1thr");
-            Enabled = true;
-            IsShifting = false;
+            this.Shift(0, 1, "up_1thr");
+            this.Enabled = true;
+            this.IsShifting = false;
         }
 
-        //
         public static bool InReverse { get; set; }
 
-        public IEnumerable<string> AcceptsConfigs
-        {
-            get
-            {
-                return new[] { "ShiftCurve" };
-            }
-        }
+        public IEnumerable<string> AcceptsConfigs => new[] { "ShiftCurve" };
 
-        public bool Active
-        {
-            get
-            {
-                return IsShifting;
-            }
-        }
+        public bool Active => this.IsShifting;
 
-        public ShiftPattern ActiveShiftPattern
-        {
-            get
-            {
-                return ShiftPatterns[ActiveShiftPatternStr];
-            }
-        }
+        public ShiftPattern ActiveShiftPattern => this.ShiftPatterns[this.ActiveShiftPatternStr];
 
         public bool Enabled { get; set; }
 
@@ -103,14 +84,9 @@ namespace SimShift.Services
 
         public bool KickdownCooldown
         {
-            get
-            {
-                return KickdownTime > DateTime.Now;
-            }
-            set
-            {
-                KickdownTime = DateTime.MinValue;
-            }
+            get => this.KickdownTime > DateTime.Now;
+
+            set => this.KickdownTime = DateTime.MinValue;
         }
 
         public bool KickdownEnable { get; private set; }
@@ -137,8 +113,16 @@ namespace SimShift.Services
         {
             get
             {
-                if (RangeButtonFreeze1Untill > DateTime.Now) return 1; // phase 1
-                if (RangeButtonFreeze2Untill > DateTime.Now) return 2; // phase 2
+                if (this.RangeButtonFreeze1Untill > DateTime.Now)
+                {
+                    return 1; // phase 1
+                }
+
+                if (this.RangeButtonFreeze2Untill > DateTime.Now)
+                {
+                    return 2; // phase 2
+                }
+
                 return 0; // phase 0
             }
         }
@@ -155,57 +139,21 @@ namespace SimShift.Services
 
         public int ShiftDeadTime { get; private set; }
 
-        public int ShifterGear
-        {
-            get
-            {
-                return ShifterNewGear;
-            }
-        }
+        public int ShifterGear => this.ShifterNewGear;
 
-        public int ShifterNewGear
-        {
-            get
-            {
-                return ShiftCtrlNewGear + ShiftCtrlNewRange * RangeSize;
-            }
-        }
+        public int ShifterNewGear => this.ShiftCtrlNewGear + this.ShiftCtrlNewRange * this.RangeSize;
 
-        public int ShifterOldGear
-        {
-            get
-            {
-                return ShiftCtrlOldGear + ShiftCtrlOldRange * RangeSize;
-            }
-        }
+        public int ShifterOldGear => this.ShiftCtrlOldGear + this.ShiftCtrlOldRange * this.RangeSize;
 
-        public IEnumerable<string> SimulatorsBan
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsBan => new string[0];
 
-        public IEnumerable<string> SimulatorsOnly
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsOnly => new string[0];
 
         public int speedHoldoff { get; private set; }
 
         public DateTime TransmissionFreezeUntill { get; private set; }
 
-        public bool TransmissionFrozen
-        {
-            get
-            {
-                return TransmissionFreezeUntill > DateTime.Now;
-            }
-        }
+        public bool TransmissionFrozen => this.TransmissionFreezeUntill > DateTime.Now;
 
         protected bool EnableSportShiftdown { get; set; }
 
@@ -218,44 +166,44 @@ namespace SimShift.Services
             switch (obj.Key)
             {
                 case "ShiftDeadSpeed":
-                    ShiftDeadSpeed = obj.ReadAsInteger();
+                    this.ShiftDeadSpeed = obj.ReadAsInteger();
                     break;
                 case "ShiftDeadTime":
-                    ShiftDeadTime = obj.ReadAsInteger();
+                    this.ShiftDeadTime = obj.ReadAsInteger();
                     break;
 
                 case "GenerateSpeedHoldoff":
-                    speedHoldoff = obj.ReadAsInteger();
+                    this.speedHoldoff = obj.ReadAsInteger();
                     break;
 
                 case "EnableSportShiftdown":
-                    EnableSportShiftdown = obj.ReadAsInteger() == 1;
+                    this.EnableSportShiftdown = obj.ReadAsInteger() == 1;
                     break;
 
                 case "KickdownEnable":
-                    KickdownEnable = obj.ReadAsString() == "1";
+                    this.KickdownEnable = obj.ReadAsString() == "1";
                     break;
                 case "KickdownTimeout":
-                    KickdownTimeout = obj.ReadAsDouble();
+                    this.KickdownTimeout = obj.ReadAsDouble();
                     break;
                 case "KickdownSpeedReset":
-                    KickdownSpeedReset = obj.ReadAsDouble();
+                    this.KickdownSpeedReset = obj.ReadAsDouble();
                     break;
                 case "KickdownPowerReset":
-                    KickdownPowerReset = obj.ReadAsDouble();
+                    this.KickdownPowerReset = obj.ReadAsDouble();
                     break;
                 case "KickdownRpmReset":
-                    KickdownRpmReset = obj.ReadAsDouble();
+                    this.KickdownRpmReset = obj.ReadAsDouble();
                     break;
 
                 case "PowerShift":
-                    PowerShift = obj.ReadAsInteger() == 1;
+                    this.PowerShift = obj.ReadAsInteger() == 1;
                     break;
 
                 case "Generate":
                     var def = ShifterTableConfigurationDefault.PeakRpm;
-                    GeneratedShiftTable = obj.ReadAsString();
-                    switch (GeneratedShiftTable)
+                    this.GeneratedShiftTable = obj.ReadAsString();
+                    switch (this.GeneratedShiftTable)
                     {
                         case "Economy":
                             def = ShifterTableConfigurationDefault.Economy;
@@ -280,7 +228,7 @@ namespace SimShift.Services
                             break;
                     }
 
-                    configuration = new ShifterTableConfiguration(def, Main.Drivetrain, speedHoldoff, StaticMass);
+                    this.configuration = new ShifterTableConfiguration(def, Main.Drivetrain, this.speedHoldoff, this.StaticMass);
                     break;
             }
         }
@@ -288,11 +236,12 @@ namespace SimShift.Services
         public IEnumerable<IniValueObject> ExportParameters()
         {
             List<IniValueObject> obj = new List<IniValueObject>();
-            obj.Add(new IniValueObject(AcceptsConfigs, "ShiftDeadSpeed", ShiftDeadSpeed.ToString()));
-            obj.Add(new IniValueObject(AcceptsConfigs, "ShiftDeadTime", ShiftDeadTime.ToString()));
-            obj.Add(new IniValueObject(AcceptsConfigs, "GenerateSpeedHoldoff", speedHoldoff.ToString()));
-            obj.Add(new IniValueObject(AcceptsConfigs, "Generate", GeneratedShiftTable));
-            //TODO: Tables not supported yet.
+            obj.Add(new IniValueObject(this.AcceptsConfigs, "ShiftDeadSpeed", this.ShiftDeadSpeed.ToString()));
+            obj.Add(new IniValueObject(this.AcceptsConfigs, "ShiftDeadTime", this.ShiftDeadTime.ToString()));
+            obj.Add(new IniValueObject(this.AcceptsConfigs, "GenerateSpeedHoldoff", this.speedHoldoff.ToString()));
+            obj.Add(new IniValueObject(this.AcceptsConfigs, "Generate", this.GeneratedShiftTable));
+
+            // TODO: Tables not supported yet.
             return obj;
         }
 
@@ -302,24 +251,49 @@ namespace SimShift.Services
             {
                 case JoyControls.Throttle:
 
-                    transmissionThrottle = val;
-                    if (transmissionThrottle > 1) transmissionThrottle = 1;
-                    if (transmissionThrottle < 0) transmissionThrottle = 0;
-                    lock (ActiveShiftPattern)
+                    this.transmissionThrottle = val;
+                    if (this.transmissionThrottle > 1)
                     {
-                        if (!Enabled) return val * ThrottleScale;
-                        if (shiftRetry > 0) return 0;
-                        if (ShiftFrame >= ActiveShiftPattern.Count) return val * ThrottleScale;
-                        var candidateValue = IsShifting ? ActiveShiftPattern.Frames[ShiftFrame].Throttle * val : val;
-                        candidateValue *= ThrottleScale;
+                        this.transmissionThrottle = 1;
+                    }
+
+                    if (this.transmissionThrottle < 0)
+                    {
+                        this.transmissionThrottle = 0;
+                    }
+
+                    lock (this.ActiveShiftPattern)
+                    {
+                        if (!this.Enabled)
+                        {
+                            return val * this.ThrottleScale;
+                        }
+
+                        if (this.shiftRetry > 0)
+                        {
+                            return 0;
+                        }
+
+                        if (this.ShiftFrame >= this.ActiveShiftPattern.Count)
+                        {
+                            return val * this.ThrottleScale;
+                        }
+
+                        var candidateValue = this.IsShifting ? this.ActiveShiftPattern.Frames[this.ShiftFrame].Throttle * val : val;
+                        candidateValue *= this.ThrottleScale;
 
                         return candidateValue;
                     }
+
                 case JoyControls.Clutch:
-                    lock (ActiveShiftPattern)
+                    lock (this.ActiveShiftPattern)
                     {
-                        if (ShiftFrame >= ActiveShiftPattern.Count) return val;
-                        return ActiveShiftPattern.Frames[ShiftFrame].Clutch;
+                        if (this.ShiftFrame >= this.ActiveShiftPattern.Count)
+                        {
+                            return val;
+                        }
+
+                        return this.ActiveShiftPattern.Frames[this.ShiftFrame].Clutch;
                     }
 
                 default: return val;
@@ -330,17 +304,17 @@ namespace SimShift.Services
         {
             switch (c)
             {
-                case JoyControls.Gear1: return GetShiftButton(1);
-                case JoyControls.Gear2: return GetShiftButton(2);
-                case JoyControls.Gear3: return GetShiftButton(3);
-                case JoyControls.Gear4: return GetShiftButton(4);
-                case JoyControls.Gear5: return GetShiftButton(5);
-                case JoyControls.Gear6: return GetShiftButton(6);
-                case JoyControls.Gear7: return GetShiftButton(7);
-                case JoyControls.Gear8: return GetShiftButton(8);
-                case JoyControls.GearR: return GetShiftButton(-1);
-                case JoyControls.GearRange1: return GetRangeButton(1);
-                case JoyControls.GearRange2: return GetRangeButton(2);
+                case JoyControls.Gear1: return this.GetShiftButton(1);
+                case JoyControls.Gear2: return this.GetShiftButton(2);
+                case JoyControls.Gear3: return this.GetShiftButton(3);
+                case JoyControls.Gear4: return this.GetShiftButton(4);
+                case JoyControls.Gear5: return this.GetShiftButton(5);
+                case JoyControls.Gear6: return this.GetShiftButton(6);
+                case JoyControls.Gear7: return this.GetShiftButton(7);
+                case JoyControls.Gear8: return this.GetShiftButton(8);
+                case JoyControls.GearR: return this.GetShiftButton(-1);
+                case JoyControls.GearRange1: return this.GetRangeButton(1);
+                case JoyControls.GearRange2: return this.GetRangeButton(2);
 
                 default: return val;
             }
@@ -348,17 +322,17 @@ namespace SimShift.Services
 
         public void LoadShiftPatterns(List<ConfigurableShiftPattern> patterns)
         {
-            ShiftPatterns.Clear();
+            this.ShiftPatterns.Clear();
 
             foreach (var p in patterns)
             {
-                LoadShiftPattern(p.Region, p.File);
+                this.LoadShiftPattern(p.Region, p.File);
             }
         }
 
         public void RecalcTable()
         {
-            configuration = new ShifterTableConfiguration(configuration.Mode, Main.Drivetrain, configuration.SpdPerGear, configuration.Mass);
+            this.configuration = new ShifterTableConfiguration(this.configuration.Mode, Main.Drivetrain, this.configuration.SpdPerGear, this.configuration.Mass);
         }
 
         public bool Requires(JoyControls c)
@@ -366,9 +340,9 @@ namespace SimShift.Services
             switch (c)
             {
                 // Only required when changing
-                case JoyControls.Throttle: return Enabled || true;
+                case JoyControls.Throttle: return this.Enabled || true;
 
-                case JoyControls.Clutch: return Enabled && IsShifting;
+                case JoyControls.Clutch: return this.Enabled && this.IsShifting;
 
                 // All gears.
                 case JoyControls.GearR:
@@ -377,16 +351,16 @@ namespace SimShift.Services
                 case JoyControls.Gear3:
                 case JoyControls.Gear4:
                 case JoyControls.Gear5:
-                case JoyControls.Gear6: return Enabled;
+                case JoyControls.Gear6: return this.Enabled;
 
                 case JoyControls.GearRange2:
-                case JoyControls.GearRange1: return Enabled && Main.Data.Active.TransmissionSupportsRanges;
+                case JoyControls.GearRange1: return this.Enabled && Main.Data.Active.TransmissionSupportsRanges;
 
                 case JoyControls.Gear7:
-                case JoyControls.Gear8: return Enabled && !Main.Data.Active.TransmissionSupportsRanges;
+                case JoyControls.Gear8: return this.Enabled && !Main.Data.Active.TransmissionSupportsRanges;
 
                 case JoyControls.GearUp:
-                case JoyControls.GearDown: return Enabled;
+                case JoyControls.GearDown: return this.Enabled;
 
                 default: return false;
             }
@@ -394,159 +368,214 @@ namespace SimShift.Services
 
         public void ResetParameters()
         {
-            configuration = new ShifterTableConfiguration(ShifterTableConfigurationDefault.PeakRpm, Main.Drivetrain, 10, 0);
+            this.configuration = new ShifterTableConfiguration(ShifterTableConfigurationDefault.PeakRpm, Main.Drivetrain, 10, 0);
 
-            if (Main.Data.Active.Application == "TestDrive2") LoadShiftPattern("up_1thr", "fast");
-            else LoadShiftPattern("up_1thr", "normal");
+            if (Main.Data.Active.Application == "TestDrive2")
+            {
+                this.LoadShiftPattern("up_1thr", "fast");
+            }
+            else
+            {
+                this.LoadShiftPattern("up_1thr", "normal");
+            }
 
-            EnableSportShiftdown = false;
-            PowerShift = false;
+            this.EnableSportShiftdown = false;
+            this.PowerShift = false;
         }
 
         public void Shift(int fromGear, int toGear, string style)
         {
-            if (IsShifting) return;
+            if (this.IsShifting)
+            {
+                return;
+            }
 
-            if (EnableSportShiftdown && Main.GetAxisIn(JoyControls.Throttle) < 0.2) KickdownTime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, (int) KickdownTimeout / 10));
-            else KickdownTime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, (int) KickdownTimeout));
+            if (this.EnableSportShiftdown && Main.GetAxisIn(JoyControls.Throttle) < 0.2)
+            {
+                this.KickdownTime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, (int) this.KickdownTimeout / 10));
+            }
+            else
+            {
+                this.KickdownTime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, (int) this.KickdownTimeout));
+            }
 
-            if (PowerShift) style = "PowerShift";
+            if (this.PowerShift)
+            {
+                style = "PowerShift";
+            }
 
-            if (ShiftPatterns.ContainsKey(style)) ActiveShiftPatternStr = style;
-            else ActiveShiftPatternStr = ShiftPatterns.Keys.FirstOrDefault();
+            if (this.ShiftPatterns.ContainsKey(style))
+            {
+                this.ActiveShiftPatternStr = style;
+            }
+            else
+            {
+                this.ActiveShiftPatternStr = this.ShiftPatterns.Keys.FirstOrDefault();
+            }
 
             // Copy old control to new control values
-            ShiftCtrlOldGear = fromGear;
-            if (ShiftCtrlOldGear == -1) ShiftCtrlOldRange = 0;
-            else if (ShiftCtrlOldGear == 0) ShiftCtrlOldRange = 0;
-            else if (ShiftCtrlOldGear >= 1 && ShiftCtrlOldGear <= RangeSize) ShiftCtrlOldRange = 0;
-            else if (ShiftCtrlOldGear >= RangeSize + 1 && ShiftCtrlOldGear <= 2 * RangeSize) ShiftCtrlOldRange = 1;
-            else if (ShiftCtrlOldGear >= 2 * RangeSize + 1 && ShiftCtrlOldGear <= 3 * RangeSize) ShiftCtrlOldRange = 2;
-            ShiftCtrlOldGear -= ShiftCtrlOldRange * RangeSize;
+            this.ShiftCtrlOldGear = fromGear;
+            if (this.ShiftCtrlOldGear == -1)
+            {
+                this.ShiftCtrlOldRange = 0;
+            }
+            else if (this.ShiftCtrlOldGear == 0)
+            {
+                this.ShiftCtrlOldRange = 0;
+            }
+            else if (this.ShiftCtrlOldGear >= 1 && this.ShiftCtrlOldGear <= this.RangeSize)
+            {
+                this.ShiftCtrlOldRange = 0;
+            }
+            else if (this.ShiftCtrlOldGear >= this.RangeSize + 1 && this.ShiftCtrlOldGear <= 2 * this.RangeSize)
+            {
+                this.ShiftCtrlOldRange = 1;
+            }
+            else if (this.ShiftCtrlOldGear >= 2 * this.RangeSize + 1 && this.ShiftCtrlOldGear <= 3 * this.RangeSize)
+            {
+                this.ShiftCtrlOldRange = 2;
+            }
+
+            this.ShiftCtrlOldGear -= this.ShiftCtrlOldRange * this.RangeSize;
 
             // Determine new range
             if (toGear == -1)
             {
-                ShiftCtrlNewGear = -1;
-                ShiftCtrlNewRange = 0;
+                this.ShiftCtrlNewGear = -1;
+                this.ShiftCtrlNewRange = 0;
             }
             else if (toGear == 0)
             {
-                ShiftCtrlNewGear = 0;
-                ShiftCtrlNewRange = 0;
+                this.ShiftCtrlNewGear = 0;
+                this.ShiftCtrlNewRange = 0;
             }
-            else if (toGear >= 1 && toGear <= RangeSize)
+            else if (toGear >= 1 && toGear <= this.RangeSize)
             {
-                ShiftCtrlNewGear = toGear;
-                ShiftCtrlNewRange = 0;
+                this.ShiftCtrlNewGear = toGear;
+                this.ShiftCtrlNewRange = 0;
             }
-            else if (toGear >= RangeSize + 1 && toGear <= RangeSize * 2)
+            else if (toGear >= this.RangeSize + 1 && toGear <= this.RangeSize * 2)
             {
-                ShiftCtrlNewGear = toGear - RangeSize;
-                ShiftCtrlNewRange = 1;
+                this.ShiftCtrlNewGear = toGear - this.RangeSize;
+                this.ShiftCtrlNewRange = 1;
             }
-            else if (toGear >= RangeSize * 2 + 1 && toGear <= RangeSize * 3)
+            else if (toGear >= this.RangeSize * 2 + 1 && toGear <= this.RangeSize * 3)
             {
-                ShiftCtrlNewGear = toGear - RangeSize * 2;
-                ShiftCtrlNewRange = 2;
+                this.ShiftCtrlNewGear = toGear - this.RangeSize * 2;
+                this.ShiftCtrlNewRange = 2;
             }
 
-            ShiftFrame = 0;
-            IsShifting = true;
-            powerShiftStage = 0;
+            this.ShiftFrame = 0;
+            this.IsShifting = true;
+            this.powerShiftStage = 0;
         }
 
         public void TickControls()
         {
-            if (IsShifting)
+            if (this.IsShifting)
             {
-                lock (ActiveShiftPattern)
+                lock (this.ActiveShiftPattern)
                 {
-                    if (PowerShift)
+                    if (this.PowerShift)
                     {
-                        var stage = powerShiftStage;
-                        if (powerShiftStage == ActiveShiftPattern.Count - 2)
+                        var stage = this.powerShiftStage;
+                        if (this.powerShiftStage == this.ActiveShiftPattern.Count - 2)
                         {
-                            if (Main.Data.Telemetry.Gear == ShifterNewGear) powerShiftStage++;
+                            if (Main.Data.Telemetry.Gear == this.ShifterNewGear)
+                            {
+                                this.powerShiftStage++;
+                            }
                         }
-                        else if (powerShiftStage == ActiveShiftPattern.Count - 1)
+                        else if (this.powerShiftStage == this.ActiveShiftPattern.Count - 1)
                         {
-                            IsShifting = false;
-                            shiftRetry = 0;
-                            TransmissionFreezeUntill = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, ShiftDeadTime + 50 * ShiftCtrlNewGear));
+                            this.IsShifting = false;
+                            this.shiftRetry = 0;
+                            this.TransmissionFreezeUntill = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, this.ShiftDeadTime + 50 * this.ShiftCtrlNewGear));
                         }
                         else
                         {
-                            powerShiftStage++;
+                            this.powerShiftStage++;
                         }
 
-                        if (powerShiftStage != stage)
+                        if (this.powerShiftStage != stage)
                         {
-                            powerShiftTimer = 0;
+                            this.powerShiftTimer = 0;
                         }
                         else
                         {
-                            powerShiftTimer++;
-                            if (powerShiftTimer >= 100)
+                            this.powerShiftTimer++;
+                            if (this.powerShiftTimer >= 100)
                             {
-                                powerShiftTimer = 0;
+                                this.powerShiftTimer = 0;
+
                                 // So we are shifting, check lagging by 1, and new gear doesn't work
                                 // We re-shfit
-                                var tmp = ShiftFrame;
-                                IsShifting = false;
-                                if (shiftRetry >= 7)
+                                var tmp = this.ShiftFrame;
+                                this.IsShifting = false;
+                                if (this.shiftRetry >= 7)
                                 {
-                                    GameGear = shiftRetry;
+                                    this.GameGear = this.shiftRetry;
                                 }
-                                GameGear = GameGear % 18;
-                                if (shiftRetry > 18 + 8)
+
+                                this.GameGear = this.GameGear % 18;
+                                if (this.shiftRetry > 18 + 8)
                                 {
-                                    IsShifting = false;
+                                    this.IsShifting = false;
                                     return;
                                 }
-                                Shift(GameGear, ShifterNewGear, "PowerShift");
-                                ShiftFrame = 0;
-                                shiftRetry++;
 
-                                if (ShiftCtrlNewRange != ShiftCtrlOldRange)
+                                this.Shift(this.GameGear, this.ShifterNewGear, "PowerShift");
+                                this.ShiftFrame = 0;
+                                this.shiftRetry++;
+
+                                if (this.ShiftCtrlNewRange != this.ShiftCtrlOldRange)
                                 {
-                                    ShiftFrame = 0;
-                                    RangeButtonFreeze1Untill = DateTime.Now;
-                                    RangeButtonFreeze2Untill = DateTime.Now;
+                                    this.ShiftFrame = 0;
+                                    this.RangeButtonFreeze1Untill = DateTime.Now;
+                                    this.RangeButtonFreeze2Untill = DateTime.Now;
                                 }
                             }
                         }
-                        ShiftFrame = powerShiftStage;
+
+                        this.ShiftFrame = this.powerShiftStage;
                     }
                     else
                     {
-                        ShiftFrame++;
-                        if (ShiftFrame > ActiveShiftPattern.Count) ShiftFrame = 0;
-                        if (ShiftFrame >= ActiveShiftPattern.Count)
+                        this.ShiftFrame++;
+                        if (this.ShiftFrame > this.ActiveShiftPattern.Count)
                         {
-                            if (shiftRetry < 20 && ShiftFrame > 4 && GameGear != ShifterNewGear)
+                            this.ShiftFrame = 0;
+                        }
+
+                        if (this.ShiftFrame >= this.ActiveShiftPattern.Count)
+                        {
+                            if (this.shiftRetry < 20 && this.ShiftFrame > 4 && this.GameGear != this.ShifterNewGear)
                             {
                                 // So we are shifting, check lagging by 1, and new gear doesn't work
                                 // We re-shfit
-                                var tmp = ShiftFrame;
-                                IsShifting = false;
-                                if (shiftRetry >= 7) GameGear = shiftRetry;
-                                Shift(GameGear, ShifterNewGear, "up_1thr");
-                                ShiftFrame = 0;
-                                shiftRetry++;
-
-                                if (ShiftCtrlNewRange != ShiftCtrlOldRange)
+                                var tmp = this.ShiftFrame;
+                                this.IsShifting = false;
+                                if (this.shiftRetry >= 7)
                                 {
-                                    ShiftFrame = 0;
-                                    RangeButtonFreeze1Untill = DateTime.Now;
-                                    RangeButtonFreeze2Untill = DateTime.Now;
+                                    this.GameGear = this.shiftRetry;
+                                }
+
+                                this.Shift(this.GameGear, this.ShifterNewGear, "up_1thr");
+                                this.ShiftFrame = 0;
+                                this.shiftRetry++;
+
+                                if (this.ShiftCtrlNewRange != this.ShiftCtrlOldRange)
+                                {
+                                    this.ShiftFrame = 0;
+                                    this.RangeButtonFreeze1Untill = DateTime.Now;
+                                    this.RangeButtonFreeze2Untill = DateTime.Now;
                                 }
                             }
                             else
                             {
-                                IsShifting = false;
-                                shiftRetry = 0;
-                                TransmissionFreezeUntill = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, ShiftDeadTime + 20 * ShiftCtrlNewGear));
+                                this.IsShifting = false;
+                                this.shiftRetry = 0;
+                                this.TransmissionFreezeUntill = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, this.ShiftDeadTime + 20 * this.ShiftCtrlNewGear));
                             }
                         }
                     }
@@ -558,17 +587,35 @@ namespace SimShift.Services
         {
             int idealGear = data.Telemetry.Gear;
 
-            if (data.TransmissionSupportsRanges) RangeSize = 6;
-            else RangeSize = 8;
+            if (data.TransmissionSupportsRanges)
+            {
+                this.RangeSize = 6;
+            }
+            else
+            {
+                this.RangeSize = 8;
+            }
 
             // TODO: Add generic telemetry object
-            GameGear = data.Telemetry.Gear;
-            if (IsShifting) return;
-            if (TransmissionFrozen && !GetHomeMode) return;
-            if (OverruleShifts) return;
-            shiftRetry = 0;
+            this.GameGear = data.Telemetry.Gear;
+            if (this.IsShifting)
+            {
+                return;
+            }
 
-            if (GetHomeMode)
+            if (this.TransmissionFrozen && !this.GetHomeMode)
+            {
+                return;
+            }
+
+            if (this.OverruleShifts)
+            {
+                return;
+            }
+
+            this.shiftRetry = 0;
+
+            if (this.GetHomeMode)
             {
                 if (idealGear < 1)
                 {
@@ -578,50 +625,65 @@ namespace SimShift.Services
                 var lowRpm = Main.Drivetrain.StallRpm * 1.5;
                 var highRpm = Main.Drivetrain.StallRpm * 3;
 
-                if (data.Telemetry.EngineRpm < lowRpm && idealGear > 1) idealGear--;
-                if (data.Telemetry.EngineRpm > highRpm && idealGear < Main.Drivetrain.Gears) idealGear++;
+                if (data.Telemetry.EngineRpm < lowRpm && idealGear > 1)
+                {
+                    idealGear--;
+                }
+
+                if (data.Telemetry.EngineRpm > highRpm && idealGear < Main.Drivetrain.Gears)
+                {
+                    idealGear++;
+                }
             }
             else
             {
-                if (EnableSportShiftdown) transmissionThrottle = Math.Max(Main.GetAxisIn(JoyControls.Brake) * 8, transmissionThrottle);
-                transmissionThrottle = Math.Min(1, Math.Max(0, transmissionThrottle));
-                var lookupResult = configuration.Lookup(data.Telemetry.Speed * 3.6, transmissionThrottle);
+                if (this.EnableSportShiftdown)
+                {
+                    this.transmissionThrottle = Math.Max(Main.GetAxisIn(JoyControls.Brake) * 8, this.transmissionThrottle);
+                }
+
+                this.transmissionThrottle = Math.Min(1, Math.Max(0, this.transmissionThrottle));
+                var lookupResult = this.configuration.Lookup(data.Telemetry.Speed * 3.6, this.transmissionThrottle);
                 idealGear = lookupResult.Gear;
-                ThrottleScale = GetHomeMode ? 1 : lookupResult.ThrottleScale;
+                this.ThrottleScale = this.GetHomeMode ? 1 : lookupResult.ThrottleScale;
 
                 if (Main.Data.Active.Application == "eurotrucks2")
                 {
-                    var ets2Miner = (Ets2DataMiner) (data);
+                    var ets2Miner = (Ets2DataMiner) data;
                     var maxGears = (int) Math.Round(Main.Drivetrain.Gears * (1 - ets2Miner.MyTelemetry.Damage.WearTransmission));
 
-                    if (idealGear >= maxGears) idealGear = maxGears;
+                    if (idealGear >= maxGears)
+                    {
+                        idealGear = maxGears;
+                    }
                 }
 
-                if (data.Telemetry.Gear == 0 && ShiftCtrlNewGear != 0)
+                if (data.Telemetry.Gear == 0 && this.ShiftCtrlNewGear != 0)
                 {
                     Debug.WriteLine("Timeout");
-                    ShiftCtrlNewGear = 0;
-                    TransmissionFreezeUntill = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 250));
+                    this.ShiftCtrlNewGear = 0;
+                    this.TransmissionFreezeUntill = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 250));
                     return;
                 }
             }
 
             if (InReverse)
             {
-                if (GameGear != -1 && Math.Abs(data.Telemetry.Speed) < 1)
+                if (this.GameGear != -1 && Math.Abs(data.Telemetry.Speed) < 1)
                 {
                     Debug.WriteLine("Shift from " + data.Telemetry.Gear + " to  " + idealGear);
-                    Shift(data.Telemetry.Gear, -1, "up_1thr");
+                    this.Shift(data.Telemetry.Gear, -1, "up_1thr");
                 }
+
                 return;
             }
 
             // Kickdown?
             // What is basically does, is making this very-anxious gearbox tone down a bit in it's aggressive shift pattern.
             // With kickdown we specify 2 rules to make the gear "stick" longer with varying throttle positions.
-            if (KickdownEnable)
+            if (this.KickdownEnable)
             {
-                if (KickdownCooldown)
+                if (this.KickdownCooldown)
                 {
                     // We're on cooldown. Check if power/speed/rpm is able to reset this
                     // The scheme is as follow:
@@ -632,32 +694,33 @@ namespace SimShift.Services
                     // This makes sure the gearbox shifts down if on very low revs and almost about to stall.
 
                     // Note: only for speeding up
-                    if ((data.Telemetry.Speed - KickdownLockedSpeed) > KickdownSpeedReset)
+                    if ((data.Telemetry.Speed - this.KickdownLockedSpeed) > this.KickdownSpeedReset)
                     {
                         Debug.WriteLine("[Kickdown] Reset on overspeed");
-                        KickdownCooldown = false;
+                        this.KickdownCooldown = false;
                     }
 
                     var maxPwr = Main.Drivetrain.CalculateMaxPower();
 
-                    var engineRpmCurrentGear = Main.Drivetrain.CalculateRpmForSpeed(ShifterOldGear - 1, data.Telemetry.Speed);
+                    var engineRpmCurrentGear = Main.Drivetrain.CalculateRpmForSpeed(this.ShifterOldGear - 1, data.Telemetry.Speed);
                     var pwrCurrentGear = Main.Drivetrain.CalculatePower(engineRpmCurrentGear, data.Telemetry.Throttle);
 
                     var engineRpmNewGear = Main.Drivetrain.CalculateRpmForSpeed(idealGear - 1, data.Telemetry.Speed);
                     var pwrNewGear = Main.Drivetrain.CalculatePower(engineRpmNewGear, data.Telemetry.Throttle);
-                    //Debug.WriteLine("N"+pwrCurrentGear.ToString("000") + " I:" + pwrNewGear.ToString("000"));
+
+                    // Debug.WriteLine("N"+pwrCurrentGear.ToString("000") + " I:" + pwrNewGear.ToString("000"));
                     // This makes sure the gearbox shifts down if on low revs and the user is requesting power from the engine
-                    if (pwrNewGear / pwrCurrentGear > 1 + KickdownPowerReset && pwrNewGear / maxPwr > KickdownPowerReset)
+                    if (pwrNewGear / pwrCurrentGear > 1 + this.KickdownPowerReset && pwrNewGear / maxPwr > this.KickdownPowerReset)
                     {
                         Debug.WriteLine("[Kickdown] Reset on power / " + pwrCurrentGear + " / " + pwrNewGear);
-                        KickdownCooldown = false;
+                        this.KickdownCooldown = false;
                     }
 
                     // This makes sure the gearbox shifts up in decent time when reaching end of gears
-                    if (Main.Drivetrain.StallRpm * KickdownRpmReset > data.Telemetry.EngineRpm)
+                    if (Main.Drivetrain.StallRpm * this.KickdownRpmReset > data.Telemetry.EngineRpm)
                     {
                         Debug.WriteLine("[Kickdown] Reset on stalling RPM");
-                        KickdownCooldown = true;
+                        this.KickdownCooldown = true;
                     }
                 }
                 else
@@ -666,54 +729,74 @@ namespace SimShift.Services
 
             if (idealGear != data.Telemetry.Gear)
             {
-                if (KickdownEnable && KickdownCooldown && !GetHomeMode) return;
-                KickdownLockedSpeed = Main.Data.Telemetry.Speed;
+                if (this.KickdownEnable && this.KickdownCooldown && !this.GetHomeMode)
+                {
+                    return;
+                }
+
+                this.KickdownLockedSpeed = Main.Data.Telemetry.Speed;
                 var upShift = idealGear > data.Telemetry.Gear;
                 var fullThrottle = data.Telemetry.Throttle > 0.6;
 
                 var shiftStyle = (upShift ? "up" : "down") + "_" + (fullThrottle ? "1" : "0") + "thr";
 
                 Debug.WriteLine("Shift from " + data.Telemetry.Gear + " to  " + idealGear);
-                Shift(data.Telemetry.Gear, idealGear, shiftStyle);
+                this.Shift(data.Telemetry.Gear, idealGear, shiftStyle);
             }
         }
 
         private bool GetRangeButton(int r)
         {
-            if (Main.Data.Active == null || !Main.Data.Active.TransmissionSupportsRanges) return false;
-            if (IsShifting && ShiftCtrlNewRange != ShiftCtrlOldRange)
+            if (Main.Data.Active == null || !Main.Data.Active.TransmissionSupportsRanges)
+            {
+                return false;
+            }
+
+            if (this.IsShifting && this.ShiftCtrlNewRange != this.ShiftCtrlOldRange)
             {
                 // More debug values
                 // Going to range 1 when old gear was outside range 1,
                 // and new is in range 1.
-                var engagingToRange1 = ShifterOldGear >= 7 && ShifterNewGear < 7;
+                var engagingToRange1 = this.ShifterOldGear >= 7 && this.ShifterNewGear < 7;
 
                 // Range 2 is engaged when the old gear was range 1 or 3, and the new one is range 2.
-                var engagingToRange2 = (ShifterOldGear < 7 || ShifterOldGear > 12) && ShifterNewGear >= 7 && ShifterNewGear <= 12;
+                var engagingToRange2 = (this.ShifterOldGear < 7 || this.ShifterOldGear > 12) && this.ShifterNewGear >= 7 && this.ShifterNewGear <= 12;
 
                 // Range 2 is engaged when the old gear was range 1 or 2, and the new one is range 3.
-                var engagingToRange3 = ShifterOldGear < 13 && ShifterNewGear >= 13;
+                var engagingToRange3 = this.ShifterOldGear < 13 && this.ShifterNewGear >= 13;
 
                 var engageR1Status = false;
                 var engageR2Status = false;
 
-                if (ShiftCtrlOldRange == 0)
+                if (this.ShiftCtrlOldRange == 0)
                 {
-                    if (ShiftCtrlNewRange == 1) engageR1Status = true;
-                    else engageR2Status = true;
+                    if (this.ShiftCtrlNewRange == 1)
+                    {
+                        engageR1Status = true;
+                    }
+                    else
+                    {
+                        engageR2Status = true;
+                    }
                 }
-                else if (ShiftCtrlOldRange == 1)
+                else if (this.ShiftCtrlOldRange == 1)
                 {
-                    if (ShiftCtrlNewRange == 0) engageR1Status = true;
+                    if (this.ShiftCtrlNewRange == 0)
+                    {
+                        engageR1Status = true;
+                    }
                     else
                     {
                         engageR1Status = true;
                         engageR2Status = true;
                     }
                 }
-                else if (ShiftCtrlOldRange == 2)
+                else if (this.ShiftCtrlOldRange == 2)
                 {
-                    if (ShiftCtrlNewRange == 0) engageR2Status = true;
+                    if (this.ShiftCtrlNewRange == 0)
+                    {
+                        engageR2Status = true;
+                    }
                     else
                     {
                         engageR1Status = true;
@@ -721,12 +804,19 @@ namespace SimShift.Services
                     }
                 }
 
-                switch (RangeButtonSelectPhase)
+                switch (this.RangeButtonSelectPhase)
                 {
                     // On
                     case 1:
-                        if (r == 1) return engageR1Status;
-                        if (r == 2) return engageR2Status;
+                        if (r == 1)
+                        {
+                            return engageR1Status;
+                        }
+
+                        if (r == 2)
+                        {
+                            return engageR2Status;
+                        }
 
                         return false;
 
@@ -736,13 +826,20 @@ namespace SimShift.Services
                     // Evaluate and set phase 1(on) / phase 2 (off) timings
                     default:
 
-                        Debug.WriteLine("Shift " + ShifterOldGear + "(" + ShiftCtrlOldRange + ") to " + ShifterNewGear + "(" + ShiftCtrlNewRange + ")");
+                        Debug.WriteLine("Shift " + this.ShifterOldGear + "(" + this.ShiftCtrlOldRange + ") to " + this.ShifterNewGear + "(" + this.ShiftCtrlNewRange + ")");
                         Debug.WriteLine("R1: " + engageR1Status + " / R2: " + engageR2Status);
-                        if (r == 1 && !engageR1Status) return false;
-                        if (r == 2 && !engageR2Status) return false;
+                        if (r == 1 && !engageR1Status)
+                        {
+                            return false;
+                        }
 
-                        RangeButtonFreeze1Untill = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 100)); //150ms ON
-                        RangeButtonFreeze2Untill = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 1500)); //150ms OFF
+                        if (r == 2 && !engageR2Status)
+                        {
+                            return false;
+                        }
+
+                        this.RangeButtonFreeze1Untill = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 100)); // 150ms ON
+                        this.RangeButtonFreeze2Untill = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 1500)); // 150ms OFF
 
                         Debug.WriteLine("Yes");
                         return true;
@@ -754,27 +851,42 @@ namespace SimShift.Services
 
         private bool GetShiftButton(int b)
         {
-            if (IsShifting)
+            if (this.IsShifting)
             {
-                lock (ActiveShiftPattern)
+                lock (this.ActiveShiftPattern)
                 {
-                    if (ShiftFrame >= ActiveShiftPattern.Count) return false;
-                    if (ActiveShiftPattern.Frames[ShiftFrame].UseOldGear) return (b == ShiftCtrlOldGear);
-                    if (ActiveShiftPattern.Frames[ShiftFrame].UseNewGear) return (b == ShiftCtrlNewGear);
+                    if (this.ShiftFrame >= this.ActiveShiftPattern.Count)
+                    {
+                        return false;
+                    }
+
+                    if (this.ActiveShiftPattern.Frames[this.ShiftFrame].UseOldGear)
+                    {
+                        return b == this.ShiftCtrlOldGear;
+                    }
+
+                    if (this.ActiveShiftPattern.Frames[this.ShiftFrame].UseNewGear)
+                    {
+                        return b == this.ShiftCtrlNewGear;
+                    }
+
                     return false;
                 }
             }
 
-            return (b == ShiftCtrlNewGear);
+            return b == this.ShiftCtrlNewGear;
         }
 
         private void LoadShiftPattern(string pattern, string file)
         {
             // Add pattern if not existing.
-            if (!ShiftPatterns.ContainsKey(pattern)) ShiftPatterns.Add(pattern, new ShiftPattern());
+            if (!this.ShiftPatterns.ContainsKey(pattern))
+            {
+                this.ShiftPatterns.Add(pattern, new ShiftPattern());
+            }
 
             // Load configuration file
-            Main.Load(ShiftPatterns[pattern], "Settings/ShiftPattern/" + file + ".ini");
+            Main.Load(this.ShiftPatterns[pattern], "Settings/ShiftPattern/" + file + ".ini");
         }
     }
 }

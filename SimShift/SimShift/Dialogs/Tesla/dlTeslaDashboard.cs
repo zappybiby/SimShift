@@ -30,35 +30,45 @@ namespace SimShift.Dialogs.Tesla
 
         private float Speed = 1.0f;
 
-        private int tachoW, tachoH;
+        private int tachoH;
+
+        private int tachoW;
 
         public dlTeslaDashboard()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
-            SetStyle(ControlStyles.UserPaint, true);
-            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-            SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            this.SetStyle(ControlStyles.UserPaint, true);
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
 
-            TransparencyKey = Color.FromArgb(15, 16, 2);
-            Back = Bitmap.FromFile(ResourceFolder + "Background2.png");
-            Back = ResizeImage(Back, 1400, 550);
-            gps = new Bitmap(500, 500);
+            this.TransparencyKey = Color.FromArgb(15, 16, 2);
+            this.Back = Image.FromFile(ResourceFolder + "Background2.png");
+            this.Back = this.ResizeImage(this.Back, 1400, 550);
+            this.gps = new Bitmap(500, 500);
 
             var updateGps = new Timer();
             updateGps.Interval = 250;
             updateGps.Tick += (s, e) =>
                 {
-                    var newInterval = updateGps_Tick(s, e);
-                    if (newInterval < 50) newInterval = 50;
-                    if (newInterval > 1000) newInterval = 1000;
+                    var newInterval = this.updateGps_Tick(s, e);
+                    if (newInterval < 50)
+                    {
+                        newInterval = 50;
+                    }
+
+                    if (newInterval > 1000)
+                    {
+                        newInterval = 1000;
+                    }
+
                     updateGps.Interval = newInterval;
                 };
             updateGps.Start();
 
             var t = new Timer();
             t.Interval = 50;
-            t.Tick += (s, e) => Invalidate();
+            t.Tick += (s, e) => this.Invalidate();
             t.Start();
         }
 
@@ -66,11 +76,11 @@ namespace SimShift.Dialogs.Tesla
         {
             base.OnPaint(e);
 
-            if (!FillTelemetry())
+            if (!this.FillTelemetry())
             {
-                Speed = 0;
-                RPM = 0;
-                Power = 0;
+                this.Speed = 0;
+                this.RPM = 0;
+                this.Power = 0;
             }
 
             Dictionary<float, float> speedLut = new Dictionary<float, float>();
@@ -113,10 +123,25 @@ namespace SimShift.Dialogs.Tesla
             powerGLut.Add(60, 405);
 
             var shiftP = 0.0;
-            if (Main.Transmission != null && Main.Transmission.configuration != null && Main.Transmission.configuration.Mode == ShifterTableConfigurationDefault.Economy) shiftP = (RPM - 1200) / 300;
-            else shiftP = (RPM - 1400) / 300;
-            if (shiftP < 0) shiftP = 0;
-            if (shiftP > 1) shiftP = 1;
+            if (Main.Transmission != null && Main.Transmission.configuration != null && Main.Transmission.configuration.Mode == ShifterTableConfigurationDefault.Economy)
+            {
+                shiftP = (this.RPM - 1200) / 300;
+            }
+            else
+            {
+                shiftP = (this.RPM - 1400) / 300;
+            }
+
+            if (shiftP < 0)
+            {
+                shiftP = 0;
+            }
+
+            if (shiftP > 1)
+            {
+                shiftP = 1;
+            }
+
             shiftP = 1 - shiftP;
 
             var speedOuter = Color.FromArgb(255, 129, 255, 254).Blend(Color.FromArgb(255, 255, 30, 0), shiftP);
@@ -135,33 +160,36 @@ namespace SimShift.Dialogs.Tesla
             using (var g = Graphics.FromImage(frame))
             {
                 g.CompositingQuality = CompositingQuality.HighSpeed;
-                g.DrawImageUnscaled(gps, new Rectangle(0, Back.Height / 2 - gps.Height / 2, gps.Width, gps.Height));
-                g.DrawImage(Back, e.ClipRectangle, new Rectangle(0, 0, Back.Width, Back.Height), GraphicsUnit.Pixel);
+                g.DrawImageUnscaled(this.gps, new Rectangle(0, this.Back.Height / 2 - this.gps.Height / 2, this.gps.Width, this.gps.Height));
+                g.DrawImage(this.Back, e.ClipRectangle, new Rectangle(0, 0, this.Back.Width, this.Back.Height), GraphicsUnit.Pixel);
 
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 g.CompositingQuality = CompositingQuality.HighQuality;
                 g.SmoothingMode = SmoothingMode.AntiAlias;
 
-                DrawGlowingNeedle(speedLut, Speed, speedOuter, speedGlow, speedCenter, g);
+                this.DrawGlowingNeedle(speedLut, this.Speed, speedOuter, speedGlow, speedCenter, g);
 
-                if (Power >= 0) DrawGlowingNeedle(powerLut, Power, powerOuter, powerGlow, powerCenter, g);
+                if (this.Power >= 0)
+                {
+                    this.DrawGlowingNeedle(powerLut, this.Power, powerOuter, powerGlow, powerCenter, g);
+                }
                 else
                 {
-                    DrawGlowingNeedle(powerGLut, -Power, powerGOuter, powerGGlow, powerGCenter, g);
+                    this.DrawGlowingNeedle(powerGLut, -this.Power, powerGOuter, powerGGlow, powerGCenter, g);
                 }
 
                 // Draw speed
                 var eurostile86 = new Font("Eurostile-Normal", 60, FontStyle.Bold);
                 var eurostile16 = new Font("Eurostile-Normal", 12.0f, FontStyle.Bold);
 
-                var speedStr = ((int) Math.Round(Speed)).ToString();
+                var speedStr = ((int) Math.Round(this.Speed)).ToString();
                 var speedX = 700 - 30 * speedStr.Length;
 
                 g.DrawString(speedStr, eurostile86, Brushes.Black, speedX + 5, 190 + 5);
                 g.DrawString(speedStr, eurostile86, Brushes.White, speedX, 190);
                 g.DrawString("km/h", eurostile16, Brushes.White, 680, 270);
-                g.DrawString(Math.Round(Math.Abs(Power)).ToString("000") + "hp", eurostile16, (Power > 0 ? Brushes.White : Brushes.GreenYellow), 670, 320);
-                g.DrawString(Math.Round(RPM / 1000.0f, 2).ToString("0.00") + "K rpm", eurostile16, Brushes.White, 660, 350);
+                g.DrawString(Math.Round(Math.Abs(this.Power)).ToString("000") + "hp", eurostile16, this.Power > 0 ? Brushes.White : Brushes.GreenYellow, 670, 320);
+                g.DrawString(Math.Round(this.RPM / 1000.0f, 2).ToString("0.00") + "K rpm", eurostile16, Brushes.White, 660, 350);
 
                 e.Graphics.DrawImageUnscaledAndClipped(frame, e.ClipRectangle);
             }
@@ -170,7 +198,7 @@ namespace SimShift.Dialogs.Tesla
         PointF DistanceFromCenter(PointF center, double radius, double angle)
         {
             double angleInRadians = angle * Math.PI / 180;
-            return new PointF((float) (center.X + radius * (Math.Cos(angleInRadians))), (float) (center.Y + radius * (Math.Sin(angleInRadians))));
+            return new PointF((float) (center.X + radius * Math.Cos(angleInRadians)), (float) (center.Y + radius * Math.Sin(angleInRadians)));
         }
 
         private void DrawGlowingNeedle(Dictionary<float, float> angleLut, float value, Color bOut, Color bGlow, Color bIn, Graphics g)
@@ -179,7 +207,10 @@ namespace SimShift.Dialogs.Tesla
 
             var angleSweep = float.MaxValue;
 
-            if (value < 0) value = 0;
+            if (value < 0)
+            {
+                value = 0;
+            }
 
             var lastK = 0.0f;
             var lastV = 0.0f;
@@ -200,14 +231,26 @@ namespace SimShift.Dialogs.Tesla
                     lastV = kvp.Value;
                 }
             }
-            if (float.IsNaN(angleSweep)) angleSweep = angleStart;
-            if (float.MaxValue == angleSweep) angleSweep = angleLut.Values.LastOrDefault();
+
+            if (float.IsNaN(angleSweep))
+            {
+                angleSweep = angleStart;
+            }
+
+            if (float.MaxValue == angleSweep)
+            {
+                angleSweep = angleLut.Values.LastOrDefault();
+            }
 
             angleSweep -= angleStart;
-            if (Math.Abs(angleSweep) < 0.1f) angleSweep = 0.1f;
+            if (Math.Abs(angleSweep) < 0.1f)
+            {
+                angleSweep = 0.1f;
+            }
 
             var angleEnd = angleStart + angleSweep;
-            //angleSweep = 360;
+
+            // angleSweep = 360;
             var finalRadius = 503 / 2 - 24 / 2; // outer radius of blue blob (-width of blob)
             var outerRadius = 456 / 2; // outer radius of glow
             var innerRadius = outerRadius - 30; // inner radius of glow
@@ -226,9 +269,11 @@ namespace SimShift.Dialogs.Tesla
             path.AddArc(new RectangleF(centerPoint.X - (float) innerRadius, centerPoint.Y - (float) innerRadius, (float) innerRadius * 2, (float) innerRadius * 2), angleEnd, -angleSweep);
 
             Blend blend = new Blend();
+
             // Create point and positions arrays
             float[] factArray = { 0.1f, 1.0f, 1.0f };
             float[] posArray = { 0.0f, 0.225f, 1.0f };
+
             // Set Factors and Positions properties of Blend
             blend.Factors = factArray;
             blend.Positions = posArray;
@@ -246,27 +291,34 @@ namespace SimShift.Dialogs.Tesla
 
             var p = new Pen(bOut, 22.0f);
             g.DrawArc(p, centerPoint.X - finalRadius, centerPoint.Y - finalRadius, finalRadius * 2, finalRadius * 2, angleStart, angleSweep);
-            g.DrawLine(new Pen(bOut, 5.0f), this.DistanceFromCenter(centerPoint, finalRadius + 11, angleEnd), DistanceFromCenter(centerPoint, endRadius, angleEnd));
+            g.DrawLine(new Pen(bOut, 5.0f), this.DistanceFromCenter(centerPoint, finalRadius + 11, angleEnd), this.DistanceFromCenter(centerPoint, endRadius, angleEnd));
         }
 
         private bool FillTelemetry()
         {
-            if (Main.Data == null) return false;
-            if (Main.Data.Telemetry == null) return false;
+            if (Main.Data == null)
+            {
+                return false;
+            }
+
+            if (Main.Data.Telemetry == null)
+            {
+                return false;
+            }
 
             var data = Main.Data.Telemetry;
 
-            Speed = data.Speed * 3.6f;
-            RPM = data.EngineRpm;
-            var kwPowerNow = Main.Drivetrain.CalculatePower(RPM, data.Throttle) * 0.75f;
+            this.Speed = data.Speed * 3.6f;
+            this.RPM = data.EngineRpm;
+            var kwPowerNow = Main.Drivetrain.CalculatePower(this.RPM, data.Throttle) * 0.75f;
 
-            powerHistory.Add((float) kwPowerNow);
-            while (powerHistory.Count > 8)
+            this.powerHistory.Add((float) kwPowerNow);
+            while (this.powerHistory.Count > 8)
             {
-                powerHistory.RemoveAt(0);
+                this.powerHistory.RemoveAt(0);
             }
 
-            Power = (int) (Power * 0.7f + 0.3f * powerHistory.Max()); // peak detect
+            this.Power = (int) (this.Power * 0.7f + 0.3f * this.powerHistory.Max()); // peak detect
 
             return true;
         }
@@ -298,9 +350,9 @@ namespace SimShift.Dialogs.Tesla
 
         private int updateGps_Tick(object sender, EventArgs e)
         {
-            using (var g = Graphics.FromImage(gps))
+            using (var g = Graphics.FromImage(this.gps))
             {
-                return dlMap.RenderMap(new Rectangle(0, 0, gps.Width, gps.Height), g, false);
+                return dlMap.RenderMap(new Rectangle(0, 0, this.gps.Width, this.gps.Height), g, false);
             }
         }
     }

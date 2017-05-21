@@ -10,8 +10,8 @@ using SimShift.Utils;
 namespace SimShift.Services
 {
     /// <summary>
-    /// This module is the "Auto-Clutch" feature and engages the clutch when the engine is about to stall.
-    /// It also ensures smooth get-away when the user engages throttle when the vehicle has stopped.
+    ///     This module is the "Auto-Clutch" feature and engages the clutch when the engine is about to stall.
+    ///     It also ensures smooth get-away when the user engages throttle when the vehicle has stopped.
     /// </summary>
     public class Antistall : IControlChainObj, IConfigurable
     {
@@ -23,27 +23,14 @@ namespace SimShift.Services
 
         public Antistall()
         {
-            Enabled = true;
+            this.Enabled = true;
         }
 
-        //
         public static bool Stalling { get; private set; }
 
-        public IEnumerable<string> AcceptsConfigs
-        {
-            get
-            {
-                return new[] { "Antistall" };
-            }
-        }
+        public IEnumerable<string> AcceptsConfigs => new[] { "Antistall" };
 
-        public bool Active
-        {
-            get
-            {
-                return Stalling;
-            }
-        }
+        public bool Active => Stalling;
 
         public bool Enabled { get; set; }
 
@@ -57,21 +44,9 @@ namespace SimShift.Services
 
         public double Rpm { get; private set; }
 
-        public IEnumerable<string> SimulatorsBan
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsBan => new string[0];
 
-        public IEnumerable<string> SimulatorsOnly
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsOnly => new string[0];
 
         public bool SlipLowGear { get; private set; }
 
@@ -90,10 +65,10 @@ namespace SimShift.Services
             switch (obj.Key)
             {
                 case "MinClutch":
-                    MinClutch = obj.ReadAsDouble();
+                    this.MinClutch = obj.ReadAsDouble();
                     break;
                 case "ThrottleSensitivity":
-                    ThrottleSensitivity = obj.ReadAsDouble();
+                    this.ThrottleSensitivity = obj.ReadAsDouble();
                     break;
             }
         }
@@ -103,8 +78,8 @@ namespace SimShift.Services
             var group = new List<string>(new[] { "Antistall" });
             var parameters = new List<IniValueObject>();
 
-            parameters.Add(new IniValueObject(group, "MinClutch", SpeedCutoff.ToString("0.00")));
-            parameters.Add(new IniValueObject(group, "ThrottleSensitivity", SpeedCutoff.ToString("0.00")));
+            parameters.Add(new IniValueObject(group, "MinClutch", this.SpeedCutoff.ToString("0.00")));
+            parameters.Add(new IniValueObject(group, "ThrottleSensitivity", this.SpeedCutoff.ToString("0.00")));
 
             return parameters;
         }
@@ -114,55 +89,91 @@ namespace SimShift.Services
             switch (c)
             {
                 case JoyControls.Throttle:
-                    if (ReverseAndAccelerate)
+                    if (this.ReverseAndAccelerate)
                     {
                         return 0;
                     }
-                    _throttle = val;
-                    return val;
-                    if (EngineRpm > AntiStallRpm) val /= 5 * (EngineRpm - AntiStallRpm) / AntiStallRpm;
 
-                    _throttle = val;
+                    this._throttle = val;
                     return val;
-                    if (Override) return 1;
-                    if (!Stalling) return val;
-                    if (EngineStalled)
+                    if (this.EngineRpm > this.AntiStallRpm)
                     {
-                        _throttle = val;
+                        val /= 5 * (this.EngineRpm - this.AntiStallRpm) / this.AntiStallRpm;
+                    }
+
+                    this._throttle = val;
+                    return val;
+                    if (this.Override)
+                    {
+                        return 1;
+                    }
+
+                    if (!Stalling)
+                    {
                         return val;
                     }
+
+                    if (this.EngineStalled)
+                    {
+                        this._throttle = val;
+                        return val;
+                    }
+
                     if (val < 0.01)
                     {
-                        _throttle = 0;
+                        this._throttle = 0;
                         return 0;
                     }
                     else
                     {
                         var maxRpm = Main.Drivetrain.StallRpm * 1.4;
-                        var maxV = 2 - 2 * Rpm / (maxRpm);
-                        if (maxV > 1) maxV = 1;
-                        if (maxV < 0) maxV = 0;
-                        _throttle = val;
+                        var maxV = 2 - 2 * this.Rpm / maxRpm;
+                        if (maxV > 1)
+                        {
+                            maxV = 1;
+                        }
+
+                        if (maxV < 0)
+                        {
+                            maxV = 0;
+                        }
+
+                        this._throttle = val;
                         return maxV;
                     }
+
                     break;
 
                 case JoyControls.Clutch:
-                    if (ReverseAndAccelerate)
+                    if (this.ReverseAndAccelerate)
                     {
                         return 1;
                     }
-                    if (Stalling && _throttle < 0.01)
+
+                    if (Stalling && this._throttle < 0.01)
                     {
-                        if (SpeedCutoff >= Speed) return 1;
-                        else return 1 - (Speed - SpeedCutoff) / 0.5f;
+                        if (this.SpeedCutoff >= this.Speed)
+                        {
+                            return 1;
+                        }
+                        else
+                        {
+                            return 1 - (this.Speed - this.SpeedCutoff) / 0.5f;
+                        }
                     }
 
-                    var cl = 1 - _throttle * ThrottleSensitivity; // 2
-                    if (cl < MinClutch) cl = MinClutch; // 0.1
+                    var cl = 1 - this._throttle * this.ThrottleSensitivity; // 2
+                    if (cl < this.MinClutch)
+                    {
+                        cl = this.MinClutch; // 0.1
+                    }
+
                     cl = Math.Max(cl, val);
 
-                    if (EngineRpm < AntiStallRpm) cl += (AntiStallRpm - EngineRpm) / AntiStallRpm;
+                    if (this.EngineRpm < this.AntiStallRpm)
+                    {
+                        cl += (this.AntiStallRpm - this.EngineRpm) / this.AntiStallRpm;
+                    }
 
                     return cl;
 
@@ -179,9 +190,9 @@ namespace SimShift.Services
         {
             switch (c)
             {
-                case JoyControls.Throttle: return Enabled && Stalling;
+                case JoyControls.Throttle: return this.Enabled && Stalling;
 
-                case JoyControls.Clutch: return Enabled && Stalling;
+                case JoyControls.Clutch: return this.Enabled && Stalling;
 
                 default: return false;
             }
@@ -190,51 +201,58 @@ namespace SimShift.Services
         public void ResetParameters()
         {
             // Reset to default
-            MinClutch = 0.1;
-            ThrottleSensitivity = 2;
+            this.MinClutch = 0.1;
+            this.ThrottleSensitivity = 2;
         }
 
         public void TickControls()
-        {
-            //
-        }
+        { }
 
         public void TickTelemetry(IDataMiner telemetry)
         {
             bool wasStalling = Stalling;
-            bool wasEngineStalled = EngineStalled;
+            bool wasEngineStalled = this.EngineStalled;
 
-            Rpm = telemetry.Telemetry.EngineRpm;
-            EngineStalled = (telemetry.Telemetry.EngineRpm < 300);
-            AntiStallRpm = Main.Drivetrain.StallRpm * 1.25f;
+            this.Rpm = telemetry.Telemetry.EngineRpm;
+            this.EngineStalled = telemetry.Telemetry.EngineRpm < 300;
+            this.AntiStallRpm = Main.Drivetrain.StallRpm * 1.25f;
 
             var gear = telemetry.Telemetry.Gear - 1;
-            if (gear == -2) gear = 0;
-            if (gear == 0) gear = 1;
-            SpeedCutoff = Main.Drivetrain.CalculateSpeedForRpm(gear, (float) AntiStallRpm);
+            if (gear == -2)
+            {
+                gear = 0;
+            }
+
+            if (gear == 0)
+            {
+                gear = 1;
+            }
+
+            this.SpeedCutoff = Main.Drivetrain.CalculateSpeedForRpm(gear, (float) this.AntiStallRpm);
 
             if (telemetry.Telemetry.Gear == -1)
             {
-                ReverseAndAccelerate = telemetry.Telemetry.Speed > 0.5;
-                Stalling = telemetry.Telemetry.Speed + 0.25 >= -SpeedCutoff;
+                this.ReverseAndAccelerate = telemetry.Telemetry.Speed > 0.5;
+                Stalling = telemetry.Telemetry.Speed + 0.25 >= -this.SpeedCutoff;
             }
             else
             {
-                ReverseAndAccelerate = telemetry.Telemetry.Speed < -0.5;
-                Stalling = telemetry.Telemetry.Speed - 0.25 <= SpeedCutoff;
+                this.ReverseAndAccelerate = telemetry.Telemetry.Speed < -0.5;
+                Stalling = telemetry.Telemetry.Speed - 0.25 <= this.SpeedCutoff;
             }
-            Stalling |= ReverseAndAccelerate;
 
-            Speed = telemetry.Telemetry.Speed;
-            EngineRpm = telemetry.Telemetry.EngineRpm;
+            Stalling |= this.ReverseAndAccelerate;
 
-            if (EngineStalled && _throttle > 0)
+            this.Speed = telemetry.Telemetry.Speed;
+            this.EngineRpm = telemetry.Telemetry.EngineRpm;
+
+            if (this.EngineStalled && this._throttle > 0)
             {
-                Override = true;
+                this.Override = true;
             }
             else
             {
-                Override = false;
+                this.Override = false;
             }
         }
     }

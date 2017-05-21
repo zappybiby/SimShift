@@ -32,40 +32,40 @@ using System.Text;
 namespace SimShift.Map.Splines
 {
     /// <summary>
-    /// A tri-diagonal matrix has non-zero entries only on the main diagonal, the diagonal above the main (super), and the
-    /// diagonal below the main (sub).
+    ///     A tri-diagonal matrix has non-zero entries only on the main diagonal, the diagonal above the main (super), and the
+    ///     diagonal below the main (sub).
     /// </summary>
     /// <remarks>
-    /// <para>
-    /// This is based on the wikipedia article: http://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
-    /// </para>
-    /// <para>
-    /// The entries in the matrix on a particular row are A[i], B[i], and C[i] where i is the row index.
-    /// B is the main diagonal, and so for an NxN matrix B is length N and all elements are used.
-    /// So for row 0, the first two values are B[0] and C[0].
-    /// And for row N-1, the last two values are A[N-1] and B[N-1].
-    /// That means that A[0] is not actually on the matrix and is therefore never used, and same with C[N-1].
-    /// </para>
+    ///     <para>
+    ///         This is based on the wikipedia article: http://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
+    ///     </para>
+    ///     <para>
+    ///         The entries in the matrix on a particular row are A[i], B[i], and C[i] where i is the row index.
+    ///         B is the main diagonal, and so for an NxN matrix B is length N and all elements are used.
+    ///         So for row 0, the first two values are B[0] and C[0].
+    ///         And for row N-1, the last two values are A[N-1] and B[N-1].
+    ///         That means that A[0] is not actually on the matrix and is therefore never used, and same with C[N-1].
+    ///     </para>
     /// </remarks>
     public class TriDiagonalMatrixF
     {
         /// <summary>
-        /// The values for the sub-diagonal. A[0] is never used.
+        ///     The values for the sub-diagonal. A[0] is never used.
         /// </summary>
         public float[] A;
 
         /// <summary>
-        /// The values for the main diagonal.
+        ///     The values for the main diagonal.
         /// </summary>
         public float[] B;
 
         /// <summary>
-        /// The values for the super-diagonal. C[C.Length-1] is never used.
+        ///     The values for the super-diagonal. C[C.Length-1] is never used.
         /// </summary>
         public float[] C;
 
         /// <summary>
-        /// Construct an NxN matrix.
+        ///     Construct an NxN matrix.
         /// </summary>
         public TriDiagonalMatrixF(int n)
         {
@@ -75,18 +75,12 @@ namespace SimShift.Map.Splines
         }
 
         /// <summary>
-        /// The width and height of this matrix.
+        ///     The width and height of this matrix.
         /// </summary>
-        public int N
-        {
-            get
-            {
-                return (A != null ? A.Length : 0);
-            }
-        }
+        public int N => this.A != null ? this.A.Length : 0;
 
         /// <summary>
-        /// Indexer. Setter throws an exception if you try to set any not on the super, main, or sub diagonals.
+        ///     Indexer. Setter throws an exception if you try to set any not on the super, main, or sub diagonals.
         /// </summary>
         public float this[int row, int col]
         {
@@ -96,37 +90,41 @@ namespace SimShift.Map.Splines
 
                 if (di == 0)
                 {
-                    return B[row];
+                    return this.B[row];
                 }
                 else if (di == -1)
                 {
-                    Debug.Assert(row < N - 1);
-                    return C[row];
+                    Debug.Assert(row < this.N - 1);
+                    return this.C[row];
                 }
                 else if (di == 1)
                 {
                     Debug.Assert(row > 0);
-                    return A[row];
+                    return this.A[row];
                 }
-                else return 0;
+                else
+                {
+                    return 0;
+                }
             }
+
             set
             {
                 int di = row - col;
 
                 if (di == 0)
                 {
-                    B[row] = value;
+                    this.B[row] = value;
                 }
                 else if (di == -1)
                 {
-                    Debug.Assert(row < N - 1);
-                    C[row] = value;
+                    Debug.Assert(row < this.N - 1);
+                    this.C[row] = value;
                 }
                 else if (di == 1)
                 {
                     Debug.Assert(row > 0);
-                    A[row] = value;
+                    this.A[row] = value;
                 }
                 else
                 {
@@ -136,11 +134,12 @@ namespace SimShift.Map.Splines
         }
 
         /// <summary>
-        /// Solve the system of equations this*x=d given the specified d.
+        ///     Solve the system of equations this*x=d given the specified d.
         /// </summary>
         /// <remarks>
-        /// Uses the Thomas algorithm described in the wikipedia article: http://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
-        /// Not optimized. Not destructive.
+        ///     Uses the Thomas algorithm described in the wikipedia article:
+        ///     http://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
+        ///     Not optimized. Not destructive.
         /// </remarks>
         /// <param name="d">Right side of the equation.</param>
         public float[] Solve(float[] d)
@@ -154,20 +153,20 @@ namespace SimShift.Map.Splines
 
             // cPrime
             float[] cPrime = new float[n];
-            cPrime[0] = C[0] / B[0];
+            cPrime[0] = this.C[0] / this.B[0];
 
             for (int i = 1; i < n; i++)
             {
-                cPrime[i] = C[i] / (B[i] - cPrime[i - 1] * A[i]);
+                cPrime[i] = this.C[i] / (this.B[i] - cPrime[i - 1] * this.A[i]);
             }
 
             // dPrime
             float[] dPrime = new float[n];
-            dPrime[0] = d[0] / B[0];
+            dPrime[0] = d[0] / this.B[0];
 
             for (int i = 1; i < n; i++)
             {
-                dPrime[i] = (d[i] - dPrime[i - 1] * A[i]) / (B[i] - cPrime[i - 1] * A[i]);
+                dPrime[i] = (d[i] - dPrime[i - 1] * this.A[i]) / (this.B[i] - cPrime[i - 1] * this.A[i]);
             }
 
             // Back substitution
@@ -183,7 +182,7 @@ namespace SimShift.Map.Splines
         }
 
         /// <summary>
-        /// Produce a string representation of the contents of this matrix.
+        ///     Produce a string representation of the contents of this matrix.
         /// </summary>
         /// <param name="fmt">Optional. For String.Format. Must include the colon. Examples are ':0.000' and ',5:0.00' </param>
         /// <param name="prefix">Optional. Per-line indentation prefix.</param>
@@ -194,14 +193,17 @@ namespace SimShift.Map.Splines
                 var s = new StringBuilder();
                 string formatString = "{0" + fmt + "}";
 
-                for (int r = 0; r < N; r++)
+                for (int r = 0; r < this.N; r++)
                 {
                     s.Append(prefix);
 
-                    for (int c = 0; c < N; c++)
+                    for (int c = 0; c < this.N; c++)
                     {
                         s.AppendFormat(formatString, this[r, c]);
-                        if (c < N - 1) s.Append(", ");
+                        if (c < this.N - 1)
+                        {
+                            s.Append(", ");
+                        }
                     }
 
                     s.AppendLine();

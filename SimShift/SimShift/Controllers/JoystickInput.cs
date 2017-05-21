@@ -36,43 +36,37 @@ namespace SimShift.Controllers
         {
             this.dev = dev;
 
-            joystickUpdate = new Timer();
-            joystickUpdate.Interval = 10;
-            joystickUpdate.Elapsed += JoystickUpdateTick;
-            joystickUpdate.Start();
+            this.joystickUpdate = new Timer();
+            this.joystickUpdate.Interval = 10;
+            this.joystickUpdate.Elapsed += this.JoystickUpdateTick;
+            this.joystickUpdate.Start();
 
-            _axisState = new double[6];
+            this._axisState = new double[6];
             for (int i = 0; i < 6; i++)
             {
-                _axisState[i] = 0;
+                this._axisState[i] = 0;
             }
 
-            _buttonState = new bool[32];
+            this._buttonState = new bool[32];
             for (int i = 0; i < 32; i++)
             {
-                _buttonState[i] = false;
+                this._buttonState[i] = false;
             }
 
-            _joyInfo.dwSize = Marshal.SizeOf(_joyInfo);
-            _joyInfo.dwFlags = JoystickFlags.JOY_RETURNALL;
+            this._joyInfo.dwSize = Marshal.SizeOf(this._joyInfo);
+            this._joyInfo.dwFlags = JoystickFlags.JOY_RETURNALL;
         }
 
-        public Dictionary<int, string> AxisNames
-        {
-            get
-            {
-                return dev.AxisNames;
-            }
-        }
+        public Dictionary<int, string> AxisNames => this.dev.AxisNames;
 
         public double GetAxis(int id)
         {
-            return id < _axisState.Length ? _axisState[id] : 0;
+            return id < this._axisState.Length ? this._axisState[id] : 0;
         }
 
         public bool GetButton(int id)
         {
-            return id < _buttonState.Length && _buttonState[id];
+            return id < this._buttonState.Length && this._buttonState[id];
         }
 
         public bool GetPov(int i)
@@ -84,7 +78,7 @@ namespace SimShift.Controllers
             // bit 2 = top
             // bit 3 = right
             // bit 4 = bottom
-            switch (pov)
+            switch (this.pov)
             {
                 case 0xFFFF:
                     thruthtable = 0x00;
@@ -122,46 +116,62 @@ namespace SimShift.Controllers
                     thruthtable = 0x09;
                     break;
             }
-            return ((thruthtable & (1 << i)) != 0);
+            return (thruthtable & (1 << i)) != 0;
         }
 
         private void JoystickUpdateTick(object sender, EventArgs e)
         {
-            JoystickMethods.joyGetPosEx(dev.id, out _joyInfo);
+            JoystickMethods.joyGetPosEx(this.dev.id, out this._joyInfo);
 
-            _axisState[0] = _joyInfo.dwXpos;
-            _axisState[1] = _joyInfo.dwYpos;
-            _axisState[2] = _joyInfo.dwZpos;
-            _axisState[3] = _joyInfo.dwRpos;
-            _axisState[4] = _joyInfo.dwUpos;
-            _axisState[5] = _joyInfo.dwVpos;
+            this._axisState[0] = this._joyInfo.dwXpos;
+            this._axisState[1] = this._joyInfo.dwYpos;
+            this._axisState[2] = this._joyInfo.dwZpos;
+            this._axisState[3] = this._joyInfo.dwRpos;
+            this._axisState[4] = this._joyInfo.dwUpos;
+            this._axisState[5] = this._joyInfo.dwVpos;
 
-            pov = _joyInfo.dwPOV;
+            this.pov = this._joyInfo.dwPOV;
 
             // Take all button inputs.
             for (int i = 0; i < 32; i++)
             {
-                var bitmask = _joyInfo.dwButtons & ((int) Math.Pow(2, i));
+                var bitmask = this._joyInfo.dwButtons & ((int) Math.Pow(2, i));
                 if (bitmask != 0)
                 {
                     // Pressed
-                    if (!_buttonState[i])
+                    if (!this._buttonState[i])
                     {
                         // EVENT press
-                        if (State != null) State(this, i, true);
-                        if (Press != null) Press(this, i);
+                        if (this.State != null)
+                        {
+                            this.State(this, i, true);
+                        }
+
+                        if (this.Press != null)
+                        {
+                            this.Press(this, i);
+                        }
                     }
-                    _buttonState[i] = true;
+
+                    this._buttonState[i] = true;
                 }
                 else
                 {
-                    if (_buttonState[i])
+                    if (this._buttonState[i])
                     {
                         // EVENT release
-                        if (State != null) State(this, i, false);
-                        if (Release != null) Release(this, i);
+                        if (this.State != null)
+                        {
+                            this.State(this, i, false);
+                        }
+
+                        if (this.Release != null)
+                        {
+                            this.Release(this, i);
+                        }
                     }
-                    _buttonState[i] = false;
+
+                    this._buttonState[i] = false;
                 }
             }
         }

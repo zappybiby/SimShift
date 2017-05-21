@@ -17,37 +17,31 @@ namespace SimShift.Entities
 
         public Profiles(string app, string car)
         {
-            UniqueID = string.Format("{0}.{1}", app, car);
-            MasterFile = string.Format("Settings/Profiles/{0}.{1}.Master.ini", app, car);
-            PatternFile = string.Format("Settings/Profiles/{0}.{1}.{2}.ini", app, car, "{0}");
+            this.UniqueID = string.Format("{0}.{1}", app, car);
+            this.MasterFile = string.Format("Settings/Profiles/{0}.{1}.Master.ini", app, car);
+            this.PatternFile = string.Format("Settings/Profiles/{0}.{1}.{2}.ini", app, car, "{0}");
 
-            if (File.Exists(MasterFile) == false)
+            if (File.Exists(this.MasterFile) == false)
             {
-                Debug.WriteLine("Cannot find " + MasterFile + " - creating default Performance");
+                Debug.WriteLine("Cannot find " + this.MasterFile + " - creating default Performance");
 
-                ResetParameters();
+                this.ResetParameters();
                 var performanceProfile = new Profile(this, "Performance");
-                Loaded.Add(performanceProfile);
+                this.Loaded.Add(performanceProfile);
                 var efficiencyProfile = new Profile(this, "Efficiency");
-                Loaded.Add(efficiencyProfile);
+                this.Loaded.Add(efficiencyProfile);
                 var economyProfile = new Profile(this, "Economy");
-                Loaded.Add(economyProfile);
+                this.Loaded.Add(economyProfile);
 
-                Main.Store(ExportParameters(), MasterFile);
+                Main.Store(this.ExportParameters(), this.MasterFile);
             }
 
-            Main.Load(this, MasterFile);
+            Main.Load(this, this.MasterFile);
         }
 
         public event EventHandler LoadedProfile;
 
-        public IEnumerable<string> AcceptsConfigs
-        {
-            get
-            {
-                return new string[] { "Profiles" };
-            }
-        }
+        public IEnumerable<string> AcceptsConfigs => new[] { "Profiles" };
 
         public string Active { get; private set; }
 
@@ -65,16 +59,17 @@ namespace SimShift.Entities
                     var p = new Profile(this, obj.ReadAsString());
                     if (p.Loaded == false)
                     {
-                        Unloaded.Add(obj.ReadAsString());
+                        this.Unloaded.Add(obj.ReadAsString());
                     }
                     else
                     {
-                        Loaded.Add(p);
+                        this.Loaded.Add(p);
                     }
+
                     break;
 
                 case "Unload":
-                    Unloaded.Add(obj.ReadAsString());
+                    this.Unloaded.Add(obj.ReadAsString());
                     break;
             }
         }
@@ -83,13 +78,14 @@ namespace SimShift.Entities
         {
             var obj = new List<IniValueObject>();
 
-            foreach (var l in Loaded)
+            foreach (var l in this.Loaded)
             {
-                obj.Add(new IniValueObject(AcceptsConfigs, "Load", l.Name));
+                obj.Add(new IniValueObject(this.AcceptsConfigs, "Load", l.Name));
             }
-            foreach (var l in Unloaded)
+
+            foreach (var l in this.Unloaded)
             {
-                obj.Add(new IniValueObject(AcceptsConfigs, "Load", l));
+                obj.Add(new IniValueObject(this.AcceptsConfigs, "Load", l));
             }
 
             return obj;
@@ -97,20 +93,23 @@ namespace SimShift.Entities
 
         public void Load(string profile, float staticMass)
         {
-            if (Loaded.Any(x => x.Name == profile))
+            if (this.Loaded.Any(x => x.Name == profile))
             {
                 Debug.WriteLine("Loading profile " + profile);
-                Active = profile;
-                Loaded.FirstOrDefault(x => x.Name == profile).Load(staticMass);
+                this.Active = profile;
+                this.Loaded.FirstOrDefault(x => x.Name == profile).Load(staticMass);
 
-                if (LoadedProfile != null) LoadedProfile(this, new EventArgs());
+                if (this.LoadedProfile != null)
+                {
+                    this.LoadedProfile(this, new EventArgs());
+                }
             }
         }
 
         public void ResetParameters()
         {
-            Loaded.Clear();
-            Unloaded.Clear();
+            this.Loaded.Clear();
+            this.Unloaded.Clear();
         }
     }
 }

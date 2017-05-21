@@ -27,19 +27,18 @@ namespace SimShift.Services
 
         StartGearRatios,
 
-        //..
+        // ..
         EndGearRatios,
 
         ShiftToFirst
     }
 
     /// <summary>
-    /// This module calibrates the "Drivetrain" object so most driving helps can be used.
-    /// The calibration data acquired is:
-    /// - Idle RPM
-    /// - Maximum RPM
-    /// - Gear Ratio's (forward gears only)
-    /// 
+    ///     This module calibrates the "Drivetrain" object so most driving helps can be used.
+    ///     The calibration data acquired is:
+    ///     - Idle RPM
+    ///     - Maximum RPM
+    ///     - Gear Ratio's (forward gears only)
     /// </summary>
     public class DrivetrainCalibrator : IControlChainObj
     {
@@ -79,61 +78,25 @@ namespace SimShift.Services
 
         public static int UncalibratedGear { get; set; }
 
-        public bool Active
-        {
-            get
-            {
-                return Calibrating;
-            }
-        }
+        public bool Active => this.Calibrating;
 
-        //
         public bool Calibrating { get; private set; }
 
-        public bool Enabled
-        {
-            get
-            {
-                return Calibrating;
-            }
-        }
+        public bool Enabled => this.Calibrating;
 
-        public bool MeasurementSettled
-        {
-            get
-            {
-                return DateTime.Now > MeasurementSettletime;
-            }
-        }
+        public bool MeasurementSettled => DateTime.Now > this.MeasurementSettletime;
 
         public DateTime MeasurementSettletime { get; private set; }
 
-        public IEnumerable<string> SimulatorsBan
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsBan => new string[0];
 
-        public IEnumerable<string> SimulatorsOnly
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsOnly => new string[0];
 
         private bool reqGears
         {
-            get
-            {
-                return Main.Transmission.OverruleShifts;
-            }
-            set
-            {
-                Main.Transmission.OverruleShifts = value;
-            }
+            get => Main.Transmission.OverruleShifts;
+
+            set => Main.Transmission.OverruleShifts = value;
         }
 
         public double GetAxis(JoyControls c, double val)
@@ -141,11 +104,11 @@ namespace SimShift.Services
             switch (c)
             {
                 case JoyControls.Throttle:
-                    return throttle;
+                    return this.throttle;
                     break;
 
                 case JoyControls.Clutch:
-                    return clutch;
+                    return this.clutch;
                     break;
 
                 default: return val;
@@ -156,15 +119,15 @@ namespace SimShift.Services
         {
             switch (c)
             {
-                case JoyControls.Gear1: return 1 == gear;
-                case JoyControls.Gear2: return 2 == gear;
-                case JoyControls.Gear3: return 3 == gear;
-                case JoyControls.Gear4: return 4 == gear;
-                case JoyControls.Gear5: return 5 == gear;
-                case JoyControls.Gear6: return 6 == gear;
-                case JoyControls.Gear7: return 7 == gear;
-                case JoyControls.Gear8: return 8 == gear;
-                case JoyControls.GearR: return -1 == gear;
+                case JoyControls.Gear1: return 1 == this.gear;
+                case JoyControls.Gear2: return 2 == this.gear;
+                case JoyControls.Gear3: return 3 == this.gear;
+                case JoyControls.Gear4: return 4 == this.gear;
+                case JoyControls.Gear5: return 5 == this.gear;
+                case JoyControls.Gear6: return 6 == this.gear;
+                case JoyControls.Gear7: return 7 == this.gear;
+                case JoyControls.Gear8: return 8 == this.gear;
+                case JoyControls.GearR: return -1 == this.gear;
                 default: return val;
             }
         }
@@ -173,8 +136,8 @@ namespace SimShift.Services
         {
             switch (c)
             {
-                case JoyControls.Throttle: return reqThrottle;
-                case JoyControls.Clutch: return reqClutch;
+                case JoyControls.Throttle: return this.reqThrottle;
+                case JoyControls.Clutch: return this.reqClutch;
 
                 case JoyControls.Gear1:
                 case JoyControls.Gear2:
@@ -184,190 +147,204 @@ namespace SimShift.Services
                 case JoyControls.Gear6:
                 case JoyControls.Gear7:
                 case JoyControls.Gear8:
-                case JoyControls.GearR: return false; //return reqGears;
+                case JoyControls.GearR: return false; // return reqGears;
 
                 default: return false;
             }
         }
 
         public void TickControls()
-        {
-            //
-        }
+        { }
 
         public void TickTelemetry(IDataMiner data)
         {
-            if (!Main.Data.Active.SupportsCar) return;
-            bool wasCalibrating = Calibrating;
-            Calibrating = !Main.Drivetrain.Calibrated;
-            if (!wasCalibrating && Calibrating)
+            if (!Main.Data.Active.SupportsCar)
             {
-                Debug.WriteLine("now calibrating");
-                stage = DrivetrainCalibrationStage.StartIdleRpm;
+                return;
             }
 
-            if (stage != DrivetrainCalibrationStage.None && !Calibrating) stage = DrivetrainCalibrationStage.None;
-            ;
-            switch (stage)
+            bool wasCalibrating = this.Calibrating;
+            this.Calibrating = !Main.Drivetrain.Calibrated;
+            if (!wasCalibrating && this.Calibrating)
+            {
+                Debug.WriteLine("now calibrating");
+                this.stage = DrivetrainCalibrationStage.StartIdleRpm;
+            }
+
+            if (this.stage != DrivetrainCalibrationStage.None && !this.Calibrating)
+            {
+                this.stage = DrivetrainCalibrationStage.None;
+            }
+
+            switch (this.stage)
             {
                 case DrivetrainCalibrationStage.None:
-                    reqGears = false;
-                    reqThrottle = false;
-                    reqClutch = false;
+                    this.reqGears = false;
+                    this.reqThrottle = false;
+                    this.reqClutch = false;
                     break;
 
                 case DrivetrainCalibrationStage.StartIdleRpm:
 
-                    reqClutch = true;
-                    reqThrottle = true;
-                    reqGears = true;
-                    Main.Transmission.Shift(data.Telemetry.Gear, 0, calibrateShiftStyle);
+                    this.reqClutch = true;
+                    this.reqThrottle = true;
+                    this.reqGears = true;
+                    Main.Transmission.Shift(data.Telemetry.Gear, 0, this.calibrateShiftStyle);
                     if (data.Telemetry.EngineRpm < 300)
                     {
-                        throttle = 1;
-                        clutch = 1;
-                        gear = 0;
+                        this.throttle = 1;
+                        this.clutch = 1;
+                        this.gear = 0;
                     }
                     else if (data.Telemetry.EngineRpm > 2000)
                     {
-                        throttle = 0;
-                        clutch = 1;
-                        gear = 0;
+                        this.throttle = 0;
+                        this.clutch = 1;
+                        this.gear = 0;
                     }
                     else
                     {
-                        throttle = 0;
-                        clutch = 1;
-                        gear = 0;
+                        this.throttle = 0;
+                        this.clutch = 1;
+                        this.gear = 0;
 
-                        if (Math.Abs(data.Telemetry.EngineRpm - previousEngineRpm) < 1)
+                        if (Math.Abs(data.Telemetry.EngineRpm - this.previousEngineRpm) < 1)
                         {
-                            stage = DrivetrainCalibrationStage.FinishIdleRpm;
+                            this.stage = DrivetrainCalibrationStage.FinishIdleRpm;
 
-                            MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 2750));
+                            this.MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 2750));
                         }
                     }
-                    previousEngineRpm = data.Telemetry.EngineRpm;
+
+                    this.previousEngineRpm = data.Telemetry.EngineRpm;
                     break;
                 case DrivetrainCalibrationStage.FinishIdleRpm:
-                    if (MeasurementSettled)
+                    if (this.MeasurementSettled)
                     {
                         Debug.WriteLine("Idle RPM: " + data.Telemetry.EngineRpm);
                         if (data.Telemetry.EngineRpm < 300)
                         {
-                            stage = DrivetrainCalibrationStage.StartIdleRpm;
+                            this.stage = DrivetrainCalibrationStage.StartIdleRpm;
                         }
                         else
                         {
                             Main.Drivetrain.StallRpm = data.Telemetry.EngineRpm;
 
-                            stage = DrivetrainCalibrationStage.StartMaxRpm;
-                            maxRpmTarget = data.Telemetry.EngineRpm + 1000;
-                            previousThrottle = 0;
+                            this.stage = DrivetrainCalibrationStage.StartMaxRpm;
+                            this.maxRpmTarget = data.Telemetry.EngineRpm + 1000;
+                            this.previousThrottle = 0;
                         }
                     }
+
                     break;
 
                 case DrivetrainCalibrationStage.StartMaxRpm:
-                    reqClutch = true;
-                    reqThrottle = true;
-                    reqGears = true;
+                    this.reqClutch = true;
+                    this.reqThrottle = true;
+                    this.reqGears = true;
 
-                    clutch = 1;
-                    throttle = 1;
-                    maxRpmMeasured = 0;
+                    this.clutch = 1;
+                    this.throttle = 1;
+                    this.maxRpmMeasured = 0;
 
-                    MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 1500));
-                    stage = DrivetrainCalibrationStage.FinishMaxRpm;
+                    this.MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 1500));
+                    this.stage = DrivetrainCalibrationStage.FinishMaxRpm;
 
                     break;
                 case DrivetrainCalibrationStage.FinishMaxRpm:
 
-                    throttle = 1;
-                    maxRpmMeasured = Math.Max(maxRpmMeasured, data.Telemetry.EngineRpm);
+                    this.throttle = 1;
+                    this.maxRpmMeasured = Math.Max(this.maxRpmMeasured, data.Telemetry.EngineRpm);
 
-                    if (MeasurementSettled)
+                    if (this.MeasurementSettled)
                     {
-                        if (Math.Abs(maxRpmMeasured - Main.Drivetrain.StallRpm) < 500)
+                        if (Math.Abs(this.maxRpmMeasured - Main.Drivetrain.StallRpm) < 500)
                         {
                             Debug.WriteLine("Totally messed up MAX RPM.. resetting");
-                            stage = DrivetrainCalibrationStage.StartIdleRpm;
+                            this.stage = DrivetrainCalibrationStage.StartIdleRpm;
                         }
                         else
                         {
-                            Debug.WriteLine("Max RPM approx: " + maxRpmMeasured);
+                            Debug.WriteLine("Max RPM approx: " + this.maxRpmMeasured);
 
-                            Main.Drivetrain.MaximumRpm = maxRpmMeasured - 300;
+                            Main.Drivetrain.MaximumRpm = this.maxRpmMeasured - 300;
 
-                            stage = DrivetrainCalibrationStage.ShiftToFirst;
-                            nextStage = DrivetrainCalibrationStage.StartGears;
+                            this.stage = DrivetrainCalibrationStage.ShiftToFirst;
+                            this.nextStage = DrivetrainCalibrationStage.StartGears;
                         }
                     }
+
                     break;
 
                 case DrivetrainCalibrationStage.StartGears:
-                    reqClutch = true;
-                    reqThrottle = true;
-                    reqGears = true;
+                    this.reqClutch = true;
+                    this.reqThrottle = true;
+                    this.reqGears = true;
 
-                    throttle = 0;
-                    clutch = 1;
-                    gear++;
-                    Main.Transmission.Shift(data.Telemetry.Gear, gear, calibrateShiftStyle);
-                    MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 500));
+                    this.throttle = 0;
+                    this.clutch = 1;
+                    this.gear++;
+                    Main.Transmission.Shift(data.Telemetry.Gear, this.gear, this.calibrateShiftStyle);
+                    this.MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 500));
 
-                    stage = DrivetrainCalibrationStage.FinishGears;
+                    this.stage = DrivetrainCalibrationStage.FinishGears;
 
                     break;
                 case DrivetrainCalibrationStage.FinishGears:
 
-                    if (MeasurementSettled && !Main.Transmission.IsShifting)
+                    if (this.MeasurementSettled && !Main.Transmission.IsShifting)
                     {
-                        if (data.Telemetry.Gear != gear)
+                        if (data.Telemetry.Gear != this.gear)
                         {
-                            gear--;
-                            // Car doesn't have this gear.
-                            Debug.WriteLine("Gears: " + gear);
+                            this.gear--;
 
-                            if (gear <= 0)
+                            // Car doesn't have this gear.
+                            Debug.WriteLine("Gears: " + this.gear);
+
+                            if (this.gear <= 0)
                             {
                                 Debug.WriteLine("That's not right");
-                                stage = DrivetrainCalibrationStage.StartGears;
+                                this.stage = DrivetrainCalibrationStage.StartGears;
                             }
                             else
                             {
-                                Main.Drivetrain.Gears = gear;
-                                Main.Drivetrain.GearRatios = new double[gear];
+                                Main.Drivetrain.Gears = this.gear;
+                                Main.Drivetrain.GearRatios = new double[this.gear];
 
-                                stage = DrivetrainCalibrationStage.ShiftToFirst;
-                                nextStage = DrivetrainCalibrationStage.StartGearRatios;
-                                MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 500));
-                                calibrationPreDone = false;
+                                this.stage = DrivetrainCalibrationStage.ShiftToFirst;
+                                this.nextStage = DrivetrainCalibrationStage.StartGearRatios;
+                                this.MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 500));
+                                this.calibrationPreDone = false;
                             }
-                            gear = 0;
+
+                            this.gear = 0;
                         }
                         else
                         {
-                            stage = DrivetrainCalibrationStage.StartGears;
+                            this.stage = DrivetrainCalibrationStage.StartGears;
                         }
                     }
+
                     break;
 
                 case DrivetrainCalibrationStage.ShiftToFirst:
-                    if (!Main.Transmission.IsShifting && MeasurementSettled)
+                    if (!Main.Transmission.IsShifting && this.MeasurementSettled)
                     {
                         if (data.Telemetry.Gear != 1)
                         {
-                            Main.Transmission.Shift(shiftToFirstRangeAttempt * Main.Transmission.RangeSize + 1, 1, calibrateShiftStyle);
-                            shiftToFirstRangeAttempt++;
+                            Main.Transmission.Shift(this.shiftToFirstRangeAttempt * Main.Transmission.RangeSize + 1, 1, this.calibrateShiftStyle);
+                            this.shiftToFirstRangeAttempt++;
 
-                            MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 100));
-                            if (shiftToFirstRangeAttempt > 3) shiftToFirstRangeAttempt = 0;
+                            this.MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 0, 100));
+                            if (this.shiftToFirstRangeAttempt > 3)
+                            {
+                                this.shiftToFirstRangeAttempt = 0;
+                            }
                         }
                         else
                         {
-                            stage = nextStage;
-                            MeasurementSettletime = DateTime.MaxValue;
+                            this.stage = this.nextStage;
+                            this.MeasurementSettletime = DateTime.MaxValue;
                         }
                     }
 
@@ -379,57 +356,67 @@ namespace SimShift.Services
                     {
                         if (data.Telemetry.Gear <= 0)
                         {
-                            stage = DrivetrainCalibrationStage.StartGearRatios;
+                            this.stage = DrivetrainCalibrationStage.StartGearRatios;
                             break;
                         }
+
                         if (data.Telemetry.EngineRpm > Main.Drivetrain.StallRpm * 1.15)
                         {
                             var gr = Main.Drivetrain.GearRatios[data.Telemetry.Gear - 1];
                             if (gr != 0)
                             {
-                                stage = DrivetrainCalibrationStage.StartGearRatios;
+                                this.stage = DrivetrainCalibrationStage.StartGearRatios;
                                 break;
                             }
-                            reqThrottle = true;
-                            throttle = gearRatioSpeedCruise - data.Telemetry.Speed;
-                            throttle /= 3;
+
+                            this.reqThrottle = true;
+                            this.throttle = this.gearRatioSpeedCruise - data.Telemetry.Speed;
+                            this.throttle /= 3;
 
                             var ratio = data.Telemetry.EngineRpm / (3.6 * data.Telemetry.Speed);
                             if (ratio > 1000 || ratio < 1)
                             {
-                                stage = DrivetrainCalibrationStage.StartGearRatios;
+                                this.stage = DrivetrainCalibrationStage.StartGearRatios;
                                 break;
                             }
 
                             Debug.WriteLine("Gear " + data.Telemetry.Gear + " : " + ratio);
 
                             // start sampling
-                            if (sample == 0) sample = ratio;
-                            else sample = sample * 0.9 + ratio * 0.1;
-                            samplesTaken++;
-
-                            if (samplesTaken == 50)
+                            if (this.sample == 0)
                             {
-                                Main.Drivetrain.GearRatios[data.Telemetry.Gear - 1] = sample;
+                                this.sample = ratio;
+                            }
+                            else
+                            {
+                                this.sample = this.sample * 0.9 + ratio * 0.1;
+                            }
+
+                            this.samplesTaken++;
+
+                            if (this.samplesTaken == 50)
+                            {
+                                Main.Drivetrain.GearRatios[data.Telemetry.Gear - 1] = this.sample;
                             }
                         }
                         else
                         {
-                            stage = DrivetrainCalibrationStage.StartGearRatios;
+                            this.stage = DrivetrainCalibrationStage.StartGearRatios;
                             break;
                         }
                     }
                     else
                     {
-                        stage = DrivetrainCalibrationStage.StartGearRatios;
+                        this.stage = DrivetrainCalibrationStage.StartGearRatios;
                     }
+
                     break;
 
                 case DrivetrainCalibrationStage.StartGearRatios:
 
-                    reqGears = false;
-                    reqThrottle = false;
-                    reqClutch = false;
+                    this.reqGears = false;
+                    this.reqThrottle = false;
+                    this.reqClutch = false;
 
                     // Activate get-home-mode; which shifts at 4x stall rpm
                     Main.Transmission.GetHomeMode = true;
@@ -437,7 +424,6 @@ namespace SimShift.Services
                     if (data.Telemetry.EngineRpm > Main.Drivetrain.StallRpm * 2)
                     {
                         // Driving at reasonable rpm's.
-
                         if (data.Telemetry.Gear > 0)
                         {
                             if (Main.Drivetrain.GearRatios.Length >= data.Telemetry.Gear && data.Telemetry.EngineRpm > Main.Drivetrain.StallRpm * 2)
@@ -446,9 +432,9 @@ namespace SimShift.Services
 
                                 if (gr == 0)
                                 {
-                                    samplesTaken = 0;
-                                    gearRatioSpeedCruise = data.Telemetry.Speed;
-                                    stage = DrivetrainCalibrationStage.EndGearRatios;
+                                    this.samplesTaken = 0;
+                                    this.gearRatioSpeedCruise = data.Telemetry.Speed;
+                                    this.stage = DrivetrainCalibrationStage.EndGearRatios;
                                 }
                             }
                         }
@@ -466,20 +452,20 @@ namespace SimShift.Services
 
                         if (GearsCalibrated)
                         {
-                            if (MeasurementSettled)
+                            if (this.MeasurementSettled)
                             {
                                 Main.Transmission.GetHomeMode = false;
                                 Debug.WriteLine("Calibration done");
-                                stage = DrivetrainCalibrationStage.None;
+                                this.stage = DrivetrainCalibrationStage.None;
 
                                 Main.Store(Main.Drivetrain.ExportParameters(), Main.Drivetrain.File);
                                 Main.Load(Main.Drivetrain, Main.Drivetrain.File);
                             }
 
-                            if (!calibrationPreDone)
+                            if (!this.calibrationPreDone)
                             {
-                                calibrationPreDone = true;
-                                MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 3));
+                                this.calibrationPreDone = true;
+                                this.MeasurementSettletime = DateTime.Now.Add(new TimeSpan(0, 0, 0, 3));
                             }
                         }
                     }

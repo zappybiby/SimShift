@@ -9,21 +9,15 @@ namespace SimShift.MapTool
 
         public Ets2PrefabRoute(List<Ets2PrefabCurve> route, Ets2PrefabNode entry, Ets2PrefabNode exit)
         {
-            Route = route;
+            this.Route = route;
 
-            Entry = entry;
-            Exit = exit;
+            this.Entry = entry;
+            this.Exit = exit;
 
             // TODO: Interpret indicator signal
         }
 
-        public int End
-        {
-            get
-            {
-                return Route.LastOrDefault().Index;
-            }
-        }
+        public int End => this.Route.LastOrDefault().Index;
 
         public Ets2PrefabNode Entry { get; private set; }
 
@@ -31,17 +25,11 @@ namespace SimShift.MapTool
 
         public List<Ets2PrefabCurve> Route { get; private set; }
 
-        public int Start
-        {
-            get
-            {
-                return Route.FirstOrDefault().Index;
-            }
-        }
+        public int Start => this.Route.FirstOrDefault().Index;
 
         public override string ToString()
         {
-            return "Prefab route " + Start + " to  " + End;
+            return "Prefab route " + this.Start + " to  " + this.End;
         }
     }
 }

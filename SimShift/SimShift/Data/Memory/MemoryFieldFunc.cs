@@ -10,114 +10,66 @@ namespace SimTelemetry.Domain.Memory
 
         public MemoryFieldFunc(string name, Func<MemoryPool, T> validationFunc)
         {
-            Name = name;
-            ValidationFunc = validationFunc;
-            IsChanging = true;
+            this.Name = name;
+            this.ValidationFunc = validationFunc;
+            this.IsChanging = true;
         }
 
         public MemoryFieldFunc(string name, Func<MemoryPool, T> validationFunc, bool isChanging)
         {
-            Name = name;
-            ValidationFunc = validationFunc;
-            IsChanging = isChanging;
+            this.Name = name;
+            this.ValidationFunc = validationFunc;
+            this.IsChanging = isChanging;
         }
 
-        public int Address
-        {
-            get
-            {
-                return 0;
-            }
-        }
+        public int Address => 0;
 
-        public MemoryAddress AddressType
-        {
-            get
-            {
-                return MemoryAddress.Constant;
-            }
-        }
+        public MemoryAddress AddressType => MemoryAddress.Constant;
 
-        public bool IsConstant
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool IsConstant => false;
 
-        public bool IsDynamic
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool IsDynamic => false;
 
-        public bool IsStatic
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool IsStatic => false;
 
         public MemoryProvider Memory { get; protected set; }
 
         public string Name { get; protected set; }
 
-        public int Offset
-        {
-            get
-            {
-                return 0;
-            }
-        }
+        public int Offset => 0;
 
         public MemoryPool Pool { get; protected set; }
 
-        public int Size
-        {
-            get
-            {
-                return 0;
-            }
-        }
+        public int Size => 0;
 
         public Func<MemoryPool, T> ValidationFunc { get; protected set; }
 
-        public Type ValueType
-        {
-            get
-            {
-                return typeof(T);
-            }
-        }
+        public Type ValueType => typeof(T);
 
         public object Clone()
         {
-            var newObj = new MemoryFieldFunc<T>(Name, ValidationFunc);
+            var newObj = new MemoryFieldFunc<T>(this.Name, this.ValidationFunc);
             return newObj;
         }
 
         public virtual bool HasChanged()
         {
-            return IsChanging;
+            return this.IsChanging;
         }
 
         public void MarkDirty()
         {
-            IsChanging = true;
+            this.IsChanging = true;
         }
 
         public object Read()
         {
-            return ValidationFunc(Pool);
+            return this.ValidationFunc(this.Pool);
         }
 
         public TOut ReadAs<TOut>()
         {
-            return MemoryDataConverter.Cast<T, TOut>(ValidationFunc(Pool));
+            return MemoryDataConverter.Cast<T, TOut>(this.ValidationFunc(this.Pool));
         }
 
         public void Refresh()
@@ -127,12 +79,12 @@ namespace SimTelemetry.Domain.Memory
 
         public void SetPool(MemoryPool pool)
         {
-            Pool = pool;
+            this.Pool = pool;
         }
 
         public void SetProvider(MemoryProvider provider)
         {
-            Memory = provider;
+            this.Memory = provider;
         }
     }
 }

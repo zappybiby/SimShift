@@ -10,6 +10,8 @@ namespace SimShift.Data
 {
     public class DataArbiter
     {
+        public IDataMiner Active = new Ets2DataMiner(); // { get; private set; }
+
         public int verbose = 0;
 
         private readonly List<IDataMiner> miners = new List<IDataMiner>();
@@ -22,40 +24,50 @@ namespace SimShift.Data
 
         public DataArbiter()
         {
-            AutoMode = true;
+            this.AutoMode = true;
 
-            miners.Add(new Ets2DataMiner());
+            this.miners.Add(new Ets2DataMiner());
+
             // miners.Add(new Tdu2DataMiner());
-
-            miners.ForEach(
+            this.miners.ForEach(
                 app =>
                     {
                         app.DataReceived += (s, e) =>
                             {
-                                if (app == Active)
+                                if (app == this.Active)
                                 {
-                                    if (verbose > 0) Debug.WriteLine(string.Format("[Data] Spd: {0:000.0}kmh Gear: {1} RPM: {2:0000}rpm Throttle: {3:0.000}", app.Telemetry.Speed, app.Telemetry.Gear, app.Telemetry.EngineRpm, app.Telemetry.Throttle));
-                                    Telemetry = app.Telemetry;
-
-                                    if (lastCar != Telemetry.Car && CarChanged != null && app.SupportsCar)
+                                    if (this.verbose > 0)
                                     {
-                                        lastCar = Telemetry.Car;
-                                        Debug.WriteLine("New car:" + Telemetry.Car);
-                                        CarChanged(s, e);
+                                        Debug.WriteLine(string.Format("[Data] Spd: {0:000.0}kmh Gear: {1} RPM: {2:0000}rpm Throttle: {3:0.000}", app.Telemetry.Speed, app.Telemetry.Gear, app.Telemetry.EngineRpm, app.Telemetry.Throttle));
                                     }
+
+                                    this.Telemetry = app.Telemetry;
+
+                                    if (this.lastCar != this.Telemetry.Car && this.CarChanged != null && app.SupportsCar)
+                                    {
+                                        this.lastCar = this.Telemetry.Car;
+                                        Debug.WriteLine("New car:" + this.Telemetry.Car);
+                                        this.CarChanged(s, e);
+                                    }
+
                                     if (!app.SupportsCar)
                                     {
-                                        Telemetry.Car = ManualCar;
+                                        this.Telemetry.Car = this.ManualCar;
                                     }
-                                    if (DataReceived != null) DataReceived(s, e);
-                                    lastCar = Telemetry.Car;
+
+                                    if (this.DataReceived != null)
+                                    {
+                                        this.DataReceived(s, e);
+                                    }
+
+                                    this.lastCar = this.Telemetry.Car;
                                 }
                             };
                     });
 
-            _checkApplications = new Timer();
-            _checkApplications.Interval = 1000;
-            _checkApplications.Elapsed += _checkApplications_Elapsed;
+            this._checkApplications = new Timer();
+            this._checkApplications.Interval = 1000;
+            this._checkApplications.Elapsed += this._checkApplications_Elapsed;
         }
 
         public event EventHandler AppActive;
@@ -66,74 +78,79 @@ namespace SimShift.Data
 
         public event EventHandler DataReceived;
 
-        public IDataMiner Active = new Ets2DataMiner(); //{ get; private set; }
-
         public bool AutoMode { get; private set; }
 
         public string ManualCar { get; private set; }
 
-        public IEnumerable<IDataMiner> Miners
-        {
-            get
-            {
-                return miners;
-            }
-        }
+        public IEnumerable<IDataMiner> Miners => this.miners;
 
         public IDataDefinition Telemetry { get; private set; }
 
         public void AutoSelectApp()
         {
-            AutoMode = true;
-            if (Active != null && Active.IsActive)
+            this.AutoMode = true;
+            if (this.Active != null && this.Active.IsActive)
             {
-                if (AppInactive != null) AppInactive(this, new EventArgs());
+                if (this.AppInactive != null)
+                {
+                    this.AppInactive(this, new EventArgs());
+                }
             }
-            Active = null;
+
+            this.Active = null;
         }
 
         public void ChangeCar(string newCar)
         {
-            ManualCar = newCar;
+            this.ManualCar = newCar;
 
-            Debug.WriteLine("New car:" + Telemetry.Car);
-            CarChanged(this, new EventArgs());
+            Debug.WriteLine("New car:" + this.Telemetry.Car);
+            this.CarChanged(this, new EventArgs());
         }
 
         public void ManualSelectApp(IDataMiner app)
         {
-            AutoMode = false;
+            this.AutoMode = false;
             if (this.miners.Contains(app))
             {
-                if (Active != null && Active.IsActive)
+                if (this.Active != null && this.Active.IsActive)
                 {
-                    if (AppInactive != null) AppInactive(this, new EventArgs());
+                    if (this.AppInactive != null)
+                    {
+                        this.AppInactive(this, new EventArgs());
+                    }
                 }
-                Active = app;
+
+                this.Active = app;
             }
         }
 
         public void Run()
         {
-            _checkApplications.Start();
+            this._checkApplications.Start();
         }
 
         void _checkApplications_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (caBusy) return;
-            caBusy = true;
+            if (this.caBusy)
+            {
+                return;
+            }
+
+            this.caBusy = true;
 
             var prcsList = Process.GetProcesses();
 
             // Do it for the manual selected sim
-            if (!AutoMode)
+            if (!this.AutoMode)
             {
                 var app = this.Active;
                 if (app == null)
                 {
-                    caBusy = false;
+                    this.caBusy = false;
                     return;
                 }
+
                 // Search for the process
                 bool wasRuning = app.Running;
                 app.Running = prcsList.Any(x => x.ProcessName.ToLower() == app.Application.ToLower());
@@ -145,18 +162,24 @@ namespace SimShift.Data
                     if (app.Running)
                     {
                         app.EvtStart();
-                        if (AppActive != null) AppActive(this, new EventArgs());
+                        if (this.AppActive != null)
+                        {
+                            this.AppActive(this, new EventArgs());
+                        }
                         else
                         {
                             app.EvtStop();
-                            if (AppInactive != null) AppInactive(this, new EventArgs());
+                            if (this.AppInactive != null)
+                            {
+                                this.AppInactive(this, new EventArgs());
+                            }
                         }
                     }
                 }
             }
             else
             {
-                foreach (var app in miners.Where(x => !x.SelectManually))
+                foreach (var app in this.miners.Where(x => !x.SelectManually))
                 {
                     bool wasRuning = app.Running;
                     app.Running = prcsList.Any(x => x.ProcessName.ToLower() == app.Application.ToLower());
@@ -166,29 +189,37 @@ namespace SimShift.Data
                     if (app.RunEvent && app.IsActive && app.Running == false)
                     {
                         app.EvtStop();
-                        if (AppInactive != null) AppInactive(this, new EventArgs());
+                        if (this.AppInactive != null)
+                        {
+                            this.AppInactive(this, new EventArgs());
+                        }
                     }
 
                     app.IsActive = false;
                 }
-                if (miners.Where(x => !x.SelectManually).Any(x => x.Running))
+
+                if (this.miners.Where(x => !x.SelectManually).Any(x => x.Running))
                 {
                     // Conflict?
-                    Active = miners.Count(x => x.Running) != 1 ? null : miners.Where(x => !x.SelectManually).FirstOrDefault(x => x.Running);
-                    if (Active != null)
+                    this.Active = this.miners.Count(x => x.Running) != 1 ? null : this.miners.Where(x => !x.SelectManually).FirstOrDefault(x => x.Running);
+                    if (this.Active != null)
                     {
-                        Active.IsActive = true;
+                        this.Active.IsActive = true;
 
                         // TODO: This seems buggy way..
-                        if (Active.RunEvent)
+                        if (this.Active.RunEvent)
                         {
-                            Active.EvtStart();
-                            if (AppActive != null) AppActive(this, new EventArgs());
+                            this.Active.EvtStart();
+                            if (this.AppActive != null)
+                            {
+                                this.AppActive(this, new EventArgs());
+                            }
                         }
                     }
                 }
             }
-            caBusy = false;
+
+            this.caBusy = false;
         }
     }
 }

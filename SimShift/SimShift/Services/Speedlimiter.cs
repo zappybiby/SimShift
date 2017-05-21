@@ -14,8 +14,10 @@ using SimShift.Utils;
 namespace SimShift.Services
 {
     /// <summary>
-    /// Limits maximum speed of vehicle to avoid reckless driving, or create realism for some vehicles (eg 255km/h limit on german saloon cars).
-    /// Maximum speed can be adjusted and must be set some km/h lower than the desired speed. Aggresiveness is determined by slope.
+    ///     Limits maximum speed of vehicle to avoid reckless driving, or create realism for some vehicles (eg 255km/h limit on
+    ///     german saloon cars).
+    ///     Maximum speed can be adjusted and must be set some km/h lower than the desired speed. Aggresiveness is determined
+    ///     by slope.
     /// </summary>
     public class Speedlimiter : IControlChainObj, IConfigurable
     {
@@ -23,42 +25,17 @@ namespace SimShift.Services
 
         private double limiterFactor;
 
-        public IEnumerable<string> AcceptsConfigs
-        {
-            get
-            {
-                return new[] { "Speedlimit" };
-            }
-        }
+        public IEnumerable<string> AcceptsConfigs => new[] { "Speedlimit" };
 
-        public bool Active
-        {
-            get
-            {
-                return limiterFactor < 0.99;
-            }
-        }
+        public bool Active => this.limiterFactor < 0.99;
 
-        //
         public bool Adaptive { get; private set; }
 
         public bool Enabled { get; private set; }
 
-        public IEnumerable<string> SimulatorsBan
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsBan => new string[0];
 
-        public IEnumerable<string> SimulatorsOnly
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsOnly => new string[0];
 
         public int SpeedLimit { get; private set; }
 
@@ -69,19 +46,19 @@ namespace SimShift.Services
             switch (obj.Key)
             {
                 case "Adaptive":
-                    Adaptive = obj.ReadAsInteger() == 1;
+                    this.Adaptive = obj.ReadAsInteger() == 1;
                     break;
 
                 case "Limit":
-                    SpeedLimit = obj.ReadAsInteger();
+                    this.SpeedLimit = obj.ReadAsInteger();
                     break;
 
                 case "Slope":
-                    SpeedSlope = obj.ReadAsFloat();
+                    this.SpeedSlope = obj.ReadAsFloat();
                     break;
 
                 case "Disable":
-                    Enabled = false;
+                    this.Enabled = false;
                     break;
             }
         }
@@ -90,15 +67,16 @@ namespace SimShift.Services
         {
             List<IniValueObject> exportedObjects = new List<IniValueObject>();
 
-            if (Enabled == false)
+            if (this.Enabled == false)
             {
-                exportedObjects.Add(new IniValueObject(AcceptsConfigs, "Disable", "1"));
+                exportedObjects.Add(new IniValueObject(this.AcceptsConfigs, "Disable", "1"));
             }
             else
             {
-                exportedObjects.Add(new IniValueObject(AcceptsConfigs, "Limit", SpeedLimit.ToString()));
-                exportedObjects.Add(new IniValueObject(AcceptsConfigs, "Slope", SpeedSlope.ToString()));
+                exportedObjects.Add(new IniValueObject(this.AcceptsConfigs, "Limit", this.SpeedLimit.ToString()));
+                exportedObjects.Add(new IniValueObject(this.AcceptsConfigs, "Slope", this.SpeedSlope.ToString()));
             }
+
             return exportedObjects;
         }
 
@@ -107,7 +85,7 @@ namespace SimShift.Services
             switch (c)
             {
                 case JoyControls.Throttle: return val * this.limiterFactor;
-                case JoyControls.Brake: return brakeFactor;
+                case JoyControls.Brake: return this.brakeFactor;
 
                 default: return val;
             }
@@ -123,17 +101,17 @@ namespace SimShift.Services
             switch (c)
             {
                 case JoyControls.Throttle: return true;
-                case JoyControls.Brake: return brakeFactor > 0.005;
+                case JoyControls.Brake: return this.brakeFactor > 0.005;
                 default: return false;
             }
         }
 
         public void ResetParameters()
         {
-            SpeedLimit = 255;
-            SpeedSlope = 10;
-            Enabled = true;
-            Adaptive = false;
+            this.SpeedLimit = 255;
+            this.SpeedSlope = 10;
+            this.Enabled = true;
+            this.Adaptive = false;
         }
 
         public void TickControls()
@@ -141,48 +119,68 @@ namespace SimShift.Services
 
         public void TickTelemetry(IDataMiner data)
         {
-            if (Adaptive && Main.Data.Active.Application == "eurotrucks2")
+            if (this.Adaptive && Main.Data.Active.Application == "eurotrucks2")
             {
                 var ets2data = (Ets2DataMiner) Main.Data.Active;
                 var ets2limit = ets2data.MyTelemetry.Job.SpeedLimit * 3.6 - 4;
-                if (ets2limit < 0) ets2limit = 120;
+                if (ets2limit < 0)
+                {
+                    ets2limit = 120;
+                }
 
-                SpeedLimit = (int) ets2limit;
+                this.SpeedLimit = (int) ets2limit;
             }
-            if (!Enabled)
+
+            if (!this.Enabled)
             {
-                brakeFactor = 0;
-                limiterFactor = 1;
+                this.brakeFactor = 0;
+                this.limiterFactor = 1;
             }
             else
             {
-                limiterFactor = 1 + (SpeedLimit - data.Telemetry.Speed * 3.6) / SpeedSlope;
+                this.limiterFactor = 1 + (this.SpeedLimit - data.Telemetry.Speed * 3.6) / this.SpeedSlope;
 
-                if (limiterFactor < 0) limiterFactor = 0;
-                if (limiterFactor > 1) limiterFactor = 1;
-
-                if (data.Telemetry.Speed * 3.6 - 2 >= SpeedLimit)
+                if (this.limiterFactor < 0)
                 {
-                    var err = (data.Telemetry.Speed * 3.6 - 3 - SpeedLimit) / 25.0 * 0.15f;
-                    brakeFactor = err;
-                    limiterFactor = 0;
+                    this.limiterFactor = 0;
+                }
+
+                if (this.limiterFactor > 1)
+                {
+                    this.limiterFactor = 1;
+                }
+
+                if (data.Telemetry.Speed * 3.6 - 2 >= this.SpeedLimit)
+                {
+                    var err = (data.Telemetry.Speed * 3.6 - 3 - this.SpeedLimit) / 25.0 * 0.15f;
+                    this.brakeFactor = err;
+                    this.limiterFactor = 0;
                 }
                 else
                 {
-                    brakeFactor = 0;
+                    this.brakeFactor = 0;
                 }
             }
+
             if (data.Telemetry.EngineRpm > 21750)
             {
-                Enabled = true;
-                limiterFactor *= Math.Max(0, 1 - (data.Telemetry.EngineRpm - 1750) / 350.0f);
+                this.Enabled = true;
+                this.limiterFactor *= Math.Max(0, 1 - (data.Telemetry.EngineRpm - 1750) / 350.0f);
             }
+
             var pwrLimiter = Main.Drivetrain.CalculateThrottleByPower(data.Telemetry.EngineRpm, 1000);
 
-            if (pwrLimiter > 1) pwrLimiter = 1;
-            if (pwrLimiter < 0.2) pwrLimiter = 0.2;
+            if (pwrLimiter > 1)
+            {
+                pwrLimiter = 1;
+            }
 
-            limiterFactor *= pwrLimiter;
+            if (pwrLimiter < 0.2)
+            {
+                pwrLimiter = 0.2;
+            }
+
+            this.limiterFactor *= pwrLimiter;
         }
     }
 }

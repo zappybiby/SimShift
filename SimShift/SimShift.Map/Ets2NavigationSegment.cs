@@ -28,48 +28,48 @@ namespace SimShift.MapTool
 
         public Ets2NavigationSegment(Ets2Item prefab)
         {
-            Type = Ets2NavigationSegmentType.Prefab;
+            this.Type = Ets2NavigationSegmentType.Prefab;
 
-            Prefab = prefab;
+            this.Prefab = prefab;
         }
 
         public Ets2NavigationSegment(IEnumerable<Ets2Item> roadPath, Ets2NavigationSegment prevSeg)
         {
-            Type = Ets2NavigationSegmentType.Road;
+            this.Type = Ets2NavigationSegmentType.Road;
 
-            Roads = roadPath.ToList();
+            this.Roads = roadPath.ToList();
 
             // Generate entry/exit noads & road item order
-            var firstRoad = Roads.FirstOrDefault();
-            var lastRoad = Roads.LastOrDefault();
+            var firstRoad = this.Roads.FirstOrDefault();
+            var lastRoad = this.Roads.LastOrDefault();
 
             if (prevSeg.Prefab.NodesList.ContainsValue(firstRoad.StartNode))
             {
-                Entry = firstRoad.StartNode;
-                Exit = lastRoad.EndNode;
-                ReversedRoadChain = false;
-                ReversedRoadElements = false;
+                this.Entry = firstRoad.StartNode;
+                this.Exit = lastRoad.EndNode;
+                this.ReversedRoadChain = false;
+                this.ReversedRoadElements = false;
             }
             else if (prevSeg.Prefab.NodesList.ContainsValue(firstRoad.EndNode))
             {
-                Entry = firstRoad.EndNode;
-                Exit = lastRoad.StartNode;
-                ReversedRoadChain = false;
-                ReversedRoadElements = true;
+                this.Entry = firstRoad.EndNode;
+                this.Exit = lastRoad.StartNode;
+                this.ReversedRoadChain = false;
+                this.ReversedRoadElements = true;
             }
             else if (prevSeg.Prefab.NodesList.ContainsValue(lastRoad.StartNode))
             {
-                Entry = lastRoad.StartNode;
-                Exit = firstRoad.EndNode;
-                ReversedRoadChain = true;
-                ReversedRoadElements = false;
+                this.Entry = lastRoad.StartNode;
+                this.Exit = firstRoad.EndNode;
+                this.ReversedRoadChain = true;
+                this.ReversedRoadElements = false;
             }
             else if (prevSeg.Prefab.NodesList.ContainsValue(lastRoad.EndNode))
             {
-                Entry = lastRoad.EndNode;
-                Exit = firstRoad.StartNode;
-                ReversedRoadChain = true;
-                ReversedRoadElements = true;
+                this.Entry = lastRoad.EndNode;
+                this.Exit = firstRoad.StartNode;
+                this.ReversedRoadChain = true;
+                this.ReversedRoadElements = true;
             }
             else
             { }
@@ -83,54 +83,73 @@ namespace SimShift.MapTool
         {
             get
             {
-                return Options.Where(x => x.Valid);
+                return this.Options.Where(x => x.Valid);
             }
         }
 
         public void GenerateHiRes(Ets2NavigationSegmentOption opt)
         {
             var pts = 512;
-            if (Type == Ets2NavigationSegmentType.Road)
+            if (this.Type == Ets2NavigationSegmentType.Road)
             {
                 var curve1 = new List<Ets2Point>();
-                foreach (var rd in Roads)
+                foreach (var rd in this.Roads)
                 {
                     var rdc = rd.GenerateRoadCurve(pts, opt.LeftLane, opt.EntryLane);
                     if (!curve1.Any())
                     {
-                        if (!Entry.Point.CloseTo(rdc.FirstOrDefault())) rdc = rdc.Reverse();
+                        if (!this.Entry.Point.CloseTo(rdc.FirstOrDefault()))
+                        {
+                            rdc = rdc.Reverse();
+                        }
                     }
                     else
                     {
                         var lp = curve1.LastOrDefault();
-                        if (!rdc.FirstOrDefault().CloseTo(lp)) rdc = rdc.Reverse();
+                        if (!rdc.FirstOrDefault().CloseTo(lp))
+                        {
+                            rdc = rdc.Reverse();
+                        }
                     }
+
                     curve1.AddRange(rdc);
                 }
+
                 var curve2 = new List<Ets2Point>();
-                foreach (var rd in Roads)
+                foreach (var rd in this.Roads)
                 {
                     var rdc = rd.GenerateRoadCurve(pts, opt.LeftLane, opt.ExitLane);
                     if (!curve2.Any())
                     {
-                        if (!Entry.Point.CloseTo(rdc.FirstOrDefault())) rdc = rdc.Reverse();
+                        if (!this.Entry.Point.CloseTo(rdc.FirstOrDefault()))
+                        {
+                            rdc = rdc.Reverse();
+                        }
                     }
                     else
                     {
                         var lp = curve2.LastOrDefault();
-                        if (!rdc.FirstOrDefault().CloseTo(lp)) rdc = rdc.Reverse();
+                        if (!rdc.FirstOrDefault().CloseTo(lp))
+                        {
+                            rdc = rdc.Reverse();
+                        }
                     }
+
                     curve2.AddRange(rdc);
                 }
 
                 var curve = new List<Ets2Point>();
                 curve.AddRange(curve1.Skip(0).Take(curve2.Count / 2));
                 curve.AddRange(curve2.Skip(curve2.Count / 2).Take(curve2.Count / 2));
-                if (ReversedRoadChain) curve.Reverse();
+                if (this.ReversedRoadChain)
+                {
+                    curve.Reverse();
+                }
 
                 opt.HiResPoints = curve;
             }
-            if (Type == Ets2NavigationSegmentType.Prefab)
+
+            if (this.Type == Ets2NavigationSegmentType.Prefab)
             {
                 opt.HiResPoints = opt.Points;
             }
@@ -138,61 +157,77 @@ namespace SimShift.MapTool
 
         public void GenerateOptions(Ets2NavigationSegment prevSeg, Ets2NavigationSegment nextSeg)
         {
-            if (Type == Ets2NavigationSegmentType.Prefab)
+            if (this.Type == Ets2NavigationSegmentType.Prefab)
             {
                 var entryNode = -1;
                 var exitNode = -1;
                 var i = 0;
+
                 // find node id's
-                foreach (var kvp in Prefab.NodesList)
+                foreach (var kvp in this.Prefab.NodesList)
                 {
-                    if (Entry != null && kvp.Value.NodeUID == Entry.NodeUID) entryNode = i;
-                    if (Exit != null && kvp.Value.NodeUID == Exit.NodeUID) exitNode = i;
+                    if (this.Entry != null && kvp.Value.NodeUID == this.Entry.NodeUID)
+                    {
+                        entryNode = i;
+                    }
+
+                    if (this.Exit != null && kvp.Value.NodeUID == this.Exit.NodeUID)
+                    {
+                        exitNode = i;
+                    }
+
                     i++;
                 }
 
-                //var routes = Prefab.Prefab.GetRoute(entryNode, exitNode);
-                var routes = Prefab.Prefab.GetAllRoutes();
+                // var routes = Prefab.Prefab.GetRoute(entryNode, exitNode);
+                var routes = this.Prefab.Prefab.GetAllRoutes();
 
                 if (routes == null || !routes.Any())
                 {
                     return;
                 }
+
                 // Create options (we do this by just saving paths)
                 foreach (var route in routes)
                 {
                     var option = new Ets2NavigationSegmentOption();
                     option.EntryLane = -1;
                     option.ExitLane = -1;
-                    option.Points = Prefab.Prefab.GeneratePolygonForRoute(route, Prefab.NodesList.FirstOrDefault().Value, Prefab.Origin).ToList();
+                    option.Points = this.Prefab.Prefab.GeneratePolygonForRoute(route, this.Prefab.NodesList.FirstOrDefault().Value, this.Prefab.Origin).ToList();
 
-                    Options.Add(option);
+                    this.Options.Add(option);
                 }
             }
 
             var curveSize = 32;
 
-            if (Type == Ets2NavigationSegmentType.Road)
+            if (this.Type == Ets2NavigationSegmentType.Road)
             {
-                var firstRoad = Roads.FirstOrDefault();
+                var firstRoad = this.Roads.FirstOrDefault();
 
                 // TODO: support UK
                 // We have x number of lanes
                 for (int startLane = 0; startLane < firstRoad.RoadLook.LanesRight; startLane++)
                 {
                     var curve1 = new List<Ets2Point>();
-                    foreach (var rd in Roads)
+                    foreach (var rd in this.Roads)
                     {
                         var rdc = rd.GenerateRoadCurve(curveSize, false, startLane);
 
                         if (!curve1.Any())
                         {
-                            if (!Entry.Point.CloseTo(rdc.FirstOrDefault())) rdc = rdc.Reverse();
+                            if (!this.Entry.Point.CloseTo(rdc.FirstOrDefault()))
+                            {
+                                rdc = rdc.Reverse();
+                            }
                         }
                         else
                         {
                             var lp = curve1.LastOrDefault();
-                            if (!rdc.FirstOrDefault().CloseTo(lp)) rdc = rdc.Reverse();
+                            if (!rdc.FirstOrDefault().CloseTo(lp))
+                            {
+                                rdc = rdc.Reverse();
+                            }
                         }
 
                         curve1.AddRange(rdc);
@@ -201,18 +236,24 @@ namespace SimShift.MapTool
                     for (int endLane = 0; endLane < firstRoad.RoadLook.LanesRight; endLane++)
                     {
                         var curve2 = new List<Ets2Point>();
-                        foreach (var rd in Roads)
+                        foreach (var rd in this.Roads)
                         {
                             var rdc = rd.GenerateRoadCurve(curveSize, false, endLane);
 
                             if (!curve2.Any())
                             {
-                                if (!Entry.Point.CloseTo(rdc.FirstOrDefault())) rdc = rdc.Reverse();
+                                if (!this.Entry.Point.CloseTo(rdc.FirstOrDefault()))
+                                {
+                                    rdc = rdc.Reverse();
+                                }
                             }
                             else
                             {
                                 var lp = curve2.LastOrDefault();
-                                if (!rdc.FirstOrDefault().CloseTo(lp)) rdc = rdc.Reverse();
+                                if (!rdc.FirstOrDefault().CloseTo(lp))
+                                {
+                                    rdc = rdc.Reverse();
+                                }
                             }
 
                             curve2.AddRange(rdc);
@@ -221,67 +262,88 @@ namespace SimShift.MapTool
                         var curve = new List<Ets2Point>();
                         curve.AddRange(curve1.Skip(0).Take(curve2.Count / 2));
                         curve.AddRange(curve2.Skip(curve2.Count / 2).Take(curve2.Count / 2));
-                        if (ReversedRoadChain) curve.Reverse();
+                        if (this.ReversedRoadChain)
+                        {
+                            curve.Reverse();
+                        }
 
                         var option = new Ets2NavigationSegmentOption();
                         option.LeftLane = false;
                         option.EntryLane = startLane;
                         option.ExitLane = endLane;
                         option.Points = curve;
-                        option.LaneCrossOver = (startLane != endLane);
+                        option.LaneCrossOver = startLane != endLane;
 
-                        Options.Add(option);
+                        this.Options.Add(option);
                     }
                 }
+
                 for (int startLane = 0; startLane < firstRoad.RoadLook.LanesLeft; startLane++)
                 {
                     var curve1 = new List<Ets2Point>();
-                    foreach (var rd in Roads)
+                    foreach (var rd in this.Roads)
                     {
                         var rdc = rd.GenerateRoadCurve(curveSize, true, startLane);
                         if (!curve1.Any())
                         {
-                            if (!Entry.Point.CloseTo(rdc.FirstOrDefault())) rdc = rdc.Reverse();
+                            if (!this.Entry.Point.CloseTo(rdc.FirstOrDefault()))
+                            {
+                                rdc = rdc.Reverse();
+                            }
                         }
                         else
                         {
                             var lp = curve1.LastOrDefault();
-                            if (!rdc.FirstOrDefault().CloseTo(lp)) rdc = rdc.Reverse();
+                            if (!rdc.FirstOrDefault().CloseTo(lp))
+                            {
+                                rdc = rdc.Reverse();
+                            }
                         }
+
                         curve1.AddRange(rdc);
                     }
 
                     for (int endLane = 0; endLane < firstRoad.RoadLook.LanesLeft; endLane++)
                     {
                         var curve2 = new List<Ets2Point>();
-                        foreach (var rd in Roads)
+                        foreach (var rd in this.Roads)
                         {
                             var rdc = rd.GenerateRoadCurve(curveSize, true, endLane);
                             if (!curve2.Any())
                             {
-                                if (!Entry.Point.CloseTo(rdc.FirstOrDefault())) rdc = rdc.Reverse();
+                                if (!this.Entry.Point.CloseTo(rdc.FirstOrDefault()))
+                                {
+                                    rdc = rdc.Reverse();
+                                }
                             }
                             else
                             {
                                 var lp = curve2.LastOrDefault();
-                                if (!rdc.FirstOrDefault().CloseTo(lp)) rdc = rdc.Reverse();
+                                if (!rdc.FirstOrDefault().CloseTo(lp))
+                                {
+                                    rdc = rdc.Reverse();
+                                }
                             }
+
                             curve2.AddRange(rdc);
                         }
 
                         var curve = new List<Ets2Point>();
                         curve.AddRange(curve1.Skip(0).Take(curve2.Count / 2));
                         curve.AddRange(curve2.Skip(curve2.Count / 2).Take(curve2.Count / 2));
-                        if (!ReversedRoadChain) curve.Reverse();
+                        if (!this.ReversedRoadChain)
+                        {
+                            curve.Reverse();
+                        }
 
                         var option = new Ets2NavigationSegmentOption();
                         option.LeftLane = true;
                         option.EntryLane = startLane;
                         option.ExitLane = endLane;
                         option.Points = curve;
-                        option.LaneCrossOver = (startLane != endLane);
+                        option.LaneCrossOver = startLane != endLane;
 
-                        Options.Add(option);
+                        this.Options.Add(option);
                     }
                 }
             }
@@ -296,7 +358,7 @@ namespace SimShift.MapTool
         {
             if (this.Type == Ets2NavigationSegmentType.Road)
             {
-                var entryPoint = Options[solI].Points.FirstOrDefault();
+                var entryPoint = this.Options[solI].Points.FirstOrDefault();
                 bool res = false;
                 foreach (var route in prev.Options)
                 {
@@ -304,7 +366,11 @@ namespace SimShift.MapTool
                     if (last.CloseTo(entryPoint))
                     {
                         route.EntryLane = this.Options[solI].ExitLane;
-                        if (route.ExitLane >= 0 && route.EntryLane >= 0) route.Valid = true;
+                        if (route.ExitLane >= 0 && route.EntryLane >= 0)
+                        {
+                            route.Valid = true;
+                        }
+
                         res = true;
                     }
                 }
@@ -321,7 +387,7 @@ namespace SimShift.MapTool
         {
             if (this.Type == Ets2NavigationSegmentType.Road)
             {
-                var exitPoint = Options[solI].Points.LastOrDefault();
+                var exitPoint = this.Options[solI].Points.LastOrDefault();
                 bool res = false;
                 foreach (var route in next.Options)
                 {
@@ -329,7 +395,11 @@ namespace SimShift.MapTool
                     if (first.CloseTo(exitPoint))
                     {
                         route.ExitLane = this.Options[solI].EntryLane;
-                        if (route.ExitLane >= 0 && route.EntryLane >= 0) route.Valid = true;
+                        if (route.ExitLane >= 0 && route.EntryLane >= 0)
+                        {
+                            route.Valid = true;
+                        }
+
                         res = true;
                     }
                 }
@@ -344,7 +414,7 @@ namespace SimShift.MapTool
 
         public override string ToString()
         {
-            return (Solutions.Count()) + " NAVSEG " + Type.ToString() + " " + ((Type == Ets2NavigationSegmentType.Road) ? (Roads.Count() + " roads / " + Entry.NodeUID.ToString("X16") + " > " + Exit.NodeUID.ToString("X16")) : Prefab.ItemUID.ToString("X16"));
+            return this.Solutions.Count() + " NAVSEG " + this.Type.ToString() + " " + ((this.Type == Ets2NavigationSegmentType.Road) ? (this.Roads.Count() + " roads / " + this.Entry.NodeUID.ToString("X16") + " > " + this.Exit.NodeUID.ToString("X16")) : this.Prefab.ItemUID.ToString("X16"));
         }
 
         /*** SOLUTIONS ***/
@@ -367,7 +437,7 @@ namespace SimShift.MapTool
 
             public override string ToString()
             {
-                return "NAVSEGOPT " + EntryLane + " > " + ExitLane + " (Valid: " + Valid + ")";
+                return "NAVSEGOPT " + this.EntryLane + " > " + this.ExitLane + " (Valid: " + this.Valid + ")";
             }
         }
     }

@@ -35,22 +35,22 @@ namespace SimShift.Dialogs
 
         public dlPlotter()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
-            plot = new ucPlotter(
+            this.plot = new ucPlotter(
                 5,
                 new float[]
                     {
-                        //1,
-                        //1,
+                        // 1,
+                        // 1,
                         1, 1, 2500, 150, 5
                     });
-            plot.Dock = DockStyle.Fill;
-            Controls.Add(plot);
+            this.plot.Dock = DockStyle.Fill;
+            this.Controls.Add(this.plot);
 
-            Main.Data.DataReceived += Data_DataReceived;
+            Main.Data.DataReceived += this.Data_DataReceived;
             var tmr = new Timer { Enabled = true, Interval = 1000 };
-            tmr.Tick += tmr_Tick;
+            tmr.Tick += this.tmr_Tick;
             tmr.Start();
         }
 
@@ -58,33 +58,35 @@ namespace SimShift.Dialogs
         {
             var miner = Main.Data.Active as Ets2DataMiner;
             var tel = Main.Data.Telemetry; // miner.MyTelemetry;
-            var dt = tel.Time - prevTime;
-            var dv = tel.Speed - prevSpeed;
+            var dt = tel.Time - this.prevTime;
+            var dv = tel.Speed - this.prevSpeed;
 
-            var dt2 = tel.Time - prevAccT;
+            var dt2 = tel.Time - this.prevAccT;
             if (dt2 > 0.05)
             {
                 var acc = dv / dt;
-                var da = acc - prevAcc;
-                dj = Math.Abs(da) >= 0.001f ? da / dt2 / 10.0f : 0;
-                prevAcc = acc;
-                prevAccT = tel.Time;
+                var da = acc - this.prevAcc;
+                this.dj = Math.Abs(da) >= 0.001f ? da / dt2 / 10.0f : 0;
+                this.prevAcc = acc;
+                this.prevAccT = tel.Time;
             }
+
             if (dt > 0.0001)
             {
-                hz++;
-                var data = new double[] { Main.GetAxisOut(JoyControls.Throttle), Main.GetAxisOut(JoyControls.Clutch), tel.EngineRpm - 2500, tel.Speed * 3.6, prevAcc };
+                this.hz++;
+                var data = new[] { Main.GetAxisOut(JoyControls.Throttle), Main.GetAxisOut(JoyControls.Clutch), tel.EngineRpm - 2500, tel.Speed * 3.6, this.prevAcc };
 
-                plot.Add(data.ToList());
+                this.plot.Add(data.ToList());
             }
-            prevSpeed = tel.Speed;
-            prevTime = tel.Time;
+
+            this.prevSpeed = tel.Speed;
+            this.prevTime = tel.Time;
         }
 
         private void tmr_Tick(object sender, EventArgs e)
         {
-            plot.Frequency = hz;
-            hz = 0;
+            this.plot.Frequency = this.hz;
+            this.hz = 0;
         }
     }
 }

@@ -9,12 +9,12 @@ namespace SimTelemetry.Domain.Memory
     {
         public MemorySignatureScanner(MemoryReader mem)
         {
-            Reader = mem;
+            this.Reader = mem;
         }
 
         public MemorySignatureScanner(MemoryProvider provider)
         {
-            Reader = provider.Reader;
+            this.Reader = provider.Reader;
         }
 
         public bool Enabled { get; protected set; }
@@ -24,73 +24,99 @@ namespace SimTelemetry.Domain.Memory
         public void Disable()
         {
             // Clear memory data.
-            foreach (var region in Reader.Regions)
+            foreach (var region in this.Reader.Regions)
             {
                 region.Data = new byte[0];
             }
-            Enabled = false;
+
+            this.Enabled = false;
         }
 
         public void Dispose()
         {
-            if (Enabled) Disable();
+            if (this.Enabled)
+            {
+                this.Disable();
+            }
         }
 
         public void Enable(string file)
         {
             byte[] d = File.ReadAllBytes(file);
-            foreach (var region in Reader.Regions)
+            foreach (var region in this.Reader.Regions)
             {
                 region.Data = d;
                 region.Size = d.Length;
                 break;
             }
 
-            Enabled = true;
+            this.Enabled = true;
         }
 
         public void Enable()
         {
             // Get all regions from MemoryReader, and fill them with data.
-            foreach (var region in Reader.Regions)
+            foreach (var region in this.Reader.Regions)
             {
-                if (region.Size > 0x1000000) continue;
+                if (region.Size > 0x1000000)
+                {
+                    continue;
+                }
+
                 region.Data = new byte[region.Size];
-                Reader.Read(region.BaseAddress, region.Data);
+                this.Reader.Read(region.BaseAddress, region.Data);
             }
 
-            Enabled = true;
+            this.Enabled = true;
         }
 
         public T Scan<T>(MemoryRegionType memoryRegionType, string signature)
         {
-            var results = ScanMemory<T>(memoryRegionType, signature);
+            var results = this.ScanMemory<T>(memoryRegionType, signature);
             if (results != null)
             {
                 // Get the best match out of it.
                 var best = (from entry in results orderby entry.Value descending select entry.Key).FirstOrDefault();
                 return best;
             }
-            else return new List<T>().FirstOrDefault();
+            else
+            {
+                return new List<T>().FirstOrDefault();
+            }
         }
 
         public IEnumerable<T> ScanAll<T>(MemoryRegionType memoryRegionType, string signature)
         {
-            var results = ScanMemory<T>(memoryRegionType, signature);
-            if (results == null) return new List<T>();
-            else return results.Keys;
+            var results = this.ScanMemory<T>(memoryRegionType, signature);
+            if (results == null)
+            {
+                return new List<T>();
+            }
+            else
+            {
+                return results.Keys;
+            }
         }
 
         public Dictionary<T, int> ScanAllFrequencies<T>(MemoryRegionType memoryRegionType, string signature)
         {
-            var results = ScanMemory<T>(memoryRegionType, signature);
-            if (results == null) return new Dictionary<T, int>();
-            else return results;
+            var results = this.ScanMemory<T>(memoryRegionType, signature);
+            if (results == null)
+            {
+                return new Dictionary<T, int>();
+            }
+            else
+            {
+                return results;
+            }
         }
 
         protected virtual IEnumerable<MemorySignatureScanObject> ParseSignature(string signature)
         {
-            if (signature.Length % 2 != 0) throw new Exception("Not valid signature");
+            if (signature.Length % 2 != 0)
+            {
+                throw new Exception("Not valid signature");
+            }
 
             var signatureObjects = new List<MemorySignatureScanObject>();
 
@@ -98,18 +124,33 @@ namespace SimTelemetry.Domain.Memory
             {
                 var sigHex = signature.Substring(i, 2);
 
-                if (sigHex.Contains("X") && sigHex != "XX") throw new Exception("Signature error at index " + i);
-                if (sigHex.Contains("?") && sigHex != "??") throw new Exception("Signature error at index " + i);
+                if (sigHex.Contains("X") && sigHex != "XX")
+                {
+                    throw new Exception("Signature error at index " + i);
+                }
+
+                if (sigHex.Contains("?") && sigHex != "??")
+                {
+                    throw new Exception("Signature error at index " + i);
+                }
 
                 MemorySignatureScanObject signatureObject;
                 switch (sigHex)
                 {
                     case "XX":
-                        if (i == 0) throw new Exception("Cannot start signature with a wildcard.");
+                        if (i == 0)
+                        {
+                            throw new Exception("Cannot start signature with a wildcard.");
+                        }
+
                         signatureObject = new MemorySignatureScanObject(00, true, false);
                         break;
                     case "??":
-                        if (i == 0) throw new Exception("Cannot start signature with a target address.");
+                        if (i == 0)
+                        {
+                            throw new Exception("Cannot start signature with a target address.");
+                        }
+
                         signatureObject = new MemorySignatureScanObject(00, false, true);
                         break;
                     default:
@@ -118,27 +159,37 @@ namespace SimTelemetry.Domain.Memory
                 }
                 signatureObjects.Add(signatureObject);
             }
+
             return signatureObjects;
         }
 
         protected Dictionary<T, int> ScanMemory<T>(MemoryRegionType memoryRegionType, string signature)
         {
-            if (!Enabled) return null;
+            if (!this.Enabled)
+            {
+                return null;
+            }
 
-            var signatureObject = ParseSignature(signature);
+            var signatureObject = this.ParseSignature(signature);
 
             var results = new Dictionary<T, int>();
 
-            foreach (var region in Reader.Regions.Where(x => x.MatchesType(memoryRegionType)))
+            foreach (var region in this.Reader.Regions.Where(x => x.MatchesType(memoryRegionType)))
             {
-                //for (int i = 0; i < 100; i++)
-                ScanRegion<T>(
+                // for (int i = 0; i < 100; i++)
+                this.ScanRegion<T>(
                     region,
                     signatureObject,
                     (value, address) =>
                         {
-                            if (results.ContainsKey(value)) results[value]++;
-                            else results.Add(value, 1);
+                            if (results.ContainsKey(value))
+                            {
+                                results[value]++;
+                            }
+                            else
+                            {
+                                results.Add(value, 1);
+                            }
                         });
             }
 
@@ -147,7 +198,10 @@ namespace SimTelemetry.Domain.Memory
 
         private void ScanRegion<T>(MemoryRegion region, IEnumerable<MemorySignatureScanObject> signature, Action<T, int> addAction)
         {
-            if (region.Data.Length == 0) return;
+            if (region.Data.Length == 0)
+            {
+                return;
+            }
 
             byte startByte = signature.FirstOrDefault().data;
             var signatureLength = signature.Count();
@@ -168,6 +222,7 @@ namespace SimTelemetry.Domain.Memory
                         signatureCheckIndex++;
                         continue;
                     }
+
                     var by = region.Data[address + signatureCheckIndex];
 
                     if (sigByte.target)
@@ -182,13 +237,15 @@ namespace SimTelemetry.Domain.Memory
 
                     signatureCheckIndex++;
                 }
+
                 if (!matchFailed)
                 {
                     addAction(MemoryDataConverter.Read<T>(target, 0), (int) address);
-                    //Debug.WriteLine("0x{0} -> 0x{2:X} [ 0x{1:X} ] ",string.Format("{0:X}", address), BitConverter.ToString(target), address);
 
+                    // Debug.WriteLine("0x{0} -> 0x{2:X} [ 0x{1:X} ] ",string.Format("{0:X}", address), BitConverter.ToString(target), address);
                     target = new byte[32];
                 }
+
                 signatureCheckIndex = 0;
                 targetIndex = 0;
                 matchFailed = false;

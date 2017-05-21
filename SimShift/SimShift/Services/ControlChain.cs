@@ -22,96 +22,97 @@ namespace SimShift.Services
 
         public ControlChain()
         {
-            chain.Add(new ThrottleMapping());
-            chain.Add(Main.LaneAssistance);
-            chain.Add(Main.ACC);
-            chain.Add(Main.Speedlimiter);
-            //chain.Add(Main.CruiseControl);
-            if (Main.VST) chain.Add(Main.VariableSpeedControl);
-            else chain.Add(Main.Transmission);
-            chain.Add(Main.Antistall);
-            chain.Add(Main.TractionControl);
-            //chain.Add(Main.LaunchControl);
-            chain.Add(Main.ProfileSwitcher);
-            chain.Add(Main.DrivetrainCalibrator);
-            chain.Add(Main.CameraHorizon);
-            chain.Add(new EarlyClutch());
-            chain.Add(new WheelTorqueLimiter());
-            //chain.Add(new Ets2PowerMeter());
-            chain.Add(new Dashboard());
-            //chain.Add(Main.TransmissionCalibrator);
+            this.chain.Add(new ThrottleMapping());
+            this.chain.Add(Main.LaneAssistance);
+            this.chain.Add(Main.ACC);
+            this.chain.Add(Main.Speedlimiter);
 
-            Axis.Add(JoyControls.Steering);
-            Axis.Add(JoyControls.Throttle);
-            Axis.Add(JoyControls.Brake);
-            Axis.Add(JoyControls.Clutch);
-            Axis.Add(JoyControls.CameraHorizon);
-
-            Buttons.Add(JoyControls.Gear1);
-            Buttons.Add(JoyControls.Gear2);
-            Buttons.Add(JoyControls.Gear3);
-            Buttons.Add(JoyControls.Gear4);
-            Buttons.Add(JoyControls.Gear5);
-            Buttons.Add(JoyControls.Gear6);
-            Buttons.Add(JoyControls.Gear7);
-            Buttons.Add(JoyControls.Gear8);
-            Buttons.Add(JoyControls.GearR);
-            Buttons.Add(JoyControls.GearRange1);
-            Buttons.Add(JoyControls.GearRange2);
-            Buttons.Add(JoyControls.GearUp);
-            Buttons.Add(JoyControls.GearDown);
-            Buttons.Add(JoyControls.CruiseControlMaintain);
-            Buttons.Add(JoyControls.CruiseControlUp);
-            Buttons.Add(JoyControls.CruiseControlDown);
-            Buttons.Add(JoyControls.CruiseControlOnOff);
-
-            foreach (var a in Axis)
+            // chain.Add(Main.CruiseControl);
+            if (Main.VST)
             {
-                axisProgression.Add(a, new Dictionary<string, double>());
-                foreach (var m in chain)
+                this.chain.Add(Main.VariableSpeedControl);
+            }
+            else
+            {
+                this.chain.Add(Main.Transmission);
+            }
+
+            this.chain.Add(Main.Antistall);
+            this.chain.Add(Main.TractionControl);
+
+            // chain.Add(Main.LaunchControl);
+            this.chain.Add(Main.ProfileSwitcher);
+            this.chain.Add(Main.DrivetrainCalibrator);
+            this.chain.Add(Main.CameraHorizon);
+            this.chain.Add(new EarlyClutch());
+            this.chain.Add(new WheelTorqueLimiter());
+
+            // chain.Add(new Ets2PowerMeter());
+            this.chain.Add(new Dashboard());
+
+            // chain.Add(Main.TransmissionCalibrator);
+            this.Axis.Add(JoyControls.Steering);
+            this.Axis.Add(JoyControls.Throttle);
+            this.Axis.Add(JoyControls.Brake);
+            this.Axis.Add(JoyControls.Clutch);
+            this.Axis.Add(JoyControls.CameraHorizon);
+
+            this.Buttons.Add(JoyControls.Gear1);
+            this.Buttons.Add(JoyControls.Gear2);
+            this.Buttons.Add(JoyControls.Gear3);
+            this.Buttons.Add(JoyControls.Gear4);
+            this.Buttons.Add(JoyControls.Gear5);
+            this.Buttons.Add(JoyControls.Gear6);
+            this.Buttons.Add(JoyControls.Gear7);
+            this.Buttons.Add(JoyControls.Gear8);
+            this.Buttons.Add(JoyControls.GearR);
+            this.Buttons.Add(JoyControls.GearRange1);
+            this.Buttons.Add(JoyControls.GearRange2);
+            this.Buttons.Add(JoyControls.GearUp);
+            this.Buttons.Add(JoyControls.GearDown);
+            this.Buttons.Add(JoyControls.CruiseControlMaintain);
+            this.Buttons.Add(JoyControls.CruiseControlUp);
+            this.Buttons.Add(JoyControls.CruiseControlDown);
+            this.Buttons.Add(JoyControls.CruiseControlOnOff);
+
+            foreach (var a in this.Axis)
+            {
+                this.axisProgression.Add(a, new Dictionary<string, double>());
+                foreach (var m in this.chain)
                 {
-                    if (m != null) axisProgression[a].Add(m.GetType().Name, 0);
+                    if (m != null)
+                    {
+                        this.axisProgression[a].Add(m.GetType().Name, 0);
+                    }
                 }
             }
         }
 
-        public Dictionary<JoyControls, Dictionary<string, double>> AxisProgression
-        {
-            get
-            {
-                return axisProgression;
-            }
-        }
+        public Dictionary<JoyControls, Dictionary<string, double>> AxisProgression => this.axisProgression;
 
-        public IEnumerable<IControlChainObj> Chain
-        {
-            get
-            {
-                return chain;
-            }
-        }
+        public IEnumerable<IControlChainObj> Chain => this.chain;
 
         public void Tick(IDataMiner data)
         {
             // We take all controller input
-            var buttonValues = Buttons.ToDictionary(c => c, Main.GetButtonIn);
-            var axisValues = Axis.ToDictionary(c => c, Main.GetAxisIn);
+            var buttonValues = this.Buttons.ToDictionary(c => c, Main.GetButtonIn);
+            var axisValues = this.Axis.ToDictionary(c => c, Main.GetAxisIn);
 
-            foreach (var obj in chain)
+            foreach (var obj in this.chain)
             {
                 obj.TickTelemetry(data);
             }
 
             // Put it serially through each control block
             // Each time a block requires a control, it receives the current value of that control
-            foreach (var obj in chain.Where(FilterSimulators))
+            foreach (var obj in this.chain.Where(this.FilterSimulators))
             {
                 buttonValues = buttonValues.ToDictionary(c => c.Key, k => obj.Requires(k.Key) ? obj.GetButton(k.Key, k.Value) : k.Value);
                 axisValues = axisValues.ToDictionary(c => c.Key, k => obj.Requires(k.Key) ? obj.GetAxis(k.Key, k.Value) : k.Value);
 
                 foreach (var kvp in axisValues)
                 {
-                    axisProgression[kvp.Key][obj.GetType().Name] = kvp.Value;
+                    this.axisProgression[kvp.Key][obj.GetType().Name] = kvp.Value;
                 }
 
                 obj.TickControls();
@@ -122,11 +123,20 @@ namespace SimShift.Services
             {
                 Main.SetButtonOut(b.Key, b.Value);
             }
+
             foreach (var b in axisValues)
             {
                 var v = b.Value;
-                if (v > 1) v = 1;
-                if (v < 0) v = 0;
+                if (v > 1)
+                {
+                    v = 1;
+                }
+
+                if (v < 0)
+                {
+                    v = 0;
+                }
+
                 Main.SetAxisOut(b.Key, v);
             }
         }
@@ -135,11 +145,18 @@ namespace SimShift.Services
         {
             if (arg.SimulatorsOnly.Any())
             {
-                if (!arg.SimulatorsOnly.Contains(ActiveSimulator)) return false;
+                if (!arg.SimulatorsOnly.Contains(this.ActiveSimulator))
+                {
+                    return false;
+                }
             }
+
             if (arg.SimulatorsBan.Any())
             {
-                if (arg.SimulatorsBan.Contains(ActiveSimulator)) return false;
+                if (arg.SimulatorsBan.Contains(this.ActiveSimulator))
+                {
+                    return false;
+                }
             }
 
             return arg.Enabled;

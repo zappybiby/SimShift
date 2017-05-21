@@ -8,64 +8,27 @@ using SimShift.Entities;
 namespace SimShift.Services
 {
     /// <summary>
-    /// This module monitors user inputs to switch driving profiles.
-    /// Driving profiles contain a set of settings for all different driving modules, e.g. transmission, speedlimiter, traction control, etc.
+    ///     This module monitors user inputs to switch driving profiles.
+    ///     Driving profiles contain a set of settings for all different driving modules, e.g. transmission, speedlimiter,
+    ///     traction control, etc.
     /// </summary>
     public class ProfileSwitcher : IControlChainObj
     {
         private bool TrailerAttached = false;
 
-        public bool Active
-        {
-            get
-            {
-                return ProfileSwitchFrozen;
-            }
-        }
+        public bool Active => this.ProfileSwitchFrozen;
 
-        public bool Enabled
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public bool Enabled => true;
 
-        public bool ProfileSwitchFrozen
-        {
-            get
-            {
-                return ProfileSwitchTimeout > DateTime.Now;
-            }
-        }
-
-        //
+        public bool ProfileSwitchFrozen => this.ProfileSwitchTimeout > DateTime.Now;
 
         public DateTime ProfileSwitchTimeout { get; private set; }
 
-        public IEnumerable<string> SimulatorsBan
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsBan => new string[0];
 
-        public IEnumerable<string> SimulatorsOnly
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsOnly => new string[0];
 
-        public bool TransmissionReverseFrozen
-        {
-            get
-            {
-                return TransmissionReverseTimeout > DateTime.Now;
-            }
-        }
+        public bool TransmissionReverseFrozen => this.TransmissionReverseTimeout > DateTime.Now;
 
         public DateTime TransmissionReverseTimeout { get; private set; }
 
@@ -79,12 +42,11 @@ namespace SimShift.Services
             switch (c)
             {
                 case JoyControls.GearUp:
-                    if (val && !ProfileSwitchFrozen)
+                    if (val && !this.ProfileSwitchFrozen)
                     {
-                        ProfileSwitchTimeout = DateTime.Now.Add(new TimeSpan(0, 0, 0, 1));
+                        this.ProfileSwitchTimeout = DateTime.Now.Add(new TimeSpan(0, 0, 0, 1));
                         if (Main.Data.Active.Application == "eurotrucks2")
                         {
-                            //
                             var ets2miner = (Ets2DataMiner) Main.Data.Active;
                             var ets2telemetry = ets2miner.MyTelemetry;
                             Main.LoadNextProfile(ets2telemetry.Job.Mass);
@@ -94,14 +56,16 @@ namespace SimShift.Services
                             Main.LoadNextProfile(10000);
                         }
                     }
+
                     return false;
                     break;
                 case JoyControls.GearDown:
-                    if (val && !TransmissionReverseFrozen)
+                    if (val && !this.TransmissionReverseFrozen)
                     {
-                        TransmissionReverseTimeout = DateTime.Now.Add(new TimeSpan(0, 0, 0, 1));
+                        this.TransmissionReverseTimeout = DateTime.Now.Add(new TimeSpan(0, 0, 0, 1));
                         Transmission.InReverse = !Transmission.InReverse;
                     }
+
                     return false;
                     break;
 
@@ -121,22 +85,18 @@ namespace SimShift.Services
         }
 
         public void TickControls()
-        {
-            //
-        }
+        { }
 
         public void TickTelemetry(IDataMiner data)
         {
-            //
             if (data.Application == "eurotrucks2")
             {
-                //
                 var ets2miner = (Ets2DataMiner) data;
                 var ets2telemetry = ets2miner.MyTelemetry;
                 var trailerAttached = ets2telemetry.Job.TrailerAttached;
-                if (trailerAttached != TrailerAttached)
+                if (trailerAttached != this.TrailerAttached)
                 {
-                    TrailerAttached = trailerAttached;
+                    this.TrailerAttached = trailerAttached;
                     Main.ReloadProfile(trailerAttached ? ets2telemetry.Job.Mass : 0);
                 }
             }

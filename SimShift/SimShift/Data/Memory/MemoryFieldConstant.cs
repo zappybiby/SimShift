@@ -10,111 +10,64 @@ namespace SimTelemetry.Domain.Memory
 
         public MemoryFieldConstant(string name, T staticValue)
         {
-            Name = name;
-            StaticValue = staticValue;
+            this.Name = name;
+            this.StaticValue = staticValue;
         }
 
-        public int Address
-        {
-            get
-            {
-                return 0;
-            }
-        }
+        public int Address => 0;
 
-        public MemoryAddress AddressType
-        {
-            get
-            {
-                return MemoryAddress.Constant;
-            }
-        }
+        public MemoryAddress AddressType => MemoryAddress.Constant;
 
-        public bool IsConstant
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public bool IsConstant => true;
 
-        public bool IsDynamic
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool IsDynamic => false;
 
-        public bool IsStatic
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool IsStatic => false;
 
         public MemoryProvider Memory { get; protected set; }
 
         public string Name { get; protected set; }
 
-        public int Offset
-        {
-            get
-            {
-                return 0;
-            }
-        }
+        public int Offset => 0;
 
         public MemoryPool Pool { get; protected set; }
 
-        public int Size
-        {
-            get
-            {
-                return 0;
-            }
-        }
+        public int Size => 0;
 
         public T StaticValue { get; protected set; }
 
-        public Type ValueType
-        {
-            get
-            {
-                return typeof(T);
-            }
-        }
+        public Type ValueType => typeof(T);
 
         public object Clone()
         {
-            var newObj = new MemoryFieldConstant<T>(Name, StaticValue);
+            var newObj = new MemoryFieldConstant<T>(this.Name, this.StaticValue);
             return newObj;
         }
 
         public bool HasChanged()
         {
-            if (firstCall)
+            if (this.firstCall)
             {
-                firstCall = false;
+                this.firstCall = false;
                 return true;
             }
+
             return false;
         }
 
         public void MarkDirty()
         {
-            firstCall = true;
+            this.firstCall = true;
         }
 
         public virtual object Read()
         {
-            return StaticValue;
+            return this.StaticValue;
         }
 
         public TOut ReadAs<TOut>()
         {
-            return MemoryDataConverter.Cast<T, TOut>(StaticValue);
+            return MemoryDataConverter.Cast<T, TOut>(this.StaticValue);
         }
 
         public void Refresh()
@@ -124,12 +77,12 @@ namespace SimTelemetry.Domain.Memory
 
         public void SetPool(MemoryPool pool)
         {
-            Pool = pool; // don't care
+            this.Pool = pool; // don't care
         }
 
         public void SetProvider(MemoryProvider provider)
         {
-            Memory = provider; // don't care
+            this.Memory = provider; // don't care
         }
     }
 }

@@ -18,17 +18,21 @@ namespace SimShift.Utils
 
         public IniReader(string dataSource, bool isFileData)
         {
-            Filedata = string.Empty;
+            this.Filedata = string.Empty;
 
             if (isFileData)
             {
-                if (File.Exists(dataSource) == false) throw new IOException("Could not find file " + dataSource);
-                Filename = dataSource;
-                Filedata = File.ReadAllText(dataSource);
+                if (File.Exists(dataSource) == false)
+                {
+                    throw new IOException("Could not find file " + dataSource);
+                }
+
+                this.Filename = dataSource;
+                this.Filedata = File.ReadAllText(dataSource);
             }
             else
             {
-                Filedata = dataSource;
+                this.Filedata = dataSource;
             }
         }
 
@@ -38,64 +42,77 @@ namespace SimShift.Utils
 
         public void AddHandler(Action<IniValueObject> handler)
         {
-            if (_handlers.Contains(handler) == false) _handlers.Add(handler);
+            if (this._handlers.Contains(handler) == false)
+            {
+                this._handlers.Add(handler);
+            }
         }
 
         public void ApplyGroup(string group, bool nest)
         {
             if (nest == false)
             {
-                _group.Clear();
+                this._group.Clear();
             }
 
-            _group.Add(group);
+            this._group.Add(group);
         }
 
         public void Dispose()
         {
-            Filedata = null;
-            _group.Clear();
-            _handlers.Clear();
+            this.Filedata = null;
+            this._group.Clear();
+            this._handlers.Clear();
         }
 
         public void Parse()
         {
-            if (Filedata == string.Empty) throw new Exception("No data assigned to this reader");
+            if (this.Filedata == string.Empty)
+            {
+                throw new Exception("No data assigned to this reader");
+            }
 
-            var filelines = Filedata.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => x.Contains("//") ? x.Remove(x.IndexOf("//")).Trim() : x.Trim()).Where(x => x.Length != 0).ToList();
+            var filelines = this.Filedata.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => x.Contains("//") ? x.Remove(x.IndexOf("//")).Trim() : x.Trim()).Where(x => x.Length != 0).ToList();
 
-            ApplyGroup("Main", false);
+            this.ApplyGroup("Main", false);
 
             for (var i = 0; i < filelines.Count; i++)
             {
                 var line = filelines[i];
-                var nextLine = (i + 1 == filelines.Count) ? "" : filelines[i + 1];
+                var nextLine = (i + 1 == filelines.Count) ? string.Empty : filelines[i + 1];
 
-                if (line == "{") continue;
+                if (line == "{")
+                {
+                    continue;
+                }
 
                 if (line.StartsWith("[") && line.EndsWith("]"))
                 {
-                    if (line.Length < 3) ApplyGroup("", false);
-                    ApplyGroup(line.Substring(1, line.Length - 2), false);
+                    if (line.Length < 3)
+                    {
+                        this.ApplyGroup(string.Empty, false);
+                    }
+
+                    this.ApplyGroup(line.Substring(1, line.Length - 2), false);
                     continue;
                 }
 
                 if (line == "}")
                 {
-                    LeaveGroup(true);
+                    this.LeaveGroup(true);
                     continue;
                 }
 
                 if (nextLine == "{")
                 {
                     // This is a header.
-                    ApplyGroup(line, true);
+                    this.ApplyGroup(line, true);
                     continue;
                 }
 
                 // Parse this value.
-                var key = "";
-                var value = "";
+                var key = string.Empty;
+                var value = string.Empty;
 
                 if (line.Contains("="))
                 {
@@ -108,9 +125,9 @@ namespace SimShift.Utils
                     value = line;
                 }
 
-                var obj = new IniValueObject(_group, key, value);
+                var obj = new IniValueObject(this._group, key, value);
 
-                foreach (var handler in _handlers)
+                foreach (var handler in this._handlers)
                 {
                     handler(obj);
                 }
@@ -119,18 +136,21 @@ namespace SimShift.Utils
 
         public void RemoveHandler(Action<IniValueObject> handler)
         {
-            if (_handlers.Contains(handler)) _handlers.Remove(handler);
+            if (this._handlers.Contains(handler))
+            {
+                this._handlers.Remove(handler);
+            }
         }
 
         private void LeaveGroup(bool nest)
         {
-            if (nest == false || _group.Count <= 1)
+            if (nest == false || this._group.Count <= 1)
             {
-                ApplyGroup("Main", false);
+                this.ApplyGroup("Main", false);
             }
             else
             {
-                _group.RemoveAt(_group.Count - 1); // remove last element
+                this._group.RemoveAt(this._group.Count - 1); // remove last element
             }
         }
     }

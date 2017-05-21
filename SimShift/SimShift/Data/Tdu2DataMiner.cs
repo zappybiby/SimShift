@@ -17,145 +17,115 @@ namespace SimShift.Data
 
         public Tdu2DataMiner()
         {
-            _updateTel = new Timer();
-            _updateTel.Interval = 25;
-            _updateTel.Elapsed += _updateTel_Elapsed;
+            this._updateTel = new Timer();
+            this._updateTel.Interval = 25;
+            this._updateTel.Elapsed += this._updateTel_Elapsed;
 
-            Telemetry = default(GenericDataDefinition);
+            this.Telemetry = default(GenericDataDefinition);
         }
 
         public Process ActiveProcess { get; set; }
 
-        public string Application
-        {
-            get
-            {
-                return "TestDrive2";
-            }
-        }
+        public string Application => "TestDrive2";
 
         public EventHandler DataReceived { get; set; }
 
-        public bool EnableWeirdAntistall
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool EnableWeirdAntistall => false;
 
         public bool IsActive { get; set; }
 
-        public string Name
-        {
-            get
-            {
-                return "Test Drive Unlimited 2";
-            }
-        }
+        public string Name => "Test Drive Unlimited 2";
 
         public bool RunEvent { get; set; }
 
         public bool Running { get; set; }
 
-        public bool SelectManually
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool SelectManually => false;
 
-        public bool SupportsCar
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public bool SupportsCar => true;
 
         public IDataDefinition Telemetry { get; private set; }
 
-        public bool TransmissionSupportsRanges
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool TransmissionSupportsRanges => false;
 
-        public double Weight
-        {
-            get
-            {
-                return 1500;
-            }
-        }
+        public double Weight => 1500;
 
         public void EvtStart()
         {
-            Telemetry = default(GenericDataDefinition);
+            this.Telemetry = default(GenericDataDefinition);
 
-            _tdu2Reader = new MemoryReader();
-            _tdu2Reader.ReadProcess = ActiveProcess;
-            _tdu2Reader.Open();
-            openedTduAsWriter = false;
+            this._tdu2Reader = new MemoryReader();
+            this._tdu2Reader.ReadProcess = this.ActiveProcess;
+            this._tdu2Reader.Open();
+            this.openedTduAsWriter = false;
 
-            _updateTel.Start();
+            this._updateTel.Start();
         }
 
         public void EvtStop()
         {
-            _tdu2Reader.Close();
-            _tdu2Reader = null;
+            this._tdu2Reader.Close();
+            this._tdu2Reader = null;
 
-            _updateTel.Stop();
+            this._updateTel.Stop();
 
-            Telemetry = default(GenericDataDefinition);
+            this.Telemetry = default(GenericDataDefinition);
         }
 
         public void Write<T>(TelemetryChannel channel, T i)
         {
-            if (ActiveProcess == null) return;
-
-            if (!openedTduAsWriter)
+            if (this.ActiveProcess == null)
             {
-                _tdu2Reader.Close();
-                _tdu2Reader = new MemoryWriter();
-                _tdu2Reader.ReadProcess = ActiveProcess;
-                _tdu2Reader.Open();
-
-                openedTduAsWriter = true;
+                return;
             }
 
-            var channelAddress = GetWriteAddress(channel);
+            if (!this.openedTduAsWriter)
+            {
+                this._tdu2Reader.Close();
+                this._tdu2Reader = new MemoryWriter();
+                this._tdu2Reader.ReadProcess = this.ActiveProcess;
+                this._tdu2Reader.Open();
 
-            var writer = _tdu2Reader as MemoryWriter;
-            if (i is float) writer.WriteFloat(channelAddress, float.Parse(i.ToString()));
+                this.openedTduAsWriter = true;
+            }
+
+            var channelAddress = this.GetWriteAddress(channel);
+
+            var writer = this._tdu2Reader as MemoryWriter;
+            if (i is float)
+            {
+                writer.WriteFloat(channelAddress, float.Parse(i.ToString()));
+            }
         }
 
         void _updateTel_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (_tdu2Reader == null || _updateTel.Enabled == false) return;
-            //
+            if (this._tdu2Reader == null || this._updateTel.Enabled == false)
+            {
+                return;
+            }
+
             try
             {
-                var b = ActiveProcess.MainModule.BaseAddress;
+                var b = this.ActiveProcess.MainModule.BaseAddress;
 
-                var car = _tdu2Reader.ReadString(b + 0xC2DC30, 32);
-                var gear = _tdu2Reader.ReadInt32(b + 0xC2DAD0) - 1;
+                var car = this._tdu2Reader.ReadString(b + 0xC2DC30, 32);
+                var gear = this._tdu2Reader.ReadInt32(b + 0xC2DAD0) - 1;
                 var gears = 7;
-                var speed = _tdu2Reader.ReadFloat(b + 0xC2DB24) / 3.6f;
-                var throttle = _tdu2Reader.ReadFloat(b + 0xC2DB00);
-                var brake = _tdu2Reader.ReadFloat(b + 0xC2DB04);
+                var speed = this._tdu2Reader.ReadFloat(b + 0xC2DB24) / 3.6f;
+                var throttle = this._tdu2Reader.ReadFloat(b + 0xC2DB00);
+                var brake = this._tdu2Reader.ReadFloat(b + 0xC2DB04);
                 var time = (float) (DateTime.Now.Subtract(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0)).TotalMilliseconds / 1000.0);
                 var paused = false;
-                var engineRpm = _tdu2Reader.ReadFloat(b + 0xC2DB18);
+                var engineRpm = this._tdu2Reader.ReadFloat(b + 0xC2DB18);
                 var fuel = 0;
 
-                Telemetry = new GenericDataDefinition(car, time, paused, gear, gears, engineRpm, fuel, throttle, brake, speed);
+                this.Telemetry = new GenericDataDefinition(car, time, paused, gear, gears, engineRpm, fuel, throttle, brake, speed);
 
-                if (DataReceived != null) DataReceived(this, new EventArgs());
+                if (this.DataReceived != null)
+                {
+                    this.DataReceived(this, new EventArgs());
+                }
             }
             catch
             {
@@ -167,11 +137,11 @@ namespace SimShift.Data
         {
             switch (channel)
             {
-                case TelemetryChannel.CameraHorizon: return GetWriteAddress(TelemetryChannel.CameraViewBase) + 0x550;
+                case TelemetryChannel.CameraHorizon: return this.GetWriteAddress(TelemetryChannel.CameraViewBase) + 0x550;
 
-                case TelemetryChannel.CameraViewBase: return (IntPtr) _tdu2Reader.ReadInt32(ActiveProcess.MainModule.BaseAddress + 0xD95BF0);
+                case TelemetryChannel.CameraViewBase: return (IntPtr) this._tdu2Reader.ReadInt32(this.ActiveProcess.MainModule.BaseAddress + 0xD95BF0);
 
-                default: return ActiveProcess.MainModule.BaseAddress;
+                default: return this.ActiveProcess.MainModule.BaseAddress;
             }
         }
     }

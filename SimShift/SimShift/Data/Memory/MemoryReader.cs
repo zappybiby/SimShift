@@ -27,197 +27,215 @@ namespace SimTelemetry.Domain.Memory
 
         public bool Diagnostic
         {
-            get
-            {
-                return _diagnostic;
-            }
+            get => this._diagnostic;
+
             set
             {
-                _diagnostic = value;
-                if (_diagnostic)
+                this._diagnostic = value;
+                if (this._diagnostic)
                 {
-                    _diagnosticTimer = new Timer(1000);
-                    _diagnosticTimer.Elapsed += (a, b) =>
+                    this._diagnosticTimer = new Timer(1000);
+                    this._diagnosticTimer.Elapsed += (a, b) =>
                         {
-                            ReadCalls = _readCalls;
-                            _readCalls = 0;
+                            this.ReadCalls = this._readCalls;
+                            this._readCalls = 0;
                         };
-                    _diagnosticTimer.AutoReset = true;
-                    _diagnosticTimer.Start();
+                    this._diagnosticTimer.AutoReset = true;
+                    this._diagnosticTimer.Start();
                 }
                 else
                 {
-                    if (_diagnosticTimer != null)
+                    if (this._diagnosticTimer != null)
                     {
-                        _diagnosticTimer.Stop();
-                        _diagnosticTimer = null;
+                        this._diagnosticTimer.Stop();
+                        this._diagnosticTimer = null;
                     }
                 }
             }
         }
 
-        public Process Process
-        {
-            get
-            {
-                return _Process;
-            }
-        }
+        public Process Process => this._Process;
 
         public int ReadCalls { get; private set; }
 
-        public IList<MemoryRegion> Regions
-        {
-            get
-            {
-                return _regions;
-            }
-        }
+        public IList<MemoryRegion> Regions => this._regions;
 
         public virtual bool Close()
         {
-            if (m_hProcess == null || m_hProcess == IntPtr.Zero) return false;
+            if (this.m_hProcess == null || this.m_hProcess == IntPtr.Zero)
+            {
+                return false;
+            }
 
-            var iRetValue = MemoryReaderApi.CloseHandle(m_hProcess);
+            var iRetValue = MemoryReaderApi.CloseHandle(this.m_hProcess);
             return iRetValue != 0;
         }
 
         public virtual bool Open(Process p)
         {
-            m_hProcess = MemoryReaderApi.OpenProcess((uint) MemoryReaderApi.AccessType.PROCESS_VM_READ, 0, (uint) p.Id);
+            this.m_hProcess = MemoryReaderApi.OpenProcess((uint) MemoryReaderApi.AccessType.PROCESS_VM_READ, 0, (uint) p.Id);
 
-            var result = ((m_hProcess == IntPtr.Zero) ? false : true);
-            if (result) _Process = p;
-            if (result) ScanRegions();
+            var result = (this.m_hProcess == IntPtr.Zero) ? false : true;
+            if (result)
+            {
+                this._Process = p;
+            }
+
+            if (result)
+            {
+                this.ScanRegions();
+            }
 
             return result;
         }
 
         public virtual bool Open(Process p, bool scanRegions)
         {
-            m_hProcess = MemoryReaderApi.OpenProcess((uint) MemoryReaderApi.AccessType.PROCESS_VM_READ, 0, (uint) p.Id);
+            this.m_hProcess = MemoryReaderApi.OpenProcess((uint) MemoryReaderApi.AccessType.PROCESS_VM_READ, 0, (uint) p.Id);
 
-            var result = ((m_hProcess == IntPtr.Zero) ? false : true);
-            if (result) _Process = p;
-            if (result && scanRegions) ScanRegions();
+            var result = (this.m_hProcess == IntPtr.Zero) ? false : true;
+            if (result)
+            {
+                this._Process = p;
+            }
+
+            if (result && scanRegions)
+            {
+                this.ScanRegions();
+            }
 
             return result;
         }
 
         public virtual byte[] Read(IntPtr memoryAddress, uint bytesToRead)
         {
-            if (Diagnostic) _readCalls++;
+            if (this.Diagnostic)
+            {
+                this._readCalls++;
+            }
+
             IntPtr ptrBytesReaded;
             var buffer = new byte[bytesToRead];
-            MemoryReaderApi.ReadProcessMemory(m_hProcess, memoryAddress, buffer, bytesToRead, out ptrBytesReaded);
+            MemoryReaderApi.ReadProcessMemory(this.m_hProcess, memoryAddress, buffer, bytesToRead, out ptrBytesReaded);
             return buffer;
         }
 
         public virtual bool Read(IntPtr memoryAddress, byte[] buffer)
         {
-            if (Diagnostic) _readCalls++;
+            if (this.Diagnostic)
+            {
+                this._readCalls++;
+            }
+
             IntPtr ptrBytesReaded;
 
-            MemoryReaderApi.ReadProcessMemory(m_hProcess, memoryAddress, buffer, (uint) buffer.Length, out ptrBytesReaded);
-            return ((int) ptrBytesReaded == buffer.Length);
+            MemoryReaderApi.ReadProcessMemory(this.m_hProcess, memoryAddress, buffer, (uint) buffer.Length, out ptrBytesReaded);
+            return (int) ptrBytesReaded == buffer.Length;
         }
 
         public virtual bool Read(int memoryAddress, byte[] buffer)
         {
-            if (Diagnostic) _readCalls++;
+            if (this.Diagnostic)
+            {
+                this._readCalls++;
+            }
+
             IntPtr ptrBytesReaded;
 
-            MemoryReaderApi.ReadProcessMemory(m_hProcess, (IntPtr) memoryAddress, buffer, (uint) buffer.Length, out ptrBytesReaded);
-            return ((int) ptrBytesReaded == buffer.Length);
+            MemoryReaderApi.ReadProcessMemory(this.m_hProcess, (IntPtr) memoryAddress, buffer, (uint) buffer.Length, out ptrBytesReaded);
+            return (int) ptrBytesReaded == buffer.Length;
         }
 
         public T Read<T>(IntPtr address, uint size, Func<byte[], int, T> converter)
         {
-            return converter(Read(address, size), 0);
+            return converter(this.Read(address, size), 0);
         }
 
         public T Read<T>(int address, uint size, Func<byte[], int, T> converter)
         {
-            return converter(Read((IntPtr) address, size), 0);
+            return converter(this.Read((IntPtr) address, size), 0);
         }
 
         public byte ReadByte(IntPtr address)
         {
-            return Read(address, 1)[0];
+            return this.Read(address, 1)[0];
         }
 
         public byte ReadByte(int address)
         {
-            return Read((IntPtr) address, 1)[0];
+            return this.Read((IntPtr) address, 1)[0];
         }
 
         public byte[] ReadBytes(IntPtr address, uint size)
         {
-            return Read(address, size);
+            return this.Read(address, size);
         }
 
         public byte[] ReadBytes(int address, uint size)
         {
-            return Read((IntPtr) address, size);
+            return this.Read((IntPtr) address, size);
         }
 
         public double ReadDouble(IntPtr address)
         {
-            return BitConverter.ToDouble(Read(address, 8), 0);
+            return BitConverter.ToDouble(this.Read(address, 8), 0);
         }
 
         public double ReadDouble(int address)
         {
-            return BitConverter.ToDouble(Read((IntPtr) address, 8), 0);
+            return BitConverter.ToDouble(this.Read((IntPtr) address, 8), 0);
         }
 
         public float ReadFloat(IntPtr address)
         {
-            return BitConverter.ToSingle(Read(address, 4), 0);
+            return BitConverter.ToSingle(this.Read(address, 4), 0);
         }
 
         public float ReadFloat(int address)
         {
-            return BitConverter.ToSingle(Read((IntPtr) address, 4), 0);
+            return BitConverter.ToSingle(this.Read((IntPtr) address, 4), 0);
         }
 
         public short ReadInt16(IntPtr address)
         {
-            return BitConverter.ToInt16(Read(address, 2), 0);
+            return BitConverter.ToInt16(this.Read(address, 2), 0);
         }
 
         public short ReadInt16(int address)
         {
-            return BitConverter.ToInt16(Read((IntPtr) address, 2), 0);
+            return BitConverter.ToInt16(this.Read((IntPtr) address, 2), 0);
         }
 
         public int ReadInt32(IntPtr address)
         {
-            return BitConverter.ToInt32(Read(address, 4), 0);
+            return BitConverter.ToInt32(this.Read(address, 4), 0);
         }
 
         public int ReadInt32(int address)
         {
-            return BitConverter.ToInt32(Read((IntPtr) address, 4), 0);
+            return BitConverter.ToInt32(this.Read((IntPtr) address, 4), 0);
         }
 
         public long ReadInt64(IntPtr address)
         {
-            return BitConverter.ToInt64(Read(address, 8), 0);
+            return BitConverter.ToInt64(this.Read(address, 8), 0);
         }
 
         public long ReadInt64(int address)
         {
-            return BitConverter.ToInt64(Read((IntPtr) address, 8), 0);
+            return BitConverter.ToInt64(this.Read((IntPtr) address, 8), 0);
         }
 
         public string ReadString(IntPtr address, uint size)
         {
             int i = 0;
-            byte[] bt = ReadBytes(address, size);
+            byte[] bt = this.ReadBytes(address, size);
             for (i = 0; i < bt.Length; i++)
             {
-                if (bt[i] == 0) break;
+                if (bt[i] == 0)
+                {
+                    break;
+                }
             }
 
             return Encoding.ASCII.GetString(bt, 0, i);
@@ -226,10 +244,13 @@ namespace SimTelemetry.Domain.Memory
         public string ReadString(int address, uint size)
         {
             int i = 0;
-            byte[] bt = ReadBytes(address, size);
+            byte[] bt = this.ReadBytes(address, size);
             for (i = 0; i < bt.Length; i++)
             {
-                if (bt[i] == 0) break;
+                if (bt[i] == 0)
+                {
+                    break;
+                }
             }
 
             return Encoding.ASCII.GetString(bt, 0, i);
@@ -237,59 +258,69 @@ namespace SimTelemetry.Domain.Memory
 
         public ushort ReadUInt16(IntPtr address)
         {
-            return BitConverter.ToUInt16(Read(address, 2), 0);
+            return BitConverter.ToUInt16(this.Read(address, 2), 0);
         }
 
         public ushort ReadUInt16(int address)
         {
-            return BitConverter.ToUInt16(Read((IntPtr) address, 2), 0);
+            return BitConverter.ToUInt16(this.Read((IntPtr) address, 2), 0);
         }
 
         public uint ReadUInt32(IntPtr address)
         {
-            return BitConverter.ToUInt32(Read(address, 4), 0);
+            return BitConverter.ToUInt32(this.Read(address, 4), 0);
         }
 
         public uint ReadUInt32(int address)
         {
-            return BitConverter.ToUInt32(Read((IntPtr) address, 4), 0);
+            return BitConverter.ToUInt32(this.Read((IntPtr) address, 4), 0);
         }
 
         public ulong ReadUInt64(IntPtr address)
         {
-            return BitConverter.ToUInt64(Read(address, 8), 0);
+            return BitConverter.ToUInt64(this.Read(address, 8), 0);
         }
 
         public ulong ReadUInt64(int address)
         {
-            return BitConverter.ToUInt64(Read((IntPtr) address, 8), 0);
+            return BitConverter.ToUInt64(this.Read((IntPtr) address, 8), 0);
         }
 
         protected void ScanRegions()
         {
-            ScanRegions(true);
+            this.ScanRegions(true);
         }
 
         protected void ScanRegions(bool onlyMe)
         {
             var memRegionAddr = new IntPtr();
-            string targetExeName = Path.GetFileName(_Process.MainModule.FileName);
+            string targetExeName = Path.GetFileName(this._Process.MainModule.FileName);
             while (true)
             {
                 var regionInfo = new MemoryReaderApi.MEMORY_BASIC_INFORMATION();
-                if (MemoryReaderApi.VirtualQueryEx(_Process.Handle, memRegionAddr, out regionInfo, (uint) Marshal.SizeOf(regionInfo)) != 0)
+                if (MemoryReaderApi.VirtualQueryEx(this._Process.Handle, memRegionAddr, out regionInfo, (uint) Marshal.SizeOf(regionInfo)) != 0)
                 {
-                    if (regionInfo.BaseAddress.ToInt64() + regionInfo.RegionSize >= 0x80000000) break;
+                    if (regionInfo.BaseAddress.ToInt64() + regionInfo.RegionSize >= 0x80000000)
+                    {
+                        break;
+                    }
+
                     memRegionAddr = new IntPtr(regionInfo.BaseAddress.ToInt32() + regionInfo.RegionSize);
-                    if ((regionInfo.State & 0x10000) != 0) // MemoryReaderApi.PageFlags.Free)
+                    if ((regionInfo.State & 0x10000) != 0)
+                    {
+                        // MemoryReaderApi.PageFlags.Free)
                         continue;
+                    }
 
                     if (onlyMe)
                     {
                         StringBuilder processName = new StringBuilder(255);
-                        MemoryReaderApi.GetMappedFileName(_Process.Handle, memRegionAddr, processName, processName.Capacity);
+                        MemoryReaderApi.GetMappedFileName(this._Process.Handle, memRegionAddr, processName, processName.Capacity);
 
-                        if (!processName.ToString().Contains(targetExeName)) continue;
+                        if (!processName.ToString().Contains(targetExeName))
+                        {
+                            continue;
+                        }
                     }
 
                     if (true || (regionInfo.State & (uint) MemoryReaderApi.PageFlags.MEM_COMMIT) != 0 && (regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.WRITABLE) != 0 && (regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.PAGE_GUARD) == 0)
@@ -297,14 +328,14 @@ namespace SimTelemetry.Domain.Memory
                         // TODO: Parse commit, writability & guard.
                         bool execute = ((regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.PAGE_EXECUTE) != 0) || ((regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.PAGE_EXECUTE_READ) != 0) || ((regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.PAGE_EXECUTE_READWRITE) != 0) || ((regionInfo.Protect & (uint) MemoryReaderApi.PageFlags.PAGE_EXECUTE_WRITECOPY) != 0);
                         var region = new MemoryRegion(regionInfo.BaseAddress.ToInt32(), (int) regionInfo.RegionSize, execute);
-                        _regions.Add(region);
+                        this._regions.Add(region);
                     }
                 }
                 else
                 {
-                    //int err = MemoryReaderApi.GetLastError();
-                    //if (err != 0)
-                    //    throw new Exception("Failed to scan memory regions.");
+                    // int err = MemoryReaderApi.GetLastError();
+                    // if (err != 0)
+                    // throw new Exception("Failed to scan memory regions.");
                     break; // last block, done!
                 }
             }
@@ -323,29 +354,36 @@ namespace SimTelemetry.Domain.Memory
 
         public MemoryRegion(int baseAddress, int size, bool execute)
         {
-            BaseAddress = baseAddress;
-            Size = size;
-            Execute = execute;
-            Data = new byte[0];
+            this.BaseAddress = baseAddress;
+            this.Size = size;
+            this.Execute = execute;
+            this.Data = new byte[0];
         }
 
         public bool MatchesType(MemoryRegionType type)
         {
-            if (type == MemoryRegionType.EXECUTE && Execute == false) return false;
+            if (type == MemoryRegionType.EXECUTE && this.Execute == false)
+            {
+                return false;
+            }
 
             return true;
         }
 
         internal void DestroySigScan()
         {
-            Data = new byte[0];
+            this.Data = new byte[0];
         }
 
         internal void PrepareSigScan(MemoryReader reader)
         {
-            if (Size > 0x300000) return;
-            Data = new byte[Size];
-            reader.Read(BaseAddress, Data);
+            if (this.Size > 0x300000)
+            {
+                return;
+            }
+
+            this.Data = new byte[this.Size];
+            reader.Read(this.BaseAddress, this.Data);
         }
     }
 }

@@ -32,18 +32,15 @@ namespace SimTelemetry.Domain.Memory
             _providers.Add(typeof(string), new MemoryDataConverterProvider<string>(BytesToString, Convert.ToString));
         }
 
-        public static Dictionary<Type, object> Providers
-        {
-            get
-            {
-                return _providers;
-            }
-        }
+        public static Dictionary<Type, object> Providers => _providers;
 
         public static void AddProvider<T>(MemoryDataConverterProvider<T> provider)
         {
             Type t = typeof(T);
-            if (!_providers.ContainsKey(t)) _providers.Add(t, provider);
+            if (!_providers.ContainsKey(t))
+            {
+                _providers.Add(t, provider);
+            }
         }
 
         public static TOutput Cast<TSource, TOutput>(TSource value)
@@ -54,12 +51,36 @@ namespace SimTelemetry.Domain.Memory
 
         public static byte[] Rawify(object data)
         {
-            if (data is double) return BitConverter.GetBytes((double) data);
-            if (data is float) return BitConverter.GetBytes((float) data);
-            if (data is bool) return BitConverter.GetBytes((bool) data);
-            if (data is int) return BitConverter.GetBytes((int) data);
-            if (data is short) return BitConverter.GetBytes((short) data);
-            if (data is long) return BitConverter.GetBytes((long) data);
+            if (data is double)
+            {
+                return BitConverter.GetBytes((double) data);
+            }
+
+            if (data is float)
+            {
+                return BitConverter.GetBytes((float) data);
+            }
+
+            if (data is bool)
+            {
+                return BitConverter.GetBytes((bool) data);
+            }
+
+            if (data is int)
+            {
+                return BitConverter.GetBytes((int) data);
+            }
+
+            if (data is short)
+            {
+                return BitConverter.GetBytes((short) data);
+            }
+
+            if (data is long)
+            {
+                return BitConverter.GetBytes((long) data);
+            }
+
             if (data is string)
             {
                 byte[] rawData = Encoding.ASCII.GetBytes((string) data);
@@ -68,10 +89,26 @@ namespace SimTelemetry.Domain.Memory
                 Array.Copy(rawData, 0, outData, 4, rawData.Length);
                 return outData;
             }
-            if (data is byte) return BitConverter.GetBytes((byte) data);
-            if (data is ushort) return BitConverter.GetBytes((ushort) data);
-            if (data is ulong) return BitConverter.GetBytes((ulong) data);
-            if (data is uint) return BitConverter.GetBytes((uint) data);
+
+            if (data is byte)
+            {
+                return BitConverter.GetBytes((byte) data);
+            }
+
+            if (data is ushort)
+            {
+                return BitConverter.GetBytes((ushort) data);
+            }
+
+            if (data is ulong)
+            {
+                return BitConverter.GetBytes((ulong) data);
+            }
+
+            if (data is uint)
+            {
+                return BitConverter.GetBytes((uint) data);
+            }
 
             return new byte[0];
         }
@@ -80,12 +117,36 @@ namespace SimTelemetry.Domain.Memory
         {
             object data = reader();
 
-            if (data is double) return BitConverter.GetBytes((double) data);
-            if (data is float) return BitConverter.GetBytes((float) data);
-            if (data is bool) return BitConverter.GetBytes((bool) data);
-            if (data is int) return BitConverter.GetBytes((int) data);
-            if (data is short) return BitConverter.GetBytes((short) data);
-            if (data is long) return BitConverter.GetBytes((long) data);
+            if (data is double)
+            {
+                return BitConverter.GetBytes((double) data);
+            }
+
+            if (data is float)
+            {
+                return BitConverter.GetBytes((float) data);
+            }
+
+            if (data is bool)
+            {
+                return BitConverter.GetBytes((bool) data);
+            }
+
+            if (data is int)
+            {
+                return BitConverter.GetBytes((int) data);
+            }
+
+            if (data is short)
+            {
+                return BitConverter.GetBytes((short) data);
+            }
+
+            if (data is long)
+            {
+                return BitConverter.GetBytes((long) data);
+            }
+
             if (data is string)
             {
                 byte[] rawData = Encoding.ASCII.GetBytes((string) data);
@@ -94,10 +155,26 @@ namespace SimTelemetry.Domain.Memory
                 Array.Copy(rawData, 0, outData, 4, rawData.Length);
                 return outData;
             }
-            if (data is byte) return BitConverter.GetBytes((byte) data);
-            if (data is ushort) return BitConverter.GetBytes((ushort) data);
-            if (data is ulong) return BitConverter.GetBytes((ulong) data);
-            if (data is uint) return BitConverter.GetBytes((uint) data);
+
+            if (data is byte)
+            {
+                return BitConverter.GetBytes((byte) data);
+            }
+
+            if (data is ushort)
+            {
+                return BitConverter.GetBytes((ushort) data);
+            }
+
+            if (data is ulong)
+            {
+                return BitConverter.GetBytes((ulong) data);
+            }
+
+            if (data is uint)
+            {
+                return BitConverter.GetBytes((uint) data);
+            }
 
             return new byte[0];
         }
@@ -109,6 +186,7 @@ namespace SimTelemetry.Domain.Memory
                 index = 0;
                 dataInput = new byte[128];
             }
+
             Type inputType = typeof(T);
             return ((MemoryDataConverterProvider<T>) _providers[inputType]).Byte2Obj(dataInput, index);
         }
@@ -117,7 +195,10 @@ namespace SimTelemetry.Domain.Memory
         {
             Type inputType = typeof(TSource);
             Type outputType = typeof(TOutput);
-            if (inputType.Equals(outputType)) return Read<TOutput>(dataInput, index);
+            if (inputType.Equals(outputType))
+            {
+                return Read<TOutput>(dataInput, index);
+            }
 
             var intermediate = Read<TSource>(dataInput, index);
             try
@@ -133,7 +214,10 @@ namespace SimTelemetry.Domain.Memory
         public static void RemoveProvider<T>()
         {
             Type t = typeof(T);
-            if (_providers.ContainsKey(t)) _providers.Remove(t);
+            if (_providers.ContainsKey(t))
+            {
+                _providers.Remove(t);
+            }
         }
 
         public static T Unrawify<T>(byte[] data, int index)
@@ -152,8 +236,14 @@ namespace SimTelemetry.Domain.Memory
 
         public static TOutput Unrawify<TSource, TOutput>(byte[] data, int index)
         {
-            if (typeof(TSource).Equals(typeof(TOutput))) return Unrawify<TOutput>(data, index);
-            else return Cast<TSource, TOutput>(Unrawify<TSource>(data, index));
+            if (typeof(TSource).Equals(typeof(TOutput)))
+            {
+                return Unrawify<TOutput>(data, index);
+            }
+            else
+            {
+                return Cast<TSource, TOutput>(Unrawify<TSource>(data, index));
+            }
         }
 
         protected static string BytesToString(byte[] datainput, int index)
@@ -161,10 +251,19 @@ namespace SimTelemetry.Domain.Memory
             int end_index = index;
             while (end_index < datainput.Length)
             {
-                if (datainput[end_index] == 0) break;
+                if (datainput[end_index] == 0)
+                {
+                    break;
+                }
+
                 end_index++;
             }
-            if (end_index == index) return "";
+
+            if (end_index == index)
+            {
+                return string.Empty;
+            }
+
             return Encoding.ASCII.GetString(datainput, index, end_index - index);
         }
 
@@ -193,8 +292,14 @@ namespace SimTelemetry.Domain.Memory
 
         private static int[] ObjToIntArray(object arg)
         {
-            if (arg is int[]) return ((int[]) arg);
-            else return new int[0];
+            if (arg is int[])
+            {
+                return (int[]) arg;
+            }
+            else
+            {
+                return new int[0];
+            }
         }
     }
 }

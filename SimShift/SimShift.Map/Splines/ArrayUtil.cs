@@ -3,12 +3,12 @@
 namespace SimShift.Map.Splines
 {
     /// <summary>
-    /// Utility methods for arrays.
+    ///     Utility methods for arrays.
     /// </summary>
     public static class ArrayUtil
     {
         /// <summary>
-        /// Create a string to display the array values.
+        ///     Create a string to display the array values.
         /// </summary>
         /// <param name="array">The array</param>
         /// <param name="format">Optional. A string to use to format each value. Must contain the colon, so something like ':0.000'</param>

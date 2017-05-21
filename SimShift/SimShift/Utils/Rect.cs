@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace SimShift.Utils
 {
     /// <summary>
-    /// The RECT structure defines the coordinates of the upper-left and lower-right corners of a rectangle.
+    ///     The RECT structure defines the coordinates of the upper-left and lower-right corners of a rectangle.
     /// </summary>
     [Serializable, StructLayout(LayoutKind.Sequential)]
     internal struct Rect
@@ -26,13 +26,7 @@ namespace SimShift.Utils
             this.Bottom = bottom;
         }
 
-        public Rectangle AsRectangle
-        {
-            get
-            {
-                return new Rectangle(this.Left, this.Top, this.Right - this.Left, this.Bottom - this.Top);
-            }
-        }
+        public Rectangle AsRectangle => new Rectangle(this.Left, this.Top, this.Right - this.Left, this.Bottom - this.Top);
 
         public static Rect FromXYWH(int x, int y, int width, int height)
         {

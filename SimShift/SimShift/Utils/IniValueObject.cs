@@ -8,45 +8,49 @@ namespace SimShift.Utils
     {
         public IniValueObject(IEnumerable<string> nestedGroup, string key, string rawValue)
         {
-            NestedGroup = nestedGroup;
-            Key = key;
-            RawValue = rawValue;
+            this.NestedGroup = nestedGroup;
+            this.Key = key;
+            this.RawValue = rawValue;
 
             var value = rawValue;
 
             // Does this rawValue contain multiple values?
-            if (value.StartsWith("(") && value.EndsWith(")") && value.Length > 2) value = value.Substring(1, value.Length - 2);
-            if (value.StartsWith("\"") && value.EndsWith("\"") && value.Length > 2) value = value.Substring(1, value.Length - 2);
+            if (value.StartsWith("(") && value.EndsWith(")") && value.Length > 2)
+            {
+                value = value.Substring(1, value.Length - 2);
+            }
+
+            if (value.StartsWith("\"") && value.EndsWith("\"") && value.Length > 2)
+            {
+                value = value.Substring(1, value.Length - 2);
+            }
 
             if (value.Contains(","))
             {
-                IsTuple = true;
+                this.IsTuple = true;
 
                 var values = value.Split(new[] { ',' });
-                ValueArray = new string[values.Length];
+                this.ValueArray = new string[values.Length];
 
                 for (var i = 0; i < values.Length; i++)
                 {
                     var val = values[i];
-                    if (val.StartsWith("\"") && val.EndsWith("\"") && val.Length > 2) val = val.Substring(1, val.Length - 2);
+                    if (val.StartsWith("\"") && val.EndsWith("\"") && val.Length > 2)
+                    {
+                        val = val.Substring(1, val.Length - 2);
+                    }
 
-                    ValueArray[i] = val.Trim();
+                    this.ValueArray[i] = val.Trim();
                 }
             }
             else
             {
-                IsTuple = false;
-                Value = value;
+                this.IsTuple = false;
+                this.Value = value;
             }
         }
 
-        public string Group
-        {
-            get
-            {
-                return NestedGroup.ElementAt(NestedGroup.Count() - 1);
-            }
-        }
+        public string Group => this.NestedGroup.ElementAt(this.NestedGroup.Count() - 1);
 
         public bool IsTuple { get; private set; }
 
@@ -54,13 +58,7 @@ namespace SimShift.Utils
 
         public IEnumerable<string> NestedGroup { get; private set; }
 
-        public string NestedGroupName
-        {
-            get
-            {
-                return string.Join(".", NestedGroup);
-            }
-        }
+        public string NestedGroupName => string.Join(".", this.NestedGroup);
 
         public string RawValue { get; private set; }
 
@@ -70,56 +68,72 @@ namespace SimShift.Utils
 
         public bool BelongsTo(string group)
         {
-            return NestedGroup.Contains(group);
+            return this.NestedGroup.Contains(group);
         }
 
         public double ReadAsDouble(int index)
         {
-            if (!IsTuple) throw new Exception("This is not a tuple value");
-            return double.Parse(ValueArray[index]);
+            if (!this.IsTuple)
+            {
+                throw new Exception("This is not a tuple value");
+            }
+
+            return double.Parse(this.ValueArray[index]);
         }
 
         public double ReadAsDouble()
         {
-            return IsTuple ? ReadAsDouble(0) : double.Parse(Value);
+            return this.IsTuple ? this.ReadAsDouble(0) : double.Parse(this.Value);
         }
 
         public float ReadAsFloat(int index)
         {
-            if (!IsTuple) throw new Exception("This is not a tuple value");
-            return float.Parse(ValueArray[index]);
+            if (!this.IsTuple)
+            {
+                throw new Exception("This is not a tuple value");
+            }
+
+            return float.Parse(this.ValueArray[index]);
         }
 
         public float ReadAsFloat()
         {
-            return IsTuple ? ReadAsFloat(0) : float.Parse(Value);
+            return this.IsTuple ? this.ReadAsFloat(0) : float.Parse(this.Value);
         }
 
         public int ReadAsInteger(int index)
         {
-            if (!IsTuple) throw new Exception("This is not a tuple value");
-            return int.Parse(ValueArray[index]);
+            if (!this.IsTuple)
+            {
+                throw new Exception("This is not a tuple value");
+            }
+
+            return int.Parse(this.ValueArray[index]);
         }
 
         public int ReadAsInteger()
         {
-            return IsTuple ? ReadAsInteger(0) : int.Parse(Value);
+            return this.IsTuple ? this.ReadAsInteger(0) : int.Parse(this.Value);
         }
 
         public string ReadAsString(int index)
         {
-            if (!IsTuple) throw new Exception("This is not a tuple value");
-            return ValueArray[index];
+            if (!this.IsTuple)
+            {
+                throw new Exception("This is not a tuple value");
+            }
+
+            return this.ValueArray[index];
         }
 
         public string ReadAsString()
         {
-            return IsTuple ? ReadAsString(0) : Value;
+            return this.IsTuple ? this.ReadAsString(0) : this.Value;
         }
 
         public IEnumerable<string> ReadAsStringArray()
         {
-            return IsTuple ? ValueArray : new string[] { Value };
+            return this.IsTuple ? this.ValueArray : new[] { this.Value };
         }
     }
 }

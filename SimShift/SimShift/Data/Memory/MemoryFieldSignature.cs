@@ -9,35 +9,35 @@ namespace SimTelemetry.Domain.Memory
         public MemoryFieldSignature(string name, MemoryAddress type, string signature, IEnumerable<MemoryFieldSignaturePointer> pointers, int size)
             : base(name, type, 0, size)
         {
-            Signature = signature;
-            Pointers = pointers;
-            Initialized = false;
+            this.Signature = signature;
+            this.Pointers = pointers;
+            this.Initialized = false;
         }
 
         public MemoryFieldSignature(string name, MemoryAddress type, string signature, IEnumerable<int> pointers, int size)
             : base(name, type, 0, size)
         {
-            Signature = signature;
-            Pointers = pointers.Select(pointer => new MemoryFieldSignaturePointer(pointer, false)).ToList();
-            Initialized = false;
+            this.Signature = signature;
+            this.Pointers = pointers.Select(pointer => new MemoryFieldSignaturePointer(pointer, false)).ToList();
+            this.Initialized = false;
         }
 
         public MemoryFieldSignature(string name, MemoryAddress type, string signature, IEnumerable<MemoryFieldSignaturePointer> pointers, int size, Func<T, T> convert)
             : base(name, type, 0, size)
         {
-            Signature = signature;
-            Pointers = pointers;
-            Initialized = false;
-            Conversion = convert;
+            this.Signature = signature;
+            this.Pointers = pointers;
+            this.Initialized = false;
+            this.Conversion = convert;
         }
 
         public MemoryFieldSignature(string name, MemoryAddress type, string signature, IEnumerable<int> pointers, int size, Func<T, T> convert)
             : base(name, type, 0, size)
         {
-            Signature = signature;
-            Pointers = pointers.Select(pointer => new MemoryFieldSignaturePointer(pointer, false)).ToList();
-            Initialized = false;
-            Conversion = convert;
+            this.Signature = signature;
+            this.Pointers = pointers.Select(pointer => new MemoryFieldSignaturePointer(pointer, false)).ToList();
+            this.Initialized = false;
+            this.Conversion = convert;
         }
 
         public int[] AddressTree { get; protected set; }
@@ -50,45 +50,58 @@ namespace SimTelemetry.Domain.Memory
 
         public override void Refresh()
         {
-            if (!Initialized) Scan();
+            if (!this.Initialized)
+            {
+                this.Scan();
+            }
 
-            if (!Initialized) return;
+            if (!this.Initialized)
+            {
+                return;
+            }
 
             base.Refresh();
         }
 
         public virtual void Scan()
         {
-            if (Memory.Scanner.Enabled == false) throw new Exception("Please enable SignatureScanner first");
-
-            var result = Memory.Scanner.Scan<uint>(MemoryRegionType.EXECUTE, Signature);
-
-            foreach (var ptr in Pointers)
+            if (this.Memory.Scanner.Enabled == false)
             {
-                ptr.Refresh(Memory);
+                throw new Exception("Please enable SignatureScanner first");
+            }
+
+            var result = this.Memory.Scanner.Scan<uint>(MemoryRegionType.EXECUTE, this.Signature);
+
+            foreach (var ptr in this.Pointers)
+            {
+                ptr.Refresh(this.Memory);
             }
 
             // Search the address and offset.);
-            switch (AddressType)
+            switch (this.AddressType)
             {
                 case MemoryAddress.StaticAbsolute:
                 case MemoryAddress.Static:
-                    if (result == 0) return;
-                    AddressTree = new int[1 + Pointers.Count()];
+                    if (result == 0)
+                    {
+                        return;
+                    }
 
-                    if (Pointers.Count() == 0)
+                    this.AddressTree = new int[1 + this.Pointers.Count()];
+
+                    if (this.Pointers.Count() == 0)
                     {
                         // The result is directly our address
-                        Address = (int) result;
-                        AddressTree[0] = (int) result;
+                        this.Address = (int) result;
+                        this.AddressTree[0] = (int) result;
                     }
                     else
                     {
                         // We must follow one pointer.
                         var computedAddress = 0;
-                        if (AddressType == MemoryAddress.Static)
+                        if (this.AddressType == MemoryAddress.Static)
                         {
-                            computedAddress = Memory.BaseAddress + (int) result;
+                            computedAddress = this.Memory.BaseAddress + (int) result;
                         }
                         else
                         {
@@ -97,31 +110,43 @@ namespace SimTelemetry.Domain.Memory
 
                         int treeInd = 0;
 
-                        foreach (var ptr in Pointers)
+                        foreach (var ptr in this.Pointers)
                         {
-                            AddressTree[treeInd++] = computedAddress;
-                            if (ptr.Additive) computedAddress += ptr.Offset;
-                            else computedAddress = Memory.Reader.ReadInt32(computedAddress + ptr.Offset);
+                            this.AddressTree[treeInd++] = computedAddress;
+                            if (ptr.Additive)
+                            {
+                                computedAddress += ptr.Offset;
+                            }
+                            else
+                            {
+                                computedAddress = this.Memory.Reader.ReadInt32(computedAddress + ptr.Offset);
+                            }
                         }
-                        AddressTree[treeInd] = computedAddress;
 
-                        Address = computedAddress;
+                        this.AddressTree[treeInd] = computedAddress;
+
+                        this.Address = computedAddress;
                     }
+
                     break;
                 case MemoryAddress.Dynamic:
-                    Offset = (int) result;
+                    this.Offset = (int) result;
 
-                    foreach (var ptr in Pointers)
+                    foreach (var ptr in this.Pointers)
                     {
-                        if (ptr.Additive) Offset += ptr.Offset;
+                        if (ptr.Additive)
+                        {
+                            this.Offset += ptr.Offset;
+                        }
                     }
+
                     break;
                 default:
-                    throw new Exception("AddressType for '" + Name + "' is not valid");
+                    throw new Exception("AddressType for '" + this.Name + "' is not valid");
                     break;
             }
 
-            Initialized = true;
+            this.Initialized = true;
         }
     }
 }

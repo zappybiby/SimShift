@@ -25,13 +25,13 @@ namespace SimShift.MapTool
 
         public Ets2Prefab(Ets2Mapper mapper, string file)
         {
-            map = mapper;
-            FilePath = file;
+            this.map = mapper;
+            this.FilePath = file;
 
             if (File.Exists(file))
             {
-                Stream = File.ReadAllBytes(file);
-                Parse();
+                this.Stream = File.ReadAllBytes(file);
+                this.Parse();
             }
         }
 
@@ -45,16 +45,22 @@ namespace SimShift.MapTool
 
             var steps = 16;
 
-            if (nodeOr >= this.Nodes.Count) nodeOr = 0;
-            if (Nodes.Any() == false) return ks;
+            if (nodeOr >= this.Nodes.Count)
+            {
+                nodeOr = 0;
+            }
 
-            //Console.WriteLine("Rendering prefab " + Path.GetFileNameWithoutExtension(FilePath) + " Or " + nodeOr + " yaw " + Math.Round(180.0f/Math.PI*yaw));
+            if (this.Nodes.Any() == false)
+            {
+                return ks;
+            }
 
+            // Console.WriteLine("Rendering prefab " + Path.GetFileNameWithoutExtension(FilePath) + " Or " + nodeOr + " yaw " + Math.Round(180.0f/Math.PI*yaw));
             var xOr = node.X;
             var yOr = node.Z;
             var yaw = node.Yaw - this.Nodes[nodeOr].Yaw + Math.PI / 2;
 
-            foreach (var curve in Curves)
+            foreach (var curve in this.Curves)
             {
                 var ps = new PointF[steps];
 
@@ -73,6 +79,7 @@ namespace SimShift.MapTool
                 var ex = xOr - er * (float) Math.Sin(ane);
                 var sy = yOr - sr * (float) Math.Cos(ans);
                 var ey = yOr - er * (float) Math.Cos(ane);
+
                 // tmp
                 ps = new PointF[2];
                 ps[0] = new PointF(sx, sy);
@@ -95,6 +102,7 @@ namespace SimShift.MapTool
 
                 ks.Add(ps);
             }
+
             return ks;
         }
 
@@ -102,7 +110,10 @@ namespace SimShift.MapTool
         {
             List<Ets2Point> p = new List<Ets2Point>();
 
-            if (route == null || route.Route == null) return p;
+            if (route == null || route.Route == null)
+            {
+                return p;
+            }
 
             /*
             yaw -= this.Nodes[nodeOr].Yaw;
@@ -129,6 +140,7 @@ namespace SimShift.MapTool
                 var ex = xOr - er * (float) Math.Sin(ane);
                 var sy = yOr - sr * (float) Math.Cos(ans);
                 var ey = yOr - er * (float) Math.Cos(ane);
+
                 // tmp
                 var ps = new Ets2Point[2];
                 ps[0] = new Ets2Point(sx, node.Y, sy, (float) ans);
@@ -142,7 +154,7 @@ namespace SimShift.MapTool
 
         public IEnumerable<Ets2PrefabRoute> GetAllRoutes()
         {
-            return Nodes.SelectMany(x => GetRouteOptions(x.Node));
+            return this.Nodes.SelectMany(x => this.GetRouteOptions(x.Node));
         }
 
         public Ets2PrefabRoute GetRoute(int entryNode, IndicatorSignal signal)
@@ -152,55 +164,68 @@ namespace SimShift.MapTool
 
         public IEnumerable<Ets2PrefabRoute> GetRoute(int entryNode, int exitNode)
         {
-            var options = GetRouteOptions(entryNode);
+            var options = this.GetRouteOptions(entryNode);
 
-            if (options.Any(x => x.Exit.Node == exitNode)) return options.Where(x => x.Exit.Node == exitNode);
-            else return new Ets2PrefabRoute[0];
+            if (options.Any(x => x.Exit.Node == exitNode))
+            {
+                return options.Where(x => x.Exit.Node == exitNode);
+            }
+            else
+            {
+                return new Ets2PrefabRoute[0];
+            }
         }
 
         public IEnumerable<Ets2PrefabRoute> GetRouteOptions(int entryNodeId)
         {
-            if (entryNodeId >= Nodes.Count() || entryNodeId < 0) return new Ets2PrefabRoute[0];
-            var entryNode = Nodes[entryNodeId];
+            if (entryNodeId >= this.Nodes.Count() || entryNodeId < 0)
+            {
+                return new Ets2PrefabRoute[0];
+            }
+
+            var entryNode = this.Nodes[entryNodeId];
 
             // This entry node has several entry and exit routes (in/out)
             // IN is driving into
             // OUT is coming out of
-            var routes = entryNode.InputCurve.Select(x => IterateCurves(new[] { x }, x, true)).SelectMany(x => x).Select(x => new Ets2PrefabRoute(x, entryNode, FindExitNode(x.LastOrDefault()))).ToList();
+            var routes = entryNode.InputCurve.Select(x => this.IterateCurves(new[] { x }, x, true)).SelectMany(x => x).Select(x => new Ets2PrefabRoute(x, entryNode, this.FindExitNode(x.LastOrDefault()))).ToList();
 
             return routes;
         }
 
         public bool IsFile(string file)
         {
-            return Path.GetFileNameWithoutExtension(file) == Path.GetFileNameWithoutExtension(FilePath);
+            return Path.GetFileNameWithoutExtension(file) == Path.GetFileNameWithoutExtension(this.FilePath);
         }
 
         private Ets2PrefabNode FindExitNode(Ets2PrefabCurve c)
         {
-            return Nodes.OrderBy(x => Math.Sqrt(Math.Pow(c.EndX - x.X, 2) + Math.Pow(c.EndZ - x.Z, 2))).FirstOrDefault();
+            return this.Nodes.OrderBy(x => Math.Sqrt(Math.Pow(c.EndX - x.X, 2) + Math.Pow(c.EndZ - x.Z, 2))).FirstOrDefault();
         }
 
         private Ets2PrefabNode FindStartNode(Ets2PrefabCurve c)
         {
-            return Nodes.OrderBy(x => Math.Sqrt(Math.Pow(c.StartX - x.X, 2) + Math.Pow(c.StartZ - x.Z, 2))).FirstOrDefault();
+            return this.Nodes.OrderBy(x => Math.Sqrt(Math.Pow(c.StartX - x.X, 2) + Math.Pow(c.StartZ - x.Z, 2))).FirstOrDefault();
         }
 
         private IEnumerable<List<Ets2PrefabCurve>> IterateCurves(IEnumerable<Ets2PrefabCurve> list, Ets2PrefabCurve curve, bool forwardDirection)
         {
-            var curves = (forwardDirection ? curve.Next : curve.Prev).Select(x => Curves[x]);
+            var curves = (forwardDirection ? curve.Next : curve.Prev).Select(x => this.Curves[x]);
 
             if (curves.Any())
             {
                 foreach (var c in curves)
                 {
                     var l = new List<Ets2PrefabCurve>(list);
-                    if (list.Contains(c)) yield return l;
+                    if (list.Contains(c))
+                    {
+                        yield return l;
+                    }
                     else
                     {
                         l.Add(c);
 
-                        var res = IterateCurves(l, c, forwardDirection);
+                        var res = this.IterateCurves(l, c, forwardDirection);
                         foreach (var r in res)
                         {
                             yield return r;
@@ -216,33 +241,34 @@ namespace SimShift.MapTool
 
         private void Parse()
         {
-            var version = BitConverter.ToInt32(Stream, 0);
+            var version = BitConverter.ToInt32(this.Stream, 0);
 
             var verbose = 0;
-            if (Path.GetFileNameWithoutExtension(FilePath) == "road1_x_road1_t" || Path.GetFileNameWithoutExtension(FilePath) == "hw3-2_x_hw2-2_full  ")
+            if (Path.GetFileNameWithoutExtension(this.FilePath) == "road1_x_road1_t" || Path.GetFileNameWithoutExtension(this.FilePath) == "hw3-2_x_hw2-2_full  ")
             {
                 verbose++;
             }
-            if (version != 21) // euhm..
+
+            if (version != 21)
             { }
 
-            var nodes = BitConverter.ToInt32(Stream, 4);
-            var terrain = BitConverter.ToInt32(Stream, 12);
-            var navCurves = BitConverter.ToInt32(Stream, 8);
-            var signs = BitConverter.ToInt32(Stream, 16);
-            var spawns = BitConverter.ToInt32(Stream, 20);
-            var semaphores = BitConverter.ToInt32(Stream, 24);
-            var mappoints = BitConverter.ToInt32(Stream, 28);
-            var triggers = BitConverter.ToInt32(Stream, 32);
-            var intersections = BitConverter.ToInt32(Stream, 36);
+            // euhm..
+            var nodes = BitConverter.ToInt32(this.Stream, 4);
+            var terrain = BitConverter.ToInt32(this.Stream, 12);
+            var navCurves = BitConverter.ToInt32(this.Stream, 8);
+            var signs = BitConverter.ToInt32(this.Stream, 16);
+            var spawns = BitConverter.ToInt32(this.Stream, 20);
+            var semaphores = BitConverter.ToInt32(this.Stream, 24);
+            var mappoints = BitConverter.ToInt32(this.Stream, 28);
+            var triggers = BitConverter.ToInt32(this.Stream, 32);
+            var intersections = BitConverter.ToInt32(this.Stream, 36);
 
-            var nodeOffset = BitConverter.ToInt32(Stream, 44);
-            var off2 = BitConverter.ToInt32(Stream, 48);
-            var off3 = BitConverter.ToInt32(Stream, 52);
-            var off4 = BitConverter.ToInt32(Stream, 56);
+            var nodeOffset = BitConverter.ToInt32(this.Stream, 44);
+            var off2 = BitConverter.ToInt32(this.Stream, 48);
+            var off3 = BitConverter.ToInt32(this.Stream, 52);
+            var off4 = BitConverter.ToInt32(this.Stream, 56);
 
-            //if (verbose == 0) return;
-
+            // if (verbose == 0) return;
             for (int navCurve = 0; navCurve < navCurves; navCurve++)
             {
                 var curveOff = off2 + navCurve * 128;
@@ -253,42 +279,46 @@ namespace SimShift.MapTool
                 List<int> prevCurve = new List<int>();
                 for (int k = 0; k < 4; k++)
                 {
-                    nextCurve.Add(BitConverter.ToInt32(Stream, 76 + k * 4 + curveOff));
-                    prevCurve.Add(BitConverter.ToInt32(Stream, 92 + k * 4 + curveOff));
+                    nextCurve.Add(BitConverter.ToInt32(this.Stream, 76 + k * 4 + curveOff));
+                    prevCurve.Add(BitConverter.ToInt32(this.Stream, 92 + k * 4 + curveOff));
                 }
 
-                var curve = new Ets2PrefabCurve { Index = navCurve, StartX = BitConverter.ToSingle(Stream, 16 + curveOff), StartY = BitConverter.ToSingle(Stream, 20 + curveOff), StartZ = BitConverter.ToSingle(Stream, 24 + curveOff), EndX = BitConverter.ToSingle(Stream, 28 + curveOff), EndY = BitConverter.ToSingle(Stream, 32 + curveOff), EndZ = BitConverter.ToSingle(Stream, 36 + curveOff), StartRotationX = BitConverter.ToSingle(Stream, 40 + curveOff), StartRotationY = BitConverter.ToSingle(Stream, 44 + curveOff), StartRotationZ = BitConverter.ToSingle(Stream, 48 + curveOff), EndRotationX = BitConverter.ToSingle(Stream, 52 + curveOff), EndRotationY = BitConverter.ToSingle(Stream, 56 + curveOff), EndRotationZ = BitConverter.ToSingle(Stream, 60 + curveOff), StartYaw = Math.Atan2(BitConverter.ToSingle(Stream, 48 + curveOff), BitConverter.ToSingle(Stream, 40 + curveOff)), EndYaw = Math.Atan2(BitConverter.ToSingle(Stream, 60 + curveOff), BitConverter.ToSingle(Stream, 52 + curveOff)), Length = BitConverter.ToSingle(Stream, 72 + curveOff), Next = nextCurve.Where(i => i != -1).ToArray(), Prev = prevCurve.Where(i => i != -1).ToArray() };
+                var curve = new Ets2PrefabCurve { Index = navCurve, StartX = BitConverter.ToSingle(this.Stream, 16 + curveOff), StartY = BitConverter.ToSingle(this.Stream, 20 + curveOff), StartZ = BitConverter.ToSingle(this.Stream, 24 + curveOff), EndX = BitConverter.ToSingle(this.Stream, 28 + curveOff), EndY = BitConverter.ToSingle(this.Stream, 32 + curveOff), EndZ = BitConverter.ToSingle(this.Stream, 36 + curveOff), StartRotationX = BitConverter.ToSingle(this.Stream, 40 + curveOff), StartRotationY = BitConverter.ToSingle(this.Stream, 44 + curveOff), StartRotationZ = BitConverter.ToSingle(this.Stream, 48 + curveOff), EndRotationX = BitConverter.ToSingle(this.Stream, 52 + curveOff), EndRotationY = BitConverter.ToSingle(this.Stream, 56 + curveOff), EndRotationZ = BitConverter.ToSingle(this.Stream, 60 + curveOff), StartYaw = Math.Atan2(BitConverter.ToSingle(this.Stream, 48 + curveOff), BitConverter.ToSingle(this.Stream, 40 + curveOff)), EndYaw = Math.Atan2(BitConverter.ToSingle(this.Stream, 60 + curveOff), BitConverter.ToSingle(this.Stream, 52 + curveOff)), Length = BitConverter.ToSingle(this.Stream, 72 + curveOff), Next = nextCurve.Where(i => i != -1).ToArray(), Prev = prevCurve.Where(i => i != -1).ToArray() };
 
-                Curves.Add(curve);
+                this.Curves.Add(curve);
 
                 var nextC = string.Join(",", nextCurve.Where(i => i >= 0));
                 var prevC = string.Join(",", prevCurve.Where(i => i >= 0));
-                //Console.WriteLine("UID: " + BitConverter.ToUInt64(Stream,curveOff).ToString("X16") + " Curve " + navCurve + " NEXT: " +nextC+ " PREV: " + prevC);
+
+                // Console.WriteLine("UID: " + BitConverter.ToUInt64(Stream,curveOff).ToString("X16") + " Curve " + navCurve + " NEXT: " +nextC+ " PREV: " + prevC);
                 for (int k = 0; k < 16; k += 4)
                 {
-                    var i32 = BitConverter.ToInt32(Stream, k + curveOff);
-                    var u64 = BitConverter.ToUInt64(Stream, k + curveOff);
-                    var f32 = BitConverter.ToSingle(Stream, k + curveOff);
-                    //Console.WriteLine(k + " : INT32: " + i32 + " UINT64: " + u64.ToString("X16") + " FLOAT: " + f32);
-                } /* for (int k = 64; k < 72; k += 4)
-                {
-                    var i32 = BitConverter.ToInt32(Stream, k + curveOff);
-                    var u64 = BitConverter.ToUInt64(Stream, k + curveOff);
-                    var f32 = BitConverter.ToSingle(Stream, k + curveOff);
-                    Console.WriteLine(k + " : INT32: " + i32 + " UINT64: " + u64.ToString("X16") + " FLOAT: " + f32);
-                } for (int k = 108; k < 128; k += 4)
-                {
-                    var i32 = BitConverter.ToInt32(Stream, k + curveOff);
-                    var u64 = BitConverter.ToUInt64(Stream, k + curveOff);
-                    var f32 = BitConverter.ToSingle(Stream, k + curveOff);
-                    Console.WriteLine(k + " : INT32: " + i32 + " UINT64: " + u64.ToString("X16") + " FLOAT: " + f32);
-                }*/
+                    var i32 = BitConverter.ToInt32(this.Stream, k + curveOff);
+                    var u64 = BitConverter.ToUInt64(this.Stream, k + curveOff);
+                    var f32 = BitConverter.ToSingle(this.Stream, k + curveOff);
+
+                    // Console.WriteLine(k + " : INT32: " + i32 + " UINT64: " + u64.ToString("X16") + " FLOAT: " + f32);
+                }
+
+                /* for (int k = 64; k < 72; k += 4)
+                                               {
+                                                   var i32 = BitConverter.ToInt32(Stream, k + curveOff);
+                                                   var u64 = BitConverter.ToUInt64(Stream, k + curveOff);
+                                                   var f32 = BitConverter.ToSingle(Stream, k + curveOff);
+                                                   Console.WriteLine(k + " : INT32: " + i32 + " UINT64: " + u64.ToString("X16") + " FLOAT: " + f32);
+                                               } for (int k = 108; k < 128; k += 4)
+                                               {
+                                                   var i32 = BitConverter.ToInt32(Stream, k + curveOff);
+                                                   var u64 = BitConverter.ToUInt64(Stream, k + curveOff);
+                                                   var f32 = BitConverter.ToSingle(Stream, k + curveOff);
+                                                   Console.WriteLine(k + " : INT32: " + i32 + " UINT64: " + u64.ToString("X16") + " FLOAT: " + f32);
+                                               }*/
             }
 
             for (int navCurve = 0; navCurve < navCurves; navCurve++)
             {
-                Curves[navCurve].NextCurve = Curves[navCurve].Next.Select(x => Curves[x]).ToList();
-                Curves[navCurve].PrevCurve = Curves[navCurve].Prev.Select(x => Curves[x]).ToList();
+                this.Curves[navCurve].NextCurve = this.Curves[navCurve].Next.Select(x => this.Curves[x]).ToList();
+                this.Curves[navCurve].PrevCurve = this.Curves[navCurve].Prev.Select(x => this.Curves[x]).ToList();
             }
 
             for (int node = 0; node < nodes; node++)
@@ -301,8 +331,8 @@ namespace SimShift.MapTool
                 List<int> outputLanes = new List<int>();
                 for (int k = 0; k < 8; k++)
                 {
-                    inputLanes.Add(BitConverter.ToInt32(Stream, 40 + k * 4 + nodeOff));
-                    outputLanes.Add(BitConverter.ToInt32(Stream, 72 + k * 4 + nodeOff));
+                    inputLanes.Add(BitConverter.ToInt32(this.Stream, 40 + k * 4 + nodeOff));
+                    outputLanes.Add(BitConverter.ToInt32(this.Stream, 72 + k * 4 + nodeOff));
                 }
 
                 // is 8/12 TerrainPointcount and StreamCount??
@@ -318,22 +348,23 @@ namespace SimShift.MapTool
                                           BitConverter.ToSingle(Stream, 28 + nodeOff)), 3) + " IN: " + inLanes +
                                   " OUT: " + outLanes);
                 */
-                Ets2PrefabNode prefabNode = new Ets2PrefabNode { Node = node, X = BitConverter.ToSingle(Stream, 16 + nodeOff), Y = BitConverter.ToSingle(Stream, 20 + nodeOff), Z = BitConverter.ToSingle(Stream, 24 + nodeOff), RotationX = BitConverter.ToSingle(Stream, 28 + nodeOff), RotationY = BitConverter.ToSingle(Stream, 32 + nodeOff), RotationZ = BitConverter.ToSingle(Stream, 36 + nodeOff), InputCurve = inputLanes.Where(i => i != -1).Select(x => Curves[x]).ToList(), OutputCurve = outputLanes.Where(i => i != -1).Select(x => Curves[x]).ToList(), Yaw = Math.PI - Math.Atan2(BitConverter.ToSingle(Stream, 36 + nodeOff), BitConverter.ToSingle(Stream, 28 + nodeOff)) };
-                Nodes.Add(prefabNode);
+                Ets2PrefabNode prefabNode = new Ets2PrefabNode { Node = node, X = BitConverter.ToSingle(this.Stream, 16 + nodeOff), Y = BitConverter.ToSingle(this.Stream, 20 + nodeOff), Z = BitConverter.ToSingle(this.Stream, 24 + nodeOff), RotationX = BitConverter.ToSingle(this.Stream, 28 + nodeOff), RotationY = BitConverter.ToSingle(this.Stream, 32 + nodeOff), RotationZ = BitConverter.ToSingle(this.Stream, 36 + nodeOff), InputCurve = inputLanes.Where(i => i != -1).Select(x => this.Curves[x]).ToList(), OutputCurve = outputLanes.Where(i => i != -1).Select(x => this.Curves[x]).ToList(), Yaw = Math.PI - Math.Atan2(BitConverter.ToSingle(this.Stream, 36 + nodeOff), BitConverter.ToSingle(this.Stream, 28 + nodeOff)) };
+                this.Nodes.Add(prefabNode);
 
                 for (int k = 0; k < 16; k += 4)
                 {
-                    var i32 = BitConverter.ToInt32(Stream, k + nodeOff);
-                    var u64 = BitConverter.ToUInt64(Stream, k + nodeOff);
-                    var f32 = BitConverter.ToSingle(Stream, k + nodeOff);
-                    //Console.WriteLine(k + " : INT32: " + i32 + " UINT64: " + u64.ToString("X16") + " FLOAT: " + f32);
+                    var i32 = BitConverter.ToInt32(this.Stream, k + nodeOff);
+                    var u64 = BitConverter.ToUInt64(this.Stream, k + nodeOff);
+                    var f32 = BitConverter.ToSingle(this.Stream, k + nodeOff);
+
+                    // Console.WriteLine(k + " : INT32: " + i32 + " UINT64: " + u64.ToString("X16") + " FLOAT: " + f32);
                 }
             }
 
-            var test = GetRouteOptions(0);
+            var test = this.GetRouteOptions(0);
 
-            //Console.WriteLine(Path.GetFileNameWithoutExtension(FilePath) + " has  " + nodes + " nodes, " + navCurves +
-            //                  " curves, " + mappoints + " map snap points");
+            // Console.WriteLine(Path.GetFileNameWithoutExtension(FilePath) + " has  " + nodes + " nodes, " + navCurves +
+            // " curves, " + mappoints + " map snap points");
         }
     }
 }

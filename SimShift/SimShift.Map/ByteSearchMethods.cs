@@ -18,8 +18,13 @@ namespace SimShift.MapTool
                     {
                         ;
                     }
-                    if (Found) Indexes.Add(i);
+
+                    if (Found)
+                    {
+                        Indexes.Add(i);
+                    }
                 }
+
                 return Indexes;
             }
         }
@@ -33,8 +38,12 @@ namespace SimShift.MapTool
                 int i = 0;
                 for (byte* hNext = H, hEnd = H + Haystack.Length; hNext < hEnd; i++, hNext++)
                 {
-                    if (*((ulong*) hNext) == *((ulong*) N)) Indexes.Add(i);
+                    if (*((ulong*) hNext) == *((ulong*) N))
+                    {
+                        Indexes.Add(i);
+                    }
                 }
+
                 return Indexes;
             }
         }

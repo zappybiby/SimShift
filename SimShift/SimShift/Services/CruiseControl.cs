@@ -12,8 +12,9 @@ using SimShift.Utils;
 namespace SimShift.Services
 {
     /// <summary>
-    /// This module simulates a CruiseControl. Although some games (like ETS2) incorporate Cruise Control, previously there were no features like resume CC, speed up or slow down CC
-    /// And above all: the CC in-game disengages when shifting gear.
+    ///     This module simulates a CruiseControl. Although some games (like ETS2) incorporate Cruise Control, previously there
+    ///     were no features like resume CC, speed up or slow down CC
+    ///     And above all: the CC in-game disengages when shifting gear.
     /// </summary>
     public class CruiseControl : IControlChainObj, IConfigurable
     {
@@ -21,34 +22,15 @@ namespace SimShift.Services
 
         private double PreviousError = 0;
 
-        public IEnumerable<string> AcceptsConfigs
-        {
-            get
-            {
-                return new[] { "Cruise" };
-            }
-        }
+        public IEnumerable<string> AcceptsConfigs => new[] { "Cruise" };
 
-        public bool Active
-        {
-            get
-            {
-                return Cruising && !ManualOverride;
-            }
-        }
+        public bool Active => this.Cruising && !this.ManualOverride;
 
-        //
         public bool Cruising { get; private set; }
 
         public double DSlope { get; private set; }
 
-        public bool Enabled
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public bool Enabled => true;
 
         public double Imax { get; private set; }
 
@@ -58,21 +40,9 @@ namespace SimShift.Services
 
         public double PSlope { get; private set; }
 
-        public IEnumerable<string> SimulatorsBan
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsBan => new string[0];
 
-        public IEnumerable<string> SimulatorsOnly
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsOnly => new string[0];
 
         public double Speed { get; private set; }
 
@@ -85,16 +55,16 @@ namespace SimShift.Services
             switch (obj.Key)
             {
                 case "P":
-                    PSlope = obj.ReadAsFloat();
+                    this.PSlope = obj.ReadAsFloat();
                     break;
                 case "Imax":
-                    Imax = obj.ReadAsFloat();
+                    this.Imax = obj.ReadAsFloat();
                     break;
                 case "I":
-                    ISlope = obj.ReadAsFloat();
+                    this.ISlope = obj.ReadAsFloat();
                     break;
                 case "D":
-                    DSlope = obj.ReadAsFloat();
+                    this.DSlope = obj.ReadAsFloat();
                     break;
 
                 // TODO: implement PID
@@ -104,10 +74,10 @@ namespace SimShift.Services
         public IEnumerable<IniValueObject> ExportParameters()
         {
             List<IniValueObject> o = new List<IniValueObject>();
-            o.Add(new IniValueObject(AcceptsConfigs, "P", PSlope.ToString("0.0000")));
-            o.Add(new IniValueObject(AcceptsConfigs, "I", ISlope.ToString("0.0000")));
-            o.Add(new IniValueObject(AcceptsConfigs, "Imax", Imax.ToString("0.0000")));
-            o.Add(new IniValueObject(AcceptsConfigs, "D", DSlope.ToString("0.0000")));
+            o.Add(new IniValueObject(this.AcceptsConfigs, "P", this.PSlope.ToString("0.0000")));
+            o.Add(new IniValueObject(this.AcceptsConfigs, "I", this.ISlope.ToString("0.0000")));
+            o.Add(new IniValueObject(this.AcceptsConfigs, "Imax", this.Imax.ToString("0.0000")));
+            o.Add(new IniValueObject(this.AcceptsConfigs, "D", this.DSlope.ToString("0.0000")));
             return o;
         }
 
@@ -116,21 +86,45 @@ namespace SimShift.Services
             switch (c)
             {
                 case JoyControls.Throttle:
-                    var error = SpeedCruise - Speed;
-                    IntegralTime += error * ISlope;
-                    var Differential = (error - PreviousError) * DSlope;
-                    PreviousError = error;
-                    if (IntegralTime > Imax) IntegralTime = Imax;
-                    if (IntegralTime < -Imax) IntegralTime = -Imax;
-                    var cruiseVal = error * 3.6 * PSlope + IntegralTime + Differential;
-                    ManualOverride = val >= cruiseVal;
-                    if (Cruising && cruiseVal > val) val = cruiseVal;
+                    var error = this.SpeedCruise - this.Speed;
+                    this.IntegralTime += error * this.ISlope;
+                    var Differential = (error - this.PreviousError) * this.DSlope;
+                    this.PreviousError = error;
+                    if (this.IntegralTime > this.Imax)
+                    {
+                        this.IntegralTime = this.Imax;
+                    }
+
+                    if (this.IntegralTime < -this.Imax)
+                    {
+                        this.IntegralTime = -this.Imax;
+                    }
+
+                    var cruiseVal = error * 3.6 * this.PSlope + this.IntegralTime + Differential;
+                    this.ManualOverride = val >= cruiseVal;
+                    if (this.Cruising && cruiseVal > val)
+                    {
+                        val = cruiseVal;
+                    }
+
                     var t = val;
-                    if (t > 1) t = 1;
-                    if (t < 0) t = 0;
+                    if (t > 1)
+                    {
+                        t = 1;
+                    }
+
+                    if (t < 0)
+                    {
+                        t = 0;
+                    }
+
                     return t;
                 case JoyControls.Brake:
-                    if (val > 0.1) Cruising = false;
+                    if (val > 0.1)
+                    {
+                        this.Cruising = false;
+                    }
+
                     return val;
 
                 default: return val;
@@ -142,39 +136,43 @@ namespace SimShift.Services
             switch (c)
             {
                 case JoyControls.CruiseControlMaintain:
-                    if (val && DateTime.Now.Subtract(CruiseTimeout).TotalMilliseconds > 500)
+                    if (val && DateTime.Now.Subtract(this.CruiseTimeout).TotalMilliseconds > 500)
                     {
-                        Cruising = !Cruising;
-                        SpeedCruise = Speed;
-                        Debug.WriteLine("Cruising set to " + Cruising + " and " + SpeedCruise + " m/s");
-                        CruiseTimeout = DateTime.Now;
+                        this.Cruising = !this.Cruising;
+                        this.SpeedCruise = this.Speed;
+                        Debug.WriteLine("Cruising set to " + this.Cruising + " and " + this.SpeedCruise + " m/s");
+                        this.CruiseTimeout = DateTime.Now;
                     }
+
                     return false;
                     break;
 
                 case JoyControls.CruiseControlUp:
-                    if (val && DateTime.Now.Subtract(CruiseTimeout).TotalMilliseconds > 400)
+                    if (val && DateTime.Now.Subtract(this.CruiseTimeout).TotalMilliseconds > 400)
                     {
-                        SpeedCruise += 1 / 3.6f;
-                        CruiseTimeout = DateTime.Now;
+                        this.SpeedCruise += 1 / 3.6f;
+                        this.CruiseTimeout = DateTime.Now;
                     }
+
                     return false;
                     break;
                 case JoyControls.CruiseControlDown:
-                    if (val && DateTime.Now.Subtract(CruiseTimeout).TotalMilliseconds > 400)
+                    if (val && DateTime.Now.Subtract(this.CruiseTimeout).TotalMilliseconds > 400)
                     {
-                        SpeedCruise -= 1 / 3.6f;
-                        CruiseTimeout = DateTime.Now;
+                        this.SpeedCruise -= 1 / 3.6f;
+                        this.CruiseTimeout = DateTime.Now;
                     }
+
                     return false;
                     break;
                 case JoyControls.CruiseControlOnOff:
-                    if (val && DateTime.Now.Subtract(CruiseTimeout).TotalMilliseconds > 500)
+                    if (val && DateTime.Now.Subtract(this.CruiseTimeout).TotalMilliseconds > 500)
                     {
-                        Cruising = !Cruising;
-                        Debug.WriteLine("Cruising set to " + Cruising);
-                        CruiseTimeout = DateTime.Now;
+                        this.Cruising = !this.Cruising;
+                        Debug.WriteLine("Cruising set to " + this.Cruising);
+                        this.CruiseTimeout = DateTime.Now;
                     }
+
                     return false;
                     break;
                 default: return val;
@@ -186,7 +184,7 @@ namespace SimShift.Services
             switch (c)
             {
                 case JoyControls.Throttle:
-                case JoyControls.Brake: return Cruising;
+                case JoyControls.Brake: return this.Cruising;
 
                 case JoyControls.CruiseControlMaintain:
                 case JoyControls.CruiseControlUp:
@@ -199,11 +197,11 @@ namespace SimShift.Services
 
         public void ResetParameters()
         {
-            SpeedCruise = 1000 / 3.6;
-            PSlope = 0.25;
-            ISlope = 0;
-            Imax = 0;
-            DSlope = 0;
+            this.SpeedCruise = 1000 / 3.6;
+            this.PSlope = 0.25;
+            this.ISlope = 0;
+            this.Imax = 0;
+            this.DSlope = 0;
         }
 
         public void TickControls()
@@ -211,7 +209,7 @@ namespace SimShift.Services
 
         public void TickTelemetry(IDataMiner data)
         {
-            Speed = data.Telemetry.Speed;
+            this.Speed = data.Telemetry.Speed;
         }
     }
 }

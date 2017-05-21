@@ -4,7 +4,9 @@ using System.Runtime.InteropServices;
 
 namespace SimShift.Utils
 {
-    [System.Security.SuppressUnmanagedCodeSecurity()]
+    using System.Security;
+
+    [SuppressUnmanagedCodeSecurity()]
     internal sealed class NativeMethods
     {
         [DllImport("user32.dll")]
@@ -15,7 +17,7 @@ namespace SimShift.Utils
         internal static extern bool GetWindowRect(IntPtr hWnd, out Rect lpRect);
 
         /// <summary>
-        /// Get a windows client rectangle in a .NET structure
+        ///     Get a windows client rectangle in a .NET structure
         /// </summary>
         /// <param name="hwnd">The window handle to look up</param>
         /// <returns>The rectangle</returns>
@@ -27,7 +29,7 @@ namespace SimShift.Utils
         }
 
         /// <summary>
-        /// Get a windows rectangle in a .NET structure
+        ///     Get a windows rectangle in a .NET structure
         /// </summary>
         /// <param name="hwnd">The window handle to look up</param>
         /// <returns>The rectangle</returns>
@@ -40,8 +42,8 @@ namespace SimShift.Utils
 
         internal static Rectangle GetAbsoluteClientRect(IntPtr hWnd)
         {
-            Rectangle windowRect = NativeMethods.GetWindowRect(hWnd);
-            Rectangle clientRect = NativeMethods.GetClientRect(hWnd);
+            Rectangle windowRect = GetWindowRect(hWnd);
+            Rectangle clientRect = GetClientRect(hWnd);
 
             // This gives us the width of the left, right and bottom chrome - we can then determine the top height
             int chromeWidth = (int) ((windowRect.Width - clientRect.Width) / 2);

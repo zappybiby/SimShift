@@ -4,16 +4,16 @@ namespace SimShift.Data.Common
     {
         public GenericDataDefinition(string car, float time, bool paused, int gear, int gears, float engineRpm, float fuel, float throttle, float brake, float speed)
         {
-            Car = car;
-            Time = time;
-            Paused = paused;
-            Gear = gear;
-            Gears = gears;
-            EngineRpm = engineRpm;
-            Fuel = fuel;
-            Throttle = throttle;
-            Brake = brake;
-            Speed = speed;
+            this.Car = car;
+            this.Time = time;
+            this.Paused = paused;
+            this.Gear = gear;
+            this.Gears = gears;
+            this.EngineRpm = engineRpm;
+            this.Fuel = fuel;
+            this.Throttle = throttle;
+            this.Brake = brake;
+            this.Speed = speed;
         }
 
         public float Brake { get; private set; }

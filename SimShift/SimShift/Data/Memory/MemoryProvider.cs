@@ -12,22 +12,16 @@ namespace SimTelemetry.Domain.Memory
         {
             if (reader != null)
             {
-                BaseAddress = reader.Process.MainModule.BaseAddress.ToInt32();
-                Reader = reader;
+                this.BaseAddress = reader.Process.MainModule.BaseAddress.ToInt32();
+                this.Reader = reader;
 
-                Scanner = new MemorySignatureScanner(this);
+                this.Scanner = new MemorySignatureScanner(this);
             }
         }
 
         public int BaseAddress { get; protected set; }
 
-        public IList<MemoryPool> Pools
-        {
-            get
-            {
-                return _pools;
-            }
-        }
+        public IList<MemoryPool> Pools => this._pools;
 
         public MemoryReader Reader { get; protected set; }
 
@@ -35,33 +29,33 @@ namespace SimTelemetry.Domain.Memory
 
         public void Add(IDataNode pool)
         {
-            _pools.Add((MemoryPool) pool);
+            this._pools.Add((MemoryPool) pool);
             ((MemoryPool) pool).SetProvider(this);
         }
 
         public bool Contains(string name)
         {
-            return _pools.Any(x => x.Name == name);
+            return this._pools.Any(x => x.Name == name);
         }
 
         public IDataNode Get(string name)
         {
-            return _pools.Where(x => x.Name == name).Cast<IDataNode>().FirstOrDefault();
+            return this._pools.Where(x => x.Name == name).Cast<IDataNode>().FirstOrDefault();
         }
 
         public IEnumerable<IDataNode> GetAll()
         {
-            return _pools;
+            return this._pools;
         }
 
         public void MarkDirty()
         {
-            _pools.SelectMany(x => x.Fields.Values).ToList().ForEach(x => x.MarkDirty());
+            this._pools.SelectMany(x => x.Fields.Values).ToList().ForEach(x => x.MarkDirty());
         }
 
         public void Refresh()
         {
-            foreach (var pool in _pools)
+            foreach (var pool in this._pools)
             {
                 pool.Refresh();
             }
@@ -69,7 +63,7 @@ namespace SimTelemetry.Domain.Memory
 
         public void Remove(IDataNode pool)
         {
-            _pools.Remove((MemoryPool) pool);
+            this._pools.Remove((MemoryPool) pool);
         }
     }
 }

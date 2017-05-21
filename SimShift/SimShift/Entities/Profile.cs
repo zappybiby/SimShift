@@ -15,57 +15,51 @@ namespace SimShift.Entities
 
         public Profile(Profiles car, string file)
         {
-            Name = file;
-            Car = car;
+            this.Name = file;
+            this.Car = car;
 
             var phFile = string.Format(car.PatternFile, file);
 
             if (!File.Exists(phFile))
             {
                 Debug.WriteLine("Cannot find file " + phFile + " - creating defaults");
-                Antistall = "easy";
-                CruiseControl = "easy";
+                this.Antistall = "easy";
+                this.CruiseControl = "easy";
                 switch (file)
                 {
                     case "Performance":
-                        ShiftCurve = "Performance.5kmh.slow";
+                        this.ShiftCurve = "Performance.5kmh.slow";
                         break;
                     case "Efficiency":
-                        ShiftCurve = "Efficiency.5kmh.slow";
+                        this.ShiftCurve = "Efficiency.5kmh.slow";
                         break;
                     case "Economy":
-                        ShiftCurve = "Economy.5kmh.slow";
+                        this.ShiftCurve = "Economy.5kmh.slow";
                         break;
                 }
-                SpeedLimiter = "nolimit";
-                TractionControl = "notc";
+                this.SpeedLimiter = "nolimit";
+                this.TractionControl = "notc";
 
-                ShiftPattern = new List<ConfigurableShiftPattern>();
-                ShiftPattern.Add(new ConfigurableShiftPattern("up_1thr", "normal"));
-                ShiftPattern.Add(new ConfigurableShiftPattern("up_0thr", "normal"));
-                ShiftPattern.Add(new ConfigurableShiftPattern("down_1thr", "normal"));
-                ShiftPattern.Add(new ConfigurableShiftPattern("down_0thr", "normal"));
+                this.ShiftPattern = new List<ConfigurableShiftPattern>();
+                this.ShiftPattern.Add(new ConfigurableShiftPattern("up_1thr", "normal"));
+                this.ShiftPattern.Add(new ConfigurableShiftPattern("up_0thr", "normal"));
+                this.ShiftPattern.Add(new ConfigurableShiftPattern("down_1thr", "normal"));
+                this.ShiftPattern.Add(new ConfigurableShiftPattern("down_0thr", "normal"));
 
-                var iniExport = ExportParameters();
+                var iniExport = this.ExportParameters();
                 Main.Store(iniExport, phFile);
 
-                Loaded = true;
+                this.Loaded = true;
             }
             else
             {
-                Loaded = true;
+                this.Loaded = true;
             }
 
             Main.Load(this, phFile);
         }
 
-        public IEnumerable<string> AcceptsConfigs
-        {
-            get
-            {
-                return new string[] { "Profiles" };
-            }
-        }
+        public IEnumerable<string> AcceptsConfigs => new[] { "Profiles" };
 
         public string Antistall { get; private set; }
 
@@ -88,24 +82,24 @@ namespace SimShift.Entities
             switch (obj.Key)
             {
                 case "Antistall":
-                    Antistall = obj.ReadAsString();
+                    this.Antistall = obj.ReadAsString();
                     break;
                 case "CruiseControl":
-                    CruiseControl = obj.ReadAsString();
+                    this.CruiseControl = obj.ReadAsString();
                     break;
                 case "ShiftCurve":
-                    ShiftCurve = obj.ReadAsString();
+                    this.ShiftCurve = obj.ReadAsString();
                     break;
                 case "SpeedLimiter":
-                    SpeedLimiter = obj.ReadAsString();
+                    this.SpeedLimiter = obj.ReadAsString();
                     break;
                 case "TractionControl":
-                    TractionControl = obj.ReadAsString();
+                    this.TractionControl = obj.ReadAsString();
                     break;
                 case "ShiftPattern":
                     var file = obj.ReadAsString(2);
                     var region = obj.ReadAsString(0).ToLower() + "_" + obj.ReadAsString(1) + "thr";
-                    ShiftPattern.Add(new ConfigurableShiftPattern(region, file));
+                    this.ShiftPattern.Add(new ConfigurableShiftPattern(region, file));
                     break;
             }
         }
@@ -113,17 +107,21 @@ namespace SimShift.Entities
         public IEnumerable<IniValueObject> ExportParameters()
         {
             List<IniValueObject> obj = new List<IniValueObject>();
-            obj.Add(new IniValueObject(AcceptsConfigs, "Antistall", Antistall));
-            obj.Add(new IniValueObject(AcceptsConfigs, "CruiseControl", CruiseControl));
-            obj.Add(new IniValueObject(AcceptsConfigs, "ShiftCurve", ShiftCurve));
-            obj.Add(new IniValueObject(AcceptsConfigs, "SpeedLimiter", SpeedLimiter));
-            obj.Add(new IniValueObject(AcceptsConfigs, "TractionControl", TractionControl));
-            foreach (var s in ShiftPattern)
+            obj.Add(new IniValueObject(this.AcceptsConfigs, "Antistall", this.Antistall));
+            obj.Add(new IniValueObject(this.AcceptsConfigs, "CruiseControl", this.CruiseControl));
+            obj.Add(new IniValueObject(this.AcceptsConfigs, "ShiftCurve", this.ShiftCurve));
+            obj.Add(new IniValueObject(this.AcceptsConfigs, "SpeedLimiter", this.SpeedLimiter));
+            obj.Add(new IniValueObject(this.AcceptsConfigs, "TractionControl", this.TractionControl));
+            foreach (var s in this.ShiftPattern)
             {
-                if (s.Region.IndexOf("_") < 0) continue;
+                if (s.Region.IndexOf("_") < 0)
+                {
+                    continue;
+                }
+
                 var part = s.Region.Substring(0, s.Region.IndexOf("_"));
                 var thr = s.Region.Substring(s.Region.IndexOf("_") + 1);
-                obj.Add(new IniValueObject(AcceptsConfigs, "ShiftPattern", string.Format("({0},{1},{2})", part, thr, s.File)));
+                obj.Add(new IniValueObject(this.AcceptsConfigs, "ShiftPattern", string.Format("({0},{1},{2})", part, thr, s.File)));
             }
 
             return obj;
@@ -131,26 +129,25 @@ namespace SimShift.Entities
 
         public void Load(float staticMass)
         {
-            //
             Main.Transmission.StaticMass = staticMass;
-            TrailerMass = staticMass;
+            this.TrailerMass = staticMass;
 
-            Main.Load(Main.Antistall, "Settings/Antistall/" + Antistall + ".ini");
-            Main.Load(Main.CruiseControl, "Settings/CruiseControl/" + CruiseControl + ".ini");
+            Main.Load(Main.Antistall, "Settings/Antistall/" + this.Antistall + ".ini");
+            Main.Load(Main.CruiseControl, "Settings/CruiseControl/" + this.CruiseControl + ".ini");
 
-            Main.Drivetrain.File = "Settings/Drivetrain/" + Car.UniqueID + ".ini";
-            Main.Drivetrain.Calibrated = Main.Load(Main.Drivetrain, "Settings/Drivetrain/" + Car.UniqueID + ".ini");
+            Main.Drivetrain.File = "Settings/Drivetrain/" + this.Car.UniqueID + ".ini";
+            Main.Drivetrain.Calibrated = Main.Load(Main.Drivetrain, "Settings/Drivetrain/" + this.Car.UniqueID + ".ini");
 
-            Main.Load(Main.Transmission, "Settings/ShiftCurve/" + ShiftCurve + ".ini");
-            Main.Load(Main.Speedlimiter, "Settings/SpeedLimiter/" + SpeedLimiter + ".ini");
+            Main.Load(Main.Transmission, "Settings/ShiftCurve/" + this.ShiftCurve + ".ini");
+            Main.Load(Main.Speedlimiter, "Settings/SpeedLimiter/" + this.SpeedLimiter + ".ini");
 
-            Main.TractionControl.File = TractionControl;
-            Main.Load(Main.TractionControl, "Settings/TractionControl/" + TractionControl + ".ini");
+            Main.TractionControl.File = this.TractionControl;
+            Main.Load(Main.TractionControl, "Settings/TractionControl/" + this.TractionControl + ".ini");
         }
 
         public void ResetParameters()
         {
-            ShiftPattern = new List<ConfigurableShiftPattern>();
+            this.ShiftPattern = new List<ConfigurableShiftPattern>();
         }
     }
 }

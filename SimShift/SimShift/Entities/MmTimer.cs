@@ -32,96 +32,111 @@ namespace SimShift.Entities
 
         public MmTimer(uint period)
         {
-            Period = period;
+            this.Period = period;
         }
 
         private delegate void TimerEventHandler(int id, int msg, IntPtr user, int dw1, int dw2);
 
         public event EventHandler Tick;
 
-        public bool Enabled
-        {
-            get
-            {
-                return id != 0;
-            }
-        }
+        public bool Enabled => this.id != 0;
 
         public uint Period
         {
-            get
-            {
-                return period;
-            }
+            get => this.period;
+
             set
             {
-                if (value <= 0) return;
-                period = value;
+                if (value <= 0)
+                {
+                    return;
+                }
+
+                this.period = value;
             }
         }
 
         public void Start()
         {
-            if (id != 0) return;
-            if (Check() == false)
+            if (this.id != 0)
             {
-                _rescueTimer = new Timer(Period);
-                _rescueTimer.Elapsed += (o, s) => TimerHandler(0, 0, IntPtr.Zero, 0, 0);
-                _rescueTimer.Start();
-                usedMMTimer = false;
+                return;
+            }
+
+            if (this.Check() == false)
+            {
+                this._rescueTimer = new Timer(this.Period);
+                this._rescueTimer.Elapsed += (o, s) => this.TimerHandler(0, 0, IntPtr.Zero, 0, 0);
+                this._rescueTimer.Start();
+                this.usedMMTimer = false;
             }
             else
             {
-                handler = new TimerEventHandler(TimerHandler);
-                id = timeSetEvent(period, 1, handler, IntPtr.Zero, EVENT_TYPE);
-                usedMMTimer = true;
+                this.handler = new TimerEventHandler(this.TimerHandler);
+                this.id = timeSetEvent(this.period, 1, this.handler, IntPtr.Zero, EVENT_TYPE);
+                this.usedMMTimer = true;
             }
         }
 
         public void Stop()
         {
-            if (usedMMTimer)
+            if (this.usedMMTimer)
             {
-                if (id == 0) return;
-                timeKillEvent(id);
-                timeEndPeriod(resolution);
-                id = 0;
+                if (this.id == 0)
+                {
+                    return;
+                }
+
+                timeKillEvent(this.id);
+                timeEndPeriod(this.resolution);
+                this.id = 0;
             }
             else
             {
-                _rescueTimer.Stop();
-                _rescueTimer = null;
+                this._rescueTimer.Stop();
+                this._rescueTimer = null;
             }
         }
 
         protected bool Check()
         {
-            var err = timeGetDevCaps(ref mmCapabilities, (uint) Marshal.SizeOf(mmCapabilities));
-            if (err == TIMERR_NOCANDO) return false;
-            if (mmCapabilities.wPeriodMin > period || mmCapabilities.wPeriodMax < period) return false;
-            resolution = mmCapabilities.wPeriodMin;
-            err = timeBeginPeriod(resolution);
+            var err = timeGetDevCaps(ref this.mmCapabilities, (uint) Marshal.SizeOf(this.mmCapabilities));
+            if (err == TIMERR_NOCANDO)
+            {
+                return false;
+            }
+
+            if (this.mmCapabilities.wPeriodMin > this.period || this.mmCapabilities.wPeriodMax < this.period)
+            {
+                return false;
+            }
+
+            this.resolution = this.mmCapabilities.wPeriodMin;
+            err = timeBeginPeriod(this.resolution);
             return (err == TIMERR_NOERROR) ? true : false;
         }
 
         [DllImport("winmm.dll")]
-        private static extern UInt32 timeBeginPeriod(UInt32 msec);
+        private static extern uint timeBeginPeriod(uint msec);
 
         [DllImport("winmm.dll")]
-        private static extern UInt32 timeEndPeriod(UInt32 msec);
+        private static extern uint timeEndPeriod(uint msec);
 
         [DllImport("winmm.dll")]
-        private static extern UInt32 timeGetDevCaps(ref LPTIMECAPS ptc, UInt32 cbtc);
+        private static extern uint timeGetDevCaps(ref LPTIMECAPS ptc, uint cbtc);
 
         [DllImport("winmm.dll")]
-        private static extern UInt32 timeKillEvent(UInt32 id);
+        private static extern uint timeKillEvent(uint id);
 
         [DllImport("winmm.dll")]
-        private static extern UInt32 timeSetEvent(UInt32 delay, UInt32 resolution, TimerEventHandler handler, IntPtr user, UInt32 eventType);
+        private static extern uint timeSetEvent(uint delay, uint resolution, TimerEventHandler handler, IntPtr user, uint eventType);
 
         private void TimerHandler(int id, int msg, IntPtr user, int dw1, int dw2)
         {
-            if (Tick != null) Tick(this, new EventArgs());
+            if (this.Tick != null)
+            {
+                this.Tick(this, new EventArgs());
+            }
         }
 
         [StructLayout(LayoutKind.Sequential)]

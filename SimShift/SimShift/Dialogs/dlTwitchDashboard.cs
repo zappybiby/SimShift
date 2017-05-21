@@ -15,25 +15,25 @@ namespace SimShift.Dialogs
 
         public dlTwitchDashboard()
         {
-            InitializeComponent();
-            SetStyle(ControlStyles.UserPaint, true);
-            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-            SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            this.InitializeComponent();
+            this.SetStyle(ControlStyles.UserPaint, true);
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
 
             var updateUi = new Timer();
             updateUi.Interval = 20;
-            updateUi.Tick += new EventHandler(updateUi_Tick);
+            updateUi.Tick += new EventHandler(this.updateUi_Tick);
             updateUi.Start();
-            dsh = new ucDashboard(Color.FromArgb(5, 5, 5));
-            dsh.Dock = DockStyle.Fill;
-            Controls.Add(dsh);
+            this.dsh = new ucDashboard(Color.FromArgb(5, 5, 5));
+            this.dsh.Dock = DockStyle.Fill;
+            this.Controls.Add(this.dsh);
 
             this.StartPosition = FormStartPosition.CenterScreen;
         }
 
         void updateUi_Tick(object sender, EventArgs e)
         {
-            dsh.Invalidate();
+            this.dsh.Invalidate();
         }
     }
 }

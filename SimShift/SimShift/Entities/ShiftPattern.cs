@@ -9,21 +9,9 @@ namespace SimShift.Entities
     {
         public List<ShiftPatternFrame> Frames = new List<ShiftPatternFrame>();
 
-        public IEnumerable<string> AcceptsConfigs
-        {
-            get
-            {
-                return new[] { "Pattern" };
-            }
-        }
+        public IEnumerable<string> AcceptsConfigs => new[] { "Pattern" };
 
-        public int Count
-        {
-            get
-            {
-                return Frames.Count;
-            }
-        }
+        public int Count => this.Frames.Count;
 
         public void ApplyParameter(IniValueObject obj)
         {
@@ -41,7 +29,7 @@ namespace SimShift.Entities
 
                     var frame = new ShiftPatternFrame(clt, thr, absoluteThrottle, useOldGear, useNewGear);
 
-                    Frames.Add(frame);
+                    this.Frames.Add(frame);
                     break;
             }
         }
@@ -50,12 +38,12 @@ namespace SimShift.Entities
         {
             var frames = new List<IniValueObject>();
 
-            foreach (var fr in Frames)
+            foreach (var fr in this.Frames)
             {
                 string absThrStr = fr.AbsoluteThrottle ? "abs" : "rel";
                 string gearStr = fr.UseNewGear ? "new" : fr.UseOldGear ? "old" : "neu";
 
-                frames.Add(new IniValueObject(AcceptsConfigs, "Frame", string.Format("Frame=({0:0.00},{1:0.00},{2},{3})", fr.Throttle, fr.Clutch, absThrStr, gearStr)));
+                frames.Add(new IniValueObject(this.AcceptsConfigs, "Frame", string.Format("Frame=({0:0.00},{1:0.00},{2},{3})", fr.Throttle, fr.Clutch, absThrStr, gearStr)));
             }
 
             return frames;
@@ -63,7 +51,7 @@ namespace SimShift.Entities
 
         public void ResetParameters()
         {
-            Frames = new List<ShiftPatternFrame>();
+            this.Frames = new List<ShiftPatternFrame>();
         }
     }
 }

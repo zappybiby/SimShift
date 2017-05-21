@@ -9,13 +9,13 @@ using SimShift.Entities;
 namespace SimShift.Services
 {
     /// <summary>
-    /// This module is a gimmick where the clutch is engaged when dropping below 35km/h when the vehicle was driving faster than that (55km/h+)
+    ///     This module is a gimmick where the clutch is engaged when dropping below 35km/h when the vehicle was driving faster
+    ///     than that (55km/h+)
     /// </summary>
     class EarlyClutch : IControlChainObj
     {
         private bool clutchctrl = false;
 
-        //
         private bool clutching = false;
 
         private bool triggered = false;
@@ -24,27 +24,15 @@ namespace SimShift.Services
 
         public bool Enabled { get; private set; }
 
-        public IEnumerable<string> SimulatorsBan
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsBan => new string[0];
 
-        public IEnumerable<string> SimulatorsOnly
-        {
-            get
-            {
-                return new String[0];
-            }
-        }
+        public IEnumerable<string> SimulatorsOnly => new string[0];
 
         public double GetAxis(JoyControls c, double val)
         {
             switch (c)
             {
-                case JoyControls.Clutch: return clutching ? 1 : val;
+                case JoyControls.Clutch: return this.clutching ? 1 : val;
                 default: return val;
             }
         }
@@ -58,33 +46,37 @@ namespace SimShift.Services
         {
             switch (c)
             {
-                case JoyControls.Clutch: return clutching;
+                case JoyControls.Clutch: return this.clutching;
                 default: return false;
             }
         }
 
         public void TickControls()
         {
-            //clutching = Main.GetAxisIn(JoyControls.Throttle) < 0.1 && clutchctrl;
-            clutching = false;
+            // clutching = Main.GetAxisIn(JoyControls.Throttle) < 0.1 && clutchctrl;
+            this.clutching = false;
         }
 
         public void TickTelemetry(IDataMiner data)
         {
-            if (data.Telemetry.Speed * 3.6 > 55) triggered = true;
-
-            if (triggered && data.Telemetry.Speed * 3.6 < 35)
+            if (data.Telemetry.Speed * 3.6 > 55)
             {
-                clutchctrl = true;
+                this.triggered = true;
+            }
+
+            if (this.triggered && data.Telemetry.Speed * 3.6 < 35)
+            {
+                this.clutchctrl = true;
             }
             else if (data.Telemetry.Speed * 3.6 > 35)
             {
-                clutchctrl = false;
+                this.clutchctrl = false;
             }
+
             if (data.Telemetry.Speed * 3.6 < 10 && Main.GetAxisIn(JoyControls.Throttle) > 0.1)
             {
-                clutchctrl = false;
-                triggered = false;
+                this.clutchctrl = false;
+                this.triggered = false;
             }
         }
     }

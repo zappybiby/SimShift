@@ -36,36 +36,62 @@ namespace SimTelemetry.Domain.Memory
         {
             get
             {
-                if (_LazyValue == null) Refresh();
-                return _LazyValue.Value;
+                if (this._LazyValue == null)
+                {
+                    this.Refresh();
+                }
+
+                return this._LazyValue.Value;
             }
         }
 
         public override bool HasChanged()
         {
-            if (!Refreshed) return false;
-            if (readCounter < 2) return true;
-            if (_OldValue == null) return true;
-            bool what = _OldValue.Equals(_Value);
+            if (!this.Refreshed)
+            {
+                return false;
+            }
+
+            if (this.readCounter < 2)
+            {
+                return true;
+            }
+
+            if (this._OldValue == null)
+            {
+                return true;
+            }
+
+            bool what = this._OldValue.Equals(this._Value);
             return !what;
         }
 
         public override void Refresh()
         {
-            Refreshed = false;
-            if (_LazyValue == null || _LazyValue.IsValueCreated)
+            this.Refreshed = false;
+            if (this._LazyValue == null || this._LazyValue.IsValueCreated)
             {
-                _LazyValue = new Lazy<T>(
+                this._LazyValue = new Lazy<T>(
                     () =>
                         {
-                            readCounter++;
-                            Refreshed = true;
-                            _OldValue = _Value;
-                            if (IsStatic) RefreshStatic();
-                            else RefreshDynamic();
+                            this.readCounter++;
+                            this.Refreshed = true;
+                            this._OldValue = this._Value;
+                            if (this.IsStatic)
+                            {
+                                this.RefreshStatic();
+                            }
+                            else
+                            {
+                                this.RefreshDynamic();
+                            }
 
-                            if (_Value != null && Conversion != null) _Value = Conversion(_Value);
-                            return _Value;
+                            if (this._Value != null && this.Conversion != null)
+                            {
+                                this._Value = this.Conversion(this._Value);
+                            }
+
+                            return this._Value;
                         });
             }
         }

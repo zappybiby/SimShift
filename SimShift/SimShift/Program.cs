@@ -9,11 +9,14 @@ using System.Windows.Forms.VisualStyles;
 
 namespace SimShift
 {
+    using System.Runtime.ExceptionServices;
+    using System.Threading;
+
     static class Program
     {
         private static FileStream log;
 
-        private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
+        private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
             Log("ThreadException", e.Exception);
         }
@@ -23,7 +26,7 @@ namespace SimShift
             log.Close();
         }
 
-        static void CurrentDomain_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
+        static void CurrentDomain_FirstChanceException(object sender, FirstChanceExceptionEventArgs e)
         {
             Log("FirstChanceException", e.Exception);
         }
@@ -36,12 +39,12 @@ namespace SimShift
         private static void Log(string what, Exception e)
         {
             var h = "------------------ " + what + " ----------------\r\n" + e.Message + "\r\nSTACKTRACE: " + e.StackTrace + "\r\n" + e.ToString() + "\r\n";
-            var h2 = ASCIIEncoding.ASCII.GetBytes(h);
+            var h2 = Encoding.ASCII.GetBytes(h);
             log.Write(h2, 0, h2.Length);
         }
 
         /// <summary>
-        /// The main entry point for the application.
+        ///     The main entry point for the application.
         /// </summary>
         [STAThread]
         static void Main()

@@ -4,20 +4,20 @@ namespace SimShift.Entities
     {
         public ShiftPatternFrame(double clutch, double throttle, bool useOldGear, bool useNewGear)
         {
-            Clutch = clutch;
-            Throttle = throttle;
-            AbsoluteThrottle = false;
-            UseOldGear = useOldGear;
-            UseNewGear = useNewGear;
+            this.Clutch = clutch;
+            this.Throttle = throttle;
+            this.AbsoluteThrottle = false;
+            this.UseOldGear = useOldGear;
+            this.UseNewGear = useNewGear;
         }
 
         public ShiftPatternFrame(double clutch, double throttle, bool absThr, bool useOldGear, bool useNewGear)
         {
-            Clutch = clutch;
-            Throttle = throttle;
-            AbsoluteThrottle = absThr;
-            UseOldGear = useOldGear;
-            UseNewGear = useNewGear;
+            this.Clutch = clutch;
+            this.Throttle = throttle;
+            this.AbsoluteThrottle = absThr;
+            this.UseOldGear = useOldGear;
+            this.UseNewGear = useNewGear;
         }
 
         public bool AbsoluteThrottle { get; private set; }

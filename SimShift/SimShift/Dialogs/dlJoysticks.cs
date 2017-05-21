@@ -28,16 +28,16 @@ namespace SimShift.Dialogs
 
         public dlJoysticks()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
-            _mUpdateJoysticks = new Timer();
-            _mUpdateJoysticks.Interval = 25;
-            _mUpdateJoysticks.Tick += _mUpdateJoysticks_Tick;
-            _mUpdateJoysticks.Start();
+            this._mUpdateJoysticks = new Timer();
+            this._mUpdateJoysticks.Interval = 25;
+            this._mUpdateJoysticks.Tick += this._mUpdateJoysticks_Tick;
+            this._mUpdateJoysticks.Start();
 
             Main.Setup();
 
-            for (int c_ = 0; c_ < (int) (JoyControls.NUM_OF_CONTROLS); c_++)
+            for (int c_ = 0; c_ < (int) JoyControls.NUM_OF_CONTROLS; c_++)
             {
                 JoyControls c = (JoyControls) c_;
 
@@ -47,14 +47,14 @@ namespace SimShift.Dialogs
                 ucIn.Location = new Point(3, 23 + ucIn.Height * c_);
                 ucOut.Location = new Point(3, 23 + ucOut.Height * c_);
 
-                controlsIn.Add(ucIn);
-                controlsOut.Add(ucOut);
+                this.controlsIn.Add(ucIn);
+                this.controlsOut.Add(ucOut);
 
-                gbIn.Controls.Add(ucIn);
-                gbOut.Controls.Add(ucOut);
+                this.gbIn.Controls.Add(ucIn);
+                this.gbOut.Controls.Add(ucOut);
 
                 // add to combobox
-                cbControl.Items.Add(((int) c).ToString() + ", " + c.ToString());
+                this.cbControl.Items.Add(((int) c).ToString() + ", " + c.ToString());
             }
 
             var a = 0;
@@ -63,8 +63,8 @@ namespace SimShift.Dialogs
                 var uc = new ucJoystickChannel(true, a);
                 uc.Location = new Point(3, 23 + uc.Height * a);
 
-                joysticks.Add(uc);
-                gbController.Controls.Add(uc);
+                this.joysticks.Add(uc);
+                this.gbController.Controls.Add(uc);
             }
 
             for (int b = 0; b < 32; b++)
@@ -72,22 +72,24 @@ namespace SimShift.Dialogs
                 var uc = new ucJoystickChannel(false, b);
                 uc.Location = new Point(3, 23 + uc.Height * (a + b));
 
-                joysticks.Add(uc);
-                gbController.Controls.Add(uc);
+                this.joysticks.Add(uc);
+                this.gbController.Controls.Add(uc);
             }
         }
 
         private void _mUpdateJoysticks_Tick(object sender, EventArgs e)
         {
-            foreach (var c in controlsIn)
+            foreach (var c in this.controlsIn)
             {
                 c.Tick();
             }
-            foreach (var c in controlsOut)
+
+            foreach (var c in this.controlsOut)
             {
                 c.Tick();
             }
-            foreach (var c in joysticks)
+
+            foreach (var c in this.joysticks)
             {
                 c.Tick();
             }
@@ -95,16 +97,17 @@ namespace SimShift.Dialogs
 
         private void btDoCal_Click(object sender, EventArgs e)
         {
-            if (_mCalibrateButton == null)
+            if (this._mCalibrateButton == null)
             {
                 try
                 {
-                    buttonId = int.Parse(cbControl.SelectedItem.ToString().Split(",".ToCharArray()).FirstOrDefault());
+                    this.buttonId = int.Parse(this.cbControl.SelectedItem.ToString().Split(",".ToCharArray()).FirstOrDefault());
                 }
                 catch (Exception)
                 {
                     MessageBox.Show("Cannot parse button");
                 }
+
                 if (Main.Running)
                 {
                     MessageBox.Show("This will stop main service");
@@ -114,44 +117,44 @@ namespace SimShift.Dialogs
                         Main.SetButtonOut((JoyControls) i, false);
                     }
                 }
+
                 int buttonState = 0;
-                _mCalibrateButton = new Timer();
-                _mCalibrateButton.Interval = 1500;
-                _mCalibrateButton.Tick += (o, args) =>
+                this._mCalibrateButton = new Timer();
+                this._mCalibrateButton.Interval = 1500;
+                this._mCalibrateButton.Tick += (o, args) =>
                     {
                         if (buttonState == 0)
                         {
                             buttonState = 1;
-                            Main.SetAxisOut((JoyControls) buttonId, 1);
-                            Main.SetButtonOut((JoyControls) buttonId, true);
+                            Main.SetAxisOut((JoyControls) this.buttonId, 1);
+                            Main.SetButtonOut((JoyControls) this.buttonId, true);
                         }
                         else if (buttonState == 1)
                         {
                             buttonState = 2;
-                            Main.SetAxisOut((JoyControls) buttonId, 0.5);
-                            Main.SetButtonOut((JoyControls) buttonId, true);
+                            Main.SetAxisOut((JoyControls) this.buttonId, 0.5);
+                            Main.SetButtonOut((JoyControls) this.buttonId, true);
                         }
                         else
-
                         {
                             buttonState = 0;
-                            Main.SetAxisOut((JoyControls) buttonId, 0);
-                            Main.SetButtonOut((JoyControls) buttonId, false);
+                            Main.SetAxisOut((JoyControls) this.buttonId, 0);
+                            Main.SetButtonOut((JoyControls) this.buttonId, false);
                         }
                     };
-                _mCalibrateButton.Start();
+                this._mCalibrateButton.Start();
 
-                btDoCal.Text = "Stop calibration";
+                this.btDoCal.Text = "Stop calibration";
             }
             else
             {
-                _mCalibrateButton.Stop();
-                _mCalibrateButton = null;
+                this._mCalibrateButton.Stop();
+                this._mCalibrateButton = null;
 
-                Main.SetAxisOut((JoyControls) buttonId, 0);
-                Main.SetButtonOut((JoyControls) buttonId, false);
+                Main.SetAxisOut((JoyControls) this.buttonId, 0);
+                Main.SetButtonOut((JoyControls) this.buttonId, false);
 
-                btDoCal.Text = "Toggle for calibration";
+                this.btDoCal.Text = "Toggle for calibration";
             }
         }
     }

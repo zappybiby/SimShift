@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -24,23 +24,23 @@ namespace SimShift.Dialogs
 
         public ucJoystickChannel(JoyControls c, bool inout)
         {
-            InitializeComponent();
-            lblControl.Text = c.ToString();
-            pbVal.Value = 0;
-            Input = inout;
-            ctrl = c;
+            this.InitializeComponent();
+            this.lblControl.Text = c.ToString();
+            this.pbVal.Value = 0;
+            this.Input = inout;
+            this.ctrl = c;
         }
 
         public ucJoystickChannel(bool axis, int i)
         {
-            InitializeComponent();
-            isAxis = axis;
-            index = i;
-            isJoystickInput = true;
+            this.InitializeComponent();
+            this.isAxis = axis;
+            this.index = i;
+            this.isJoystickInput = true;
 
-            lblControl.Text = ((axis) ? "Axis" : "Button") + " " + i;
-            pbVal.Value = 0;
-            Input = true;
+            this.lblControl.Text = (axis ? "Axis" : "Button") + " " + i;
+            this.pbVal.Value = 0;
+            this.Input = true;
         }
 
         public bool Input { get; private set; }
@@ -49,25 +49,46 @@ namespace SimShift.Dialogs
         {
             int output = 0;
 
-            if (isJoystickInput)
+            if (this.isJoystickInput)
             {
-                if (isAxis) output = (int) (100 * Main.Controller.GetAxis(index) / 0x7FFF);
-                else if (index >= 20) output = Main.Controller.GetPov(index - 20) ? 100 : 0;
-                else output = Main.Controller.GetButton(index) ? 100 : 0;
+                if (this.isAxis)
+                {
+                    output = (int) (100 * Main.Controller.GetAxis(this.index) / 0x7FFF);
+                }
+                else if (this.index >= 20)
+                {
+                    output = Main.Controller.GetPov(this.index - 20) ? 100 : 0;
+                }
+                else
+                {
+                    output = Main.Controller.GetButton(this.index) ? 100 : 0;
+                }
             }
             else
             {
-                var axisValue = Input ? Main.GetAxisIn(ctrl) : Main.GetAxisOut(ctrl);
-                var buttonValue = Input ? Main.GetButtonIn(ctrl) : Main.GetButtonOut(ctrl);
+                var axisValue = this.Input ? Main.GetAxisIn(this.ctrl) : Main.GetAxisOut(this.ctrl);
+                var buttonValue = this.Input ? Main.GetButtonIn(this.ctrl) : Main.GetButtonOut(this.ctrl);
 
                 output = (int) Math.Max(axisValue * 100, buttonValue ? 100 : 0);
             }
-            if (double.IsNaN(output)) output = 0;
-            if (output > 99) output = 99;
-            if (output < 0) output = 0;
 
-            pbVal.Value = (int) output + 1;
-            pbVal.Value = (int) output;
+            if (double.IsNaN(output))
+            {
+                output = 0;
+            }
+
+            if (output > 99)
+            {
+                output = 99;
+            }
+
+            if (output < 0)
+            {
+                output = 0;
+            }
+
+            this.pbVal.Value = (int) output + 1;
+            this.pbVal.Value = (int) output;
         }
     }
 }

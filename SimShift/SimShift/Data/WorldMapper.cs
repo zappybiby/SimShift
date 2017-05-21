@@ -19,21 +19,25 @@ namespace SimShift.Data
         {
             if (dataSource.Application == "eurotrucks2" && !dataSource.SelectManually)
             {
-                source = dataSource as Ets2DataMiner;
-                source.DataReceived += OnDataReceived;
+                this.source = dataSource as Ets2DataMiner;
+                this.source.DataReceived += this.OnDataReceived;
 
-                cells = new List<WorldMapCell>();
+                this.cells = new List<WorldMapCell>();
 
-                Import();
+                this.Import();
             }
         }
 
         public void Export()
         {
-            if (cells == null) return;
+            if (this.cells == null)
+            {
+                return;
+            }
+
             StringBuilder export = new StringBuilder();
 
-            foreach (var c in cells)
+            foreach (var c in this.cells)
             {
                 export.AppendLine(string.Format("[Cell_{0}_{1}_]", c.X, c.Z));
                 foreach (var p in c.points)
@@ -56,9 +60,9 @@ namespace SimShift.Data
                 {
                     string[] cellData = li.Split("_".ToCharArray());
                     active = new WorldMapCell(int.Parse(cellData[1]), int.Parse(cellData[2]));
-                    lock (cells)
+                    lock (this.cells)
                     {
-                        cells.Add(active);
+                        this.cells.Add(active);
                     }
                 }
                 else
@@ -77,30 +81,40 @@ namespace SimShift.Data
             WorldMapCell c = default(WorldMapCell);
             var cellX = (int) (x / 512);
             var cellZ = (int) (z / 512);
-            lock (cells)
+            lock (this.cells)
             {
-                if (cells.Any(d => d.X == cellX && d.Z == cellZ)) return cells.FirstOrDefault(d => d.X == cellX && d.Z == cellZ);
+                if (this.cells.Any(d => d.X == cellX && d.Z == cellZ))
+                {
+                    return this.cells.FirstOrDefault(d => d.X == cellX && d.Z == cellZ);
+                }
 
                 Debug.WriteLine("Created cell " + cellX + "," + cellZ);
                 c = new WorldMapCell(cellX, cellZ);
-                cells.Add(c);
+                this.cells.Add(c);
             }
+
             return c;
         }
 
         private void OnDataReceived(object sender, EventArgs args)
         {
-            var x = source.MyTelemetry.Physics.CoordinateX;
-            var y = source.MyTelemetry.Physics.CoordinateY;
-            var z = source.MyTelemetry.Physics.CoordinateZ;
+            var x = this.source.MyTelemetry.Physics.CoordinateX;
+            var y = this.source.MyTelemetry.Physics.CoordinateY;
+            var z = this.source.MyTelemetry.Physics.CoordinateZ;
 
-            var activeCell = LookupCell(x, z);
+            var activeCell = this.LookupCell(x, z);
 
-            if (activeCell == null) return;
+            if (activeCell == null)
+            {
+                return;
+            }
 
             lock (activeCell.points)
             {
-                if (activeCell.points.Any(d => Math.Abs(d.x - x) < 1 || Math.Abs(d.z - z) < 1)) return;
+                if (activeCell.points.Any(d => Math.Abs(d.x - x) < 1 || Math.Abs(d.z - z) < 1))
+                {
+                    return;
+                }
 
                 activeCell.points.Add(new WorldMapPoint(x, y, z));
             }
@@ -113,10 +127,10 @@ namespace SimShift.Data
 
         public WorldMapCell(int cellX, int cellZ)
         {
-            points = new List<WorldMapPoint>();
+            this.points = new List<WorldMapPoint>();
 
-            X = cellX;
-            Z = cellZ;
+            this.X = cellX;
+            this.Z = cellZ;
         }
 
         public int X { get; private set; }

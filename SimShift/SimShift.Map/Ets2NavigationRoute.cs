@@ -30,43 +30,47 @@ namespace SimShift.MapTool
 
         public Ets2NavigationRoute(Ets2Item start, Ets2Item end, Ets2Point from, Ets2Point to, Ets2Mapper mapper)
         {
-            Start = start;
-            End = end;
-            From = from;
-            To = to;
-            Mapper = mapper;
+            this.Start = start;
+            this.End = end;
+            this.From = from;
+            this.To = to;
+            this.Mapper = mapper;
 
-            if (Start != End) ThreadPool.QueueUserWorkItem(new WaitCallback(FindRoute));
+            if (this.Start != this.End)
+            {
+                ThreadPool.QueueUserWorkItem(new WaitCallback(this.FindRoute));
+            }
         }
 
         private void FindRoute(object state)
         {
-            Loading = true;
+            this.Loading = true;
 
             Dictionary<ulong, Tuple<float, Ets2Item>> nodeMap = new Dictionary<ulong, Tuple<float, Ets2Item>>();
             List<Ets2Item> nodesToWalk = new List<Ets2Item>();
 
             // Fill node map
-            foreach (var node in Mapper.Items.Values.Where(x => x.Type == Ets2ItemType.Prefab && x.HideUI == false))
+            foreach (var node in this.Mapper.Items.Values.Where(x => x.Type == Ets2ItemType.Prefab && x.HideUI == false))
             {
                 nodesToWalk.Add(node);
                 nodeMap.Add(node.ItemUID, new Tuple<float, Ets2Item>(float.MaxValue, null));
             }
 
             // Walk first node (START)
-            if (nodeMap.ContainsKey(Start.ItemUID) == false)
+            if (nodeMap.ContainsKey(this.Start.ItemUID) == false)
             {
                 // Nope
                 return;
             }
-            if (nodeMap.ContainsKey(End.ItemUID) == false)
+
+            if (nodeMap.ContainsKey(this.End.ItemUID) == false)
             {
                 // Nope
                 return;
             }
 
             // <Weight, LastItem>
-            nodeMap[Start.ItemUID] = new Tuple<float, Ets2Item>(0, null);
+            nodeMap[this.Start.ItemUID] = new Tuple<float, Ets2Item>(0, null);
 
             while (nodesToWalk.Any())
             {
@@ -81,7 +85,11 @@ namespace SimShift.MapTool
                         toWalk = node;
                     }
                 }
-                if (toWalk == null) break;
+
+                if (toWalk == null)
+                {
+                    break;
+                }
 
                 nodesToWalk.Remove(toWalk);
 
@@ -93,7 +101,11 @@ namespace SimShift.MapTool
                     var newWeight = jump.Value.Item1 + currentWeight;
                     var newNode = jump.Key;
 
-                    if (nodeMap.ContainsKey(newNode.ItemUID) && nodeMap[newNode.ItemUID].Item1 > newWeight) nodeMap[newNode.ItemUID] = new Tuple<float, Ets2Item>(newWeight, toWalk);
+                    if (nodeMap.ContainsKey(newNode.ItemUID) && nodeMap[newNode.ItemUID].Item1 > newWeight)
+                    {
+                        nodeMap[newNode.ItemUID] = new Tuple<float, Ets2Item>(newWeight, toWalk);
+                    }
+
                     // add route with weight + previous node
                 }
             }
@@ -103,7 +115,7 @@ namespace SimShift.MapTool
             List<Ets2NavigationSegment> segments = new List<Ets2NavigationSegment>();
 
             var goingViaNode = (ulong) 0;
-            var route = End;
+            var route = this.End;
 
             while (route != null)
             {
@@ -114,7 +126,10 @@ namespace SimShift.MapTool
 
                 // find the next prefab in the route description
                 var gotoNew = nodeMap[route.ItemUID].Item2;
-                if (gotoNew == null) break;
+                if (gotoNew == null)
+                {
+                    break;
+                }
 
                 // get a path from the current prefab to the new one
                 var path = route.Navigation[gotoNew];
@@ -127,16 +142,18 @@ namespace SimShift.MapTool
                 // Set the new prefab as route
                 route = gotoNew;
             }
-            routeNodes.Add(Start);
+
+            routeNodes.Add(this.Start);
             segments.Reverse();
 
             // Find entry/exit of start/end segment
             var foundDst = float.MaxValue;
             var foundNode = default(Ets2Node);
+
             // Find the closest road to startpoint
             foreach (var node in segments[0].Prefab.NodesList)
             {
-                var dst = node.Value.Point.DistanceTo(From);
+                var dst = node.Value.Point.DistanceTo(this.From);
                 if (foundDst > dst)
                 {
                     foundDst = dst;
@@ -149,10 +166,11 @@ namespace SimShift.MapTool
 
             foundDst = float.MaxValue;
             foundNode = default(Ets2Node);
+
             // Find the closest road to startpoint
             foreach (var node in segments[segments.Count - 1].Prefab.NodesList)
             {
-                var dst = node.Value.Point.DistanceTo(To);
+                var dst = node.Value.Point.DistanceTo(this.To);
                 if (foundDst > dst)
                 {
                     foundDst = dst;
@@ -173,8 +191,15 @@ namespace SimShift.MapTool
                     var nextRoad = seg + 1 < segments.Count ? segments[seg + 1] : null;
 
                     // Link segments together
-                    if (prevRoad != null) segments[seg].Entry = prevRoad.Entry;
-                    if (nextRoad != null) segments[seg].Exit = nextRoad.Exit;
+                    if (prevRoad != null)
+                    {
+                        segments[seg].Entry = prevRoad.Entry;
+                    }
+
+                    if (nextRoad != null)
+                    {
+                        segments[seg].Exit = nextRoad.Exit;
+                    }
 
                     segments[seg].GenerateOptions(prevRoad, nextRoad);
                 }
@@ -189,7 +214,7 @@ namespace SimShift.MapTool
                 }
             }
 
-            //for (int seg = 1; seg < segments.Count - 1; seg++)
+            // for (int seg = 1; seg < segments.Count - 1; seg++)
             for (int seg = 0; seg < segments.Count; seg++)
             {
                 // Validate routes
@@ -254,7 +279,10 @@ namespace SimShift.MapTool
                     var nextPrefab = segments[seg + 1];
                     var prevPrefab = segments[seg - 1];
 
-                    if (nextPrefab.Type != Ets2NavigationSegmentType.Prefab || prevPrefab.Type != Ets2NavigationSegmentType.Prefab) continue;
+                    if (nextPrefab.Type != Ets2NavigationSegmentType.Prefab || prevPrefab.Type != Ets2NavigationSegmentType.Prefab)
+                    {
+                        continue;
+                    }
 
                     // Deduct road options by matching entry/exits
                     for (int solI = 0; solI < segments[seg].Options.Count; solI++)
@@ -273,14 +301,13 @@ namespace SimShift.MapTool
             }
 
             // There is probably only 1 valid solution for entry/exit
-            //if (segments[0].Options.Any()) segments[0].Options[0].Valid = true;
-            //if (segments[segments.Count - 1].Options.Any()) segments[segments.Count - 1].Options[0].Valid = true;
-
-            Segments = segments;
-            var pts = Segments.SelectMany(x => x.Solutions).SelectMany(x => x.Points).ToList();
-            Roads = routeRoads;
-            Prefabs = routeNodes.Select(x => new Tuple<Ets2Item, int, int>(x, 0, 0)).ToList();
-            Loading = false;
+            // if (segments[0].Options.Any()) segments[0].Options[0].Valid = true;
+            // if (segments[segments.Count - 1].Options.Any()) segments[segments.Count - 1].Options[0].Valid = true;
+            this.Segments = segments;
+            var pts = this.Segments.SelectMany(x => x.Solutions).SelectMany(x => x.Points).ToList();
+            this.Roads = routeRoads;
+            this.Prefabs = routeNodes.Select(x => new Tuple<Ets2Item, int, int>(x, 0, 0)).ToList();
+            this.Loading = false;
         }
     }
 }

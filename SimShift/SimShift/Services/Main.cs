@@ -70,17 +70,11 @@ namespace SimShift.Services
 
         private static bool ps4CtlActive = false;
 
-        private static bool xboxCtlActive = true;
-
         private static bool requiresSetup = true;
 
-        public static JoystickInput Controller
-        {
-            get
-            {
-                return xboxCtlActive || ps4CtlActive || dskCtlActive ? RawJoysticksIn[0] : RawJoysticksIn[2];
-            }
-        }
+        private static bool xboxCtlActive = true;
+
+        public static JoystickInput Controller => xboxCtlActive || ps4CtlActive || dskCtlActive ? RawJoysticksIn[0] : RawJoysticksIn[2];
 
         public static Ets2Mapper LoadedMap { get; set; }
 
@@ -91,11 +85,15 @@ namespace SimShift.Services
             switch (c)
             {
                 case JoyControls.VstLever:
-                    if (VST) return 1 - RawJoysticksIn[0].GetAxis(2) / Math.Pow(2, 16);
+                    if (VST)
+                    {
+                        return 1 - RawJoysticksIn[0].GetAxis(2) / Math.Pow(2, 16);
+                    }
                     else
                     {
                         return 1;
                     }
+
                     break;
 
                 case JoyControls.Steering:
@@ -107,7 +105,11 @@ namespace SimShift.Services
                         var wasn = s < 0;
                         s = s * s;
                         s /= 2;
-                        if (wasn) s *= -1;
+                        if (wasn)
+                        {
+                            s *= -1;
+                        }
+
                         s += 0.5;
                         return s;
                     }
@@ -115,14 +117,37 @@ namespace SimShift.Services
                     {
                         var steer1 = Controller.GetAxis(3) / Math.Pow(2, 15) - 1;
                         var steer2 = Controller.GetAxis(0) / Math.Pow(2, 15) - 1;
-                        if (steer1 < 0) steer1 = steer1 * steer1 * -1;
-                        else steer1 *= steer1;
-                        if (steer2 < 0) steer2 = steer2 * steer2 * -1;
-                        else steer2 *= steer2;
-                        if (Math.Abs(steer1) > Math.Abs(steer2)) return (steer1 + 1) / 2;
-                        else return (steer2 + 1) / 2;
+                        if (steer1 < 0)
+                        {
+                            steer1 = steer1 * steer1 * -1;
+                        }
+                        else
+                        {
+                            steer1 *= steer1;
+                        }
+
+                        if (steer2 < 0)
+                        {
+                            steer2 = steer2 * steer2 * -1;
+                        }
+                        else
+                        {
+                            steer2 *= steer2;
+                        }
+
+                        if (Math.Abs(steer1) > Math.Abs(steer2))
+                        {
+                            return (steer1 + 1) / 2;
+                        }
+                        else
+                        {
+                            return (steer2 + 1) / 2;
+                        }
                     }
-                    else return RawJoysticksIn[1].GetAxis(0) / Math.Pow(2, 16);
+                    else
+                    {
+                        return RawJoysticksIn[1].GetAxis(0) / Math.Pow(2, 16);
+                    }
 
                 case JoyControls.Throttle:
 
@@ -150,7 +175,10 @@ namespace SimShift.Services
                         t = 1 - RawJoysticksIn[1].GetAxis(2) / Math.Pow(2, 16);
                     }
 
-                    if (t < 0) t = 0;
+                    if (t < 0)
+                    {
+                        t = 0;
+                    }
 
                     t = t * 0.05 + lastThrottle * 0.95;
                     lastThrottle = (float) t;
@@ -169,9 +197,16 @@ namespace SimShift.Services
                         if (VST)
                         {
                             var b = 1 - RawJoysticksIn[1].GetAxis(3) / Math.Pow(2, 16);
-                            if (b < 0) b = 0;
+                            if (b < 0)
+                            {
+                                b = 0;
+                            }
 
-                            if (Main.Data.Active == null || Main.Data.Active.Application == "TestDrive2") return b;
+                            if (Data.Active == null || Data.Active.Application == "TestDrive2")
+                            {
+                                return b;
+                            }
+
                             return b * b;
                         }
                         else
@@ -182,15 +217,32 @@ namespace SimShift.Services
                     else
                     {
                         var b = 1 - RawJoysticksIn[1].GetAxis(3) / Math.Pow(2, 16);
-                        if (b < 0) b = 0;
+                        if (b < 0)
+                        {
+                            b = 0;
+                        }
 
-                        if (Main.Data.Active == null || Main.Data.Active.Application == "TestDrive2") return b;
+                        if (Data.Active == null || Data.Active.Application == "TestDrive2")
+                        {
+                            return b;
+                        }
+
                         return b * b;
                     }
+
                 case JoyControls.Clutch:
-                    if (ps4CtlActive || xboxCtlActive) return 0;
-                    else if (dskCtlActive) return 0;
-                    else return 1 - RawJoysticksIn[1].GetAxis(4) / Math.Pow(2, 16);
+                    if (ps4CtlActive || xboxCtlActive)
+                    {
+                        return 0;
+                    }
+                    else if (dskCtlActive)
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        return 1 - RawJoysticksIn[1].GetAxis(4) / Math.Pow(2, 16);
+                    }
 
                 case JoyControls.CameraHorizon: return 0; // was only on ps3 controller
 
@@ -200,7 +252,11 @@ namespace SimShift.Services
 
         public static double GetAxisOut(JoyControls ctrl)
         {
-            if (AxisFeedback.ContainsKey(ctrl)) return AxisFeedback[ctrl];
+            if (AxisFeedback.ContainsKey(ctrl))
+            {
+                return AxisFeedback[ctrl];
+            }
+
             return 0;
         }
 
@@ -223,53 +279,102 @@ namespace SimShift.Services
                 case JoyControls.GearRange2: return !xboxCtlActive && !ps4CtlActive && !dskCtlActive && RawJoysticksIn[1].GetButton(17);
 
                 /*** NOT FUNCTIONAL ***/
-                //case JoyControls.LaneAssistance:
-                //    if (ps4CtlActive) return false;
-                //    else if (dskCtlActive) return RawJoysticksIn[0].GetButton(7);
-                //    else return RawJoysticksIn[1].GetButton(7);
-
+                // case JoyControls.LaneAssistance:
+                // if (ps4CtlActive) return false;
+                // else if (dskCtlActive) return RawJoysticksIn[0].GetButton(7);
+                // else return RawJoysticksIn[1].GetButton(7);
                 case JoyControls.VstChange: return !xboxCtlActive && !ps4CtlActive && !dskCtlActive && RawJoysticksIn[1].GetButton(10);
                 case JoyControls.MeasurePower: return !xboxCtlActive && !ps4CtlActive && !dskCtlActive && RawJoysticksIn[1].GetButton(11);
 
                 // PS3 (via DS3 tool) L1/R1
                 case JoyControls.GearDown:
-                    if (ps4CtlActive || xboxCtlActive) return RawJoysticksIn[2].GetButton(4);
-                    else if (dskCtlActive) return RawJoysticksIn[0].GetButton(8);
-                    else if (Transmission.Enabled) return RawJoysticksIn[1].GetButton(8);
-                    else return false;
+                    if (ps4CtlActive || xboxCtlActive)
+                    {
+                        return RawJoysticksIn[2].GetButton(4);
+                    }
+                    else if (dskCtlActive)
+                    {
+                        return RawJoysticksIn[0].GetButton(8);
+                    }
+                    else if (Transmission.Enabled)
+                    {
+                        return RawJoysticksIn[1].GetButton(8);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
                 case JoyControls.GearUp:
-                    if (ps4CtlActive || xboxCtlActive) return RawJoysticksIn[2].GetButton(5);
-                    else if (dskCtlActive) return RawJoysticksIn[0].GetButton(4);
-                    else if (Transmission.Enabled) return RawJoysticksIn[1].GetButton(9);
-                    else return false;
+                    if (ps4CtlActive || xboxCtlActive)
+                    {
+                        return RawJoysticksIn[2].GetButton(5);
+                    }
+                    else if (dskCtlActive)
+                    {
+                        return RawJoysticksIn[0].GetButton(4);
+                    }
+                    else if (Transmission.Enabled)
+                    {
+                        return RawJoysticksIn[1].GetButton(9);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
                 case JoyControls.CruiseControlMaintain:
-                    if (ps4CtlActive || xboxCtlActive) return RawJoysticksIn[2].GetButton(3);
-                    else if (dskCtlActive) return RawJoysticksIn[0].GetButton(9);
-                    else return RawJoysticksIn[1].GetButton(15);
+                    if (ps4CtlActive || xboxCtlActive)
+                    {
+                        return RawJoysticksIn[2].GetButton(3);
+                    }
+                    else if (dskCtlActive)
+                    {
+                        return RawJoysticksIn[0].GetButton(9);
+                    }
+                    else
+                    {
+                        return RawJoysticksIn[1].GetButton(15);
+                    }
 
                 case JoyControls.CruiseControlUp: return !xboxCtlActive && !ps4CtlActive && !dskCtlActive && RawJoysticksIn[1].GetPov(2);
                 case JoyControls.CruiseControlDown: return !xboxCtlActive && !ps4CtlActive && !dskCtlActive && RawJoysticksIn[1].GetPov(0);
                 case JoyControls.CruiseControlOnOff: return !xboxCtlActive && !ps4CtlActive && !dskCtlActive && RawJoysticksIn[1].GetPov(1);
 
                 case JoyControls.LaunchControl:
-                    if (ps4CtlActive || xboxCtlActive) return false;
-                    else if (dskCtlActive) return RawJoysticksIn[0].GetButton(6);
-                    else return RawJoysticksIn[1].GetButton(18);
+                    if (ps4CtlActive || xboxCtlActive)
+                    {
+                        return false;
+                    }
+                    else if (dskCtlActive)
+                    {
+                        return RawJoysticksIn[0].GetButton(6);
+                    }
+                    else
+                    {
+                        return RawJoysticksIn[1].GetButton(18);
+                    }
 
                 default: return false;
             }
+
             // Map user config -> controller
         }
 
         public static bool GetButtonOut(JoyControls ctrl)
         {
-            if (ButtonFeedback.ContainsKey(ctrl)) return ButtonFeedback[ctrl];
+            if (ButtonFeedback.ContainsKey(ctrl))
+            {
+                return ButtonFeedback[ctrl];
+            }
+
             return false;
         }
 
         public static bool Load(IConfigurable target, string iniFile)
         {
             Debug.WriteLine("Loading configuration file " + iniFile);
+
             // Reset to default
             target.ResetParameters();
             try
@@ -287,20 +392,31 @@ namespace SimShift.Services
                             });
                     ini.Parse();
                 }
+
                 return true;
             }
             catch
             {
                 Debug.WriteLine("Failed to load configuration from " + iniFile);
             }
+
             return false;
+
             // DONE :)
         }
 
         public static void LoadNextProfile(float staticMass)
         {
-            if (profileIndexLoaded >= CarProfile.Loaded.Count) profileIndexLoaded = 0;
-            if (CarProfile.Loaded.Count == 0) return;
+            if (profileIndexLoaded >= CarProfile.Loaded.Count)
+            {
+                profileIndexLoaded = 0;
+            }
+
+            if (CarProfile.Loaded.Count == 0)
+            {
+                return;
+            }
+
             CarProfile.Load(CarProfile.Loaded.Skip(profileIndexLoaded).FirstOrDefault().Name, staticMass);
             profileIndexLoaded++;
             if (profileIndexLoaded >= CarProfile.Loaded.Count)
@@ -311,10 +427,21 @@ namespace SimShift.Services
 
         public static void ReloadProfile(float staticMass)
         {
-            if (CarProfile == null) return;
-            if (CarProfile.Loaded.Count == 0) return;
+            if (CarProfile == null)
+            {
+                return;
+            }
+
+            if (CarProfile.Loaded.Count == 0)
+            {
+                return;
+            }
+
             var pr = profileIndexLoaded - 1;
-            if (pr < 0) pr = CarProfile.Loaded.Count - 1;
+            if (pr < 0)
+            {
+                pr = CarProfile.Loaded.Count - 1;
+            }
 
             CarProfile.Load(CarProfile.Loaded.Skip(pr).FirstOrDefault().Name, staticMass);
         }
@@ -344,8 +471,14 @@ namespace SimShift.Services
 
             try
             {
-                if (AxisFeedback.ContainsKey(c)) AxisFeedback[c] = value;
-                else AxisFeedback.Add(c, value);
+                if (AxisFeedback.ContainsKey(c))
+                {
+                    AxisFeedback[c] = value;
+                }
+                else
+                {
+                    AxisFeedback.Add(c, value);
+                }
             }
             catch
             { }
@@ -407,8 +540,14 @@ namespace SimShift.Services
             }
             try
             {
-                if (ButtonFeedback.ContainsKey(c)) ButtonFeedback[c] = value;
-                else ButtonFeedback.Add(c, value);
+                if (ButtonFeedback.ContainsKey(c))
+                {
+                    ButtonFeedback[c] = value;
+                }
+                else
+                {
+                    ButtonFeedback.Add(c, value);
+                }
             }
             catch
             { }
@@ -442,9 +581,19 @@ namespace SimShift.Services
                 var vJoy = new JoystickOutput();
 
                 // add main controller:
-                if (dskCtlActive) RawJoysticksIn.Add(deskCtrl);
-                else if (ps4CtlActive) RawJoysticksIn.Add(ps4Ctrl);
-                else RawJoysticksIn.Add(default(JoystickInput));
+                if (dskCtlActive)
+                {
+                    RawJoysticksIn.Add(deskCtrl);
+                }
+                else if (ps4CtlActive)
+                {
+                    RawJoysticksIn.Add(ps4Ctrl);
+                }
+                else
+                {
+                    RawJoysticksIn.Add(default(JoystickInput));
+                }
+
                 RawJoysticksIn.Add(g25Wheel);
                 RawJoysticksIn.Add(xboxCtrl);
                 RawJoysticksOut.Add(vJoy);
@@ -454,8 +603,14 @@ namespace SimShift.Services
 
                 Data.CarChanged += (s, e) =>
                     {
-                        if (Data.Active.Application == "eurotrucks2") Drivetrain = new Ets2Drivetrain();
-                        else Drivetrain = new GenericDrivetrain();
+                        if (Data.Active.Application == "eurotrucks2")
+                        {
+                            Drivetrain = new Ets2Drivetrain();
+                        }
+                        else
+                        {
+                            Drivetrain = new GenericDrivetrain();
+                        }
 
                         // reset all modules
                         Antistall.ResetParameters();
@@ -500,14 +655,18 @@ namespace SimShift.Services
                 Data.Run();
                 return true;
             }
+
             return false;
         }
 
         public static void Start()
         {
             var isNowRunning = Running;
-            if (requiresSetup) isNowRunning = Setup();
-            //
+            if (requiresSetup)
+            {
+                isNowRunning = Setup();
+            }
+
             if (!Running)
             {
                 Data.DataReceived += Tick;
@@ -527,6 +686,7 @@ namespace SimShift.Services
         public static void Store(IEnumerable<IniValueObject> settings, string f)
         {
             StringBuilder export = new StringBuilder();
+
             // Groups
             var groups = settings.Select(x => x.Group).Distinct();
 
@@ -541,6 +701,7 @@ namespace SimShift.Services
 
                 export.AppendLine(" ");
             }
+
             try
             {
                 File.WriteAllText(f, export.ToString());

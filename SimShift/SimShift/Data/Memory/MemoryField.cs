@@ -14,65 +14,65 @@ namespace SimTelemetry.Domain.Memory
 
         public MemoryField(string name, MemoryAddress type, int address, int size)
         {
-            Name = name;
-            ValueType = typeof(T);
-            Address = address;
-            Size = size;
-            Offset = 0;
-            AddressType = type;
+            this.Name = name;
+            this.ValueType = typeof(T);
+            this.Address = address;
+            this.Size = size;
+            this.Offset = 0;
+            this.AddressType = type;
         }
 
         public MemoryField(string name, MemoryAddress type, int address, int offset, int size)
         {
-            Name = name;
-            ValueType = typeof(T);
-            Address = address;
-            Size = size;
-            Offset = offset;
-            AddressType = type;
+            this.Name = name;
+            this.ValueType = typeof(T);
+            this.Address = address;
+            this.Size = size;
+            this.Offset = offset;
+            this.AddressType = type;
         }
 
         public MemoryField(string name, MemoryAddress type, MemoryPool pool, int offset, int size)
         {
-            Name = name;
-            ValueType = typeof(T);
-            Size = size;
-            Offset = offset;
-            Pool = pool;
-            AddressType = type;
+            this.Name = name;
+            this.ValueType = typeof(T);
+            this.Size = size;
+            this.Offset = offset;
+            this.Pool = pool;
+            this.AddressType = type;
         }
 
         public MemoryField(string name, MemoryAddress type, int address, int size, Func<T, T> conversion)
         {
-            Name = name;
-            ValueType = typeof(T);
-            Address = address;
-            Size = size;
-            Offset = 0;
-            Conversion = conversion;
-            AddressType = type;
+            this.Name = name;
+            this.ValueType = typeof(T);
+            this.Address = address;
+            this.Size = size;
+            this.Offset = 0;
+            this.Conversion = conversion;
+            this.AddressType = type;
         }
 
         public MemoryField(string name, MemoryAddress type, int address, int offset, int size, Func<T, T> conversion)
         {
-            Name = name;
-            ValueType = typeof(T);
-            Address = address;
-            Size = size;
-            Offset = offset;
-            Conversion = conversion;
-            AddressType = type;
+            this.Name = name;
+            this.ValueType = typeof(T);
+            this.Address = address;
+            this.Size = size;
+            this.Offset = offset;
+            this.Conversion = conversion;
+            this.AddressType = type;
         }
 
         public MemoryField(string name, MemoryAddress type, MemoryPool pool, int offset, int size, Func<T, T> conversion)
         {
-            Name = name;
-            ValueType = typeof(T);
-            Size = size;
-            Offset = offset;
-            Pool = pool;
-            Conversion = conversion;
-            AddressType = type;
+            this.Name = name;
+            this.ValueType = typeof(T);
+            this.Size = size;
+            this.Offset = offset;
+            this.Pool = pool;
+            this.Conversion = conversion;
+            this.AddressType = type;
         }
 
         public int Address { get; protected set; }
@@ -81,29 +81,11 @@ namespace SimTelemetry.Domain.Memory
 
         public Func<T, T> Conversion { get; protected set; }
 
-        public bool IsConstant
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool IsConstant => false;
 
-        public bool IsDynamic
-        {
-            get
-            {
-                return (AddressType == MemoryAddress.Dynamic);
-            }
-        }
+        public bool IsDynamic => this.AddressType == MemoryAddress.Dynamic;
 
-        public bool IsStatic
-        {
-            get
-            {
-                return (AddressType == MemoryAddress.Static || AddressType == MemoryAddress.StaticAbsolute);
-            }
-        }
+        public bool IsStatic => this.AddressType == MemoryAddress.Static || this.AddressType == MemoryAddress.StaticAbsolute;
 
         public MemoryProvider Memory { get; protected set; }
 
@@ -115,85 +97,110 @@ namespace SimTelemetry.Domain.Memory
 
         public int Size { get; protected set; }
 
-        public virtual T Value
-        {
-            get
-            {
-                return _Value;
-            }
-        }
+        public virtual T Value => this._Value;
 
         public Type ValueType { get; protected set; }
 
         public object Clone()
         {
-            var newObj = new MemoryField<T>(Name, AddressType, Address, Offset, Size, Conversion);
+            var newObj = new MemoryField<T>(this.Name, this.AddressType, this.Address, this.Offset, this.Size, this.Conversion);
             return newObj;
         }
 
         public virtual bool HasChanged()
         {
-            if (readCounter < 2) return true;
-            if (_OldValue == null) return true;
-            if (_Value == null) return true;
-            return !_Value.Equals(_OldValue);
+            if (this.readCounter < 2)
+            {
+                return true;
+            }
+
+            if (this._OldValue == null)
+            {
+                return true;
+            }
+
+            if (this._Value == null)
+            {
+                return true;
+            }
+
+            return !this._Value.Equals(this._OldValue);
         }
 
         public void MarkDirty()
         {
-            readCounter = 0;
+            this.readCounter = 0;
         }
 
         public virtual object Read()
         {
-            return Value;
+            return this.Value;
         }
 
         public virtual TOut ReadAs<TOut>()
         {
-            return MemoryDataConverter.Cast<T, TOut>(Value);
+            return MemoryDataConverter.Cast<T, TOut>(this.Value);
         }
 
         public virtual void Refresh()
         {
-            readCounter++;
-            _OldValue = _Value;
+            this.readCounter++;
+            this._OldValue = this._Value;
 
-            if (IsStatic) RefreshStatic();
-            else RefreshDynamic();
+            if (this.IsStatic)
+            {
+                this.RefreshStatic();
+            }
+            else
+            {
+                this.RefreshDynamic();
+            }
 
-            if (Value != null && Conversion != null) _Value = Conversion(_Value);
+            if (this.Value != null && this.Conversion != null)
+            {
+                this._Value = this.Conversion(this._Value);
+            }
         }
 
         public void SetPool(MemoryPool pool)
         {
-            Pool = pool;
+            this.Pool = pool;
         }
 
         public void SetProvider(MemoryProvider provider)
         {
-            Memory = provider;
+            this.Memory = provider;
         }
 
         protected virtual void RefreshDynamic()
         {
-            if (Pool == null || Pool.Value == null) return;
-            _Value = MemoryDataConverter.Read<T>(Pool.Value, Offset);
+            if (this.Pool == null || this.Pool.Value == null)
+            {
+                return;
+            }
+
+            this._Value = MemoryDataConverter.Read<T>(this.Pool.Value, this.Offset);
         }
 
         protected virtual void RefreshStatic()
         {
-            if (Memory == null) return;
-
-            var computedAddress = 0;
-            if (Address != 0 && Offset != 0) computedAddress = Memory.Reader.ReadInt32(Memory.BaseAddress + Address) + Offset;
-            else
+            if (this.Memory == null)
             {
-                computedAddress = AddressType == MemoryAddress.Static ? Memory.BaseAddress + Address : Address;
+                return;
             }
 
-            var data = Memory.Reader.ReadBytes(computedAddress, (uint) Size);
-            _Value = MemoryDataConverter.Read<T>(data, 0);
+            var computedAddress = 0;
+            if (this.Address != 0 && this.Offset != 0)
+            {
+                computedAddress = this.Memory.Reader.ReadInt32(this.Memory.BaseAddress + this.Address) + this.Offset;
+            }
+            else
+            {
+                computedAddress = this.AddressType == MemoryAddress.Static ? this.Memory.BaseAddress + this.Address : this.Address;
+            }
+
+            var data = this.Memory.Reader.ReadBytes(computedAddress, (uint) this.Size);
+            this._Value = MemoryDataConverter.Read<T>(data, 0);
         }
     }
 }
