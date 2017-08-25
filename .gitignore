@@ -108,3 +108,5 @@ Backup*/
 UpgradeLog*.XML
 
 SimShift/SimShift/Resources/
+
+SimShift/\.vs/SimShift/v15/sqlite3/
