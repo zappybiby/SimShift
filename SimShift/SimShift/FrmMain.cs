@@ -35,9 +35,9 @@ namespace SimShift
             var universalFolder = @"..\..\..\..\..\base\map\" + map + "\\";
             var prefabs = @"..\..\..\..\..\base\prefab\";
             var lutFolder = @"..\..\\Resources\LUT1.19";
-            
-            Ets2Map = new Ets2Mapper(universalFolder, prefabs, lutFolder);
 
+            Ets2Map = new Ets2Mapper(universalFolder, prefabs, lutFolder);
+            
             Ets2Map.Parse();
             Main.SetMap(Ets2Map);
 

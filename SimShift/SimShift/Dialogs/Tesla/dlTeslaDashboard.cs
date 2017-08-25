@@ -22,10 +22,10 @@ namespace SimShift.Dialogs.Tesla
 
         private Image gps;
 
+        public const string ResourceFolder = @"..\..\\Resources\TeslaDash";
+
+        private float Speed = 1.0f;
         private float Power = 1.0f;
-
-        private List<float> powerHistory = new List<float>();
-
         private float RPM = 0.0f;
 
         private float Speed = 1.0f;

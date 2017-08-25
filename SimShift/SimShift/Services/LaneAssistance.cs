@@ -61,7 +61,9 @@ namespace SimShift.Services
 
         public static double yawRoad { get; private set; }
 
-        public bool Active { get; private set; }
+        private SoundPlayer beep = new SoundPlayer(@"..\..\\Resources\Alert.wav");
+
+        public DateTime ButtonCooldownPeriod = DateTime.Now;
 
         public bool ButtonActive
         {
